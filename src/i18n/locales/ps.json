@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "required": "دا برخه اړینه ده",
+    "invalidPhone": "د تلیفون شمېره ناسمه ده",
+    "somethingWentWrong": "یوه ستونزه رامنځته شوه",
+    "networkError": "د شبکې د اتصال ستونزه",
+    "serverError": "د سرور ستونزه"
+  }
+}

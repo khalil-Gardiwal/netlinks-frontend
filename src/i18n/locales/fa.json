@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "required": "این بخش الزامی است",
+    "invalidPhone": "شماره تلفن نادرست است",
+    "somethingWentWrong": "مشکلی پیش آمد",
+    "networkError": "خطا در اتصال به شبکه",
+    "serverError": "خطا در سرور"
+  }
+}
