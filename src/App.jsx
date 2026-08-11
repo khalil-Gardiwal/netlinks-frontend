@@ -1,20 +1,41 @@
-import { useTranslation } from "react-i18next";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import Welcome from "./pages/auth/Welcome";
+import SignUp from "./pages/auth/SignUp";
+import Verification from "./pages/auth/Verification";
+import SetPassword from "./pages/auth/SetPassword";
+import AccountCreated from "./pages/auth/AccountCreated";
+import SignIn from "./pages/auth/SignIn";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetVerification from "./pages/auth/ResetVerification";
+import ResetPassword from "./pages/auth/ResetPassword";
+import PasswordUpdated from "./pages/auth/PasswordUpdated";
 
 function App() {
-  const { t } = useTranslation();
-
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-blue-600">
-          Netlinks Frontend
-        </h1>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/auth/welcome" element={<Welcome />} />
+        <Route path="/auth/signup" element={<SignUp />} />
+        <Route path="/auth/verification" element={<Verification />} />
+        <Route path="/auth/set-password" element={<SetPassword />} />
+        <Route path="/auth/account-created" element={<AccountCreated />} />
 
-        <p className="mt-4 text-red-600">
-          {t("errors.required")}
-        </p>
-      </div>
-    </div>
+        <Route path="/auth/sign-in" element={<SignIn />} />
+        <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+        <Route
+          path="/auth/reset-verification"
+          element={<ResetVerification />}
+        />
+        <Route path="/auth/reset-password" element={<ResetPassword />} />
+        <Route path="/auth/password-updated" element={<PasswordUpdated />} />
+
+        <Route
+          path="*"
+          element={<Navigate to="/auth/welcome" replace />}
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
