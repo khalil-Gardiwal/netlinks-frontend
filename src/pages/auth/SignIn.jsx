@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;
 
@@ -125,11 +126,11 @@ const handleSubmit = (e) => {
           {/* Header */}
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">
-              Sign In
+              {t("signIn.title")}
             </h1>
 
             <p className="mx-auto mt-3 max-w-xs text-sm leading-6 text-[#64748B]">
-              Enter your phone number to continue.
+              {t("signIn.description")}
             </p>
           </div>
 
@@ -141,7 +142,7 @@ const handleSubmit = (e) => {
                 htmlFor="phone"
                 className="mb-2 block text-sm font-semibold text-[#0F172A]"
               >
-                Phone Number
+                {t("signIn.phoneNumber")}
               </label>
 
               <div
@@ -184,19 +185,21 @@ const handleSubmit = (e) => {
               type="submit"
               className="w-full rounded-xl bg-[#0EA5E9] px-4 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#0284C7] hover:shadow-lg hover:shadow-[#0EA5E9]/20 active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD]"
             >
-              Login
+              {t("signIn.login")}
             </button>
           </form>
 
           {/* Sign Up */}
           <div className="mt-8 border-t border-[#CBD5E1] pt-6 text-center text-sm text-[#64748B]">
-            <span>Don't have an account? </span>
+            <span>
+              {t("signIn.noAccount")}
+            </span>
 
             <Link
               to="/auth/signup"
               className="font-semibold text-[#0EA5E9] transition-colors hover:text-[#0284C7]"
             >
-              Sign Up
+              {t("signIn.signUp")}
             </Link>
           </div>
         </div>

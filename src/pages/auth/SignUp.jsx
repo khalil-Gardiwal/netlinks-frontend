@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
 
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;
@@ -141,11 +142,11 @@ function SignUp() {
           {/* Header */}
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">
-              Create an Account
+              {t("signUp.title")}
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-[#64748B]">
-              Create your account and start enjoying safe and reliable rides.
+              {t("signUp.description")}
             </p>
           </div>
 
@@ -159,7 +160,7 @@ function SignUp() {
                   htmlFor="name"
                   className="mb-2 block text-sm font-semibold text-[#0F172A]"
                 >
-                  Full Name
+                  {t("signUp.fullName")}
                 </label>
 
                 <input
@@ -170,12 +171,11 @@ function SignUp() {
                   onBlur={() =>
                     setNameError(validateName(name))
                   }
-                  placeholder="Enter your full name"
-                  className={`w-full rounded-xl border bg-white px-4 py-3.5 text-sm text-[#0F172A] outline-none transition placeholder:text-[#94A3B8] ${
-                    nameError
-                      ? "border-[#DC2626]"
-                      : "border-[#CBD5E1] focus:border-[#0EA5E9] focus:ring-4 focus:ring-[#E0F2FE]"
-                  }`}
+                  placeholder={t("signUp.fullNamePlaceholder")}
+                  className={`w-full rounded-xl border bg-white px-4 py-3.5 text-sm text-[#0F172A] outline-none transition placeholder:text-[#94A3B8] ${nameError
+                    ? "border-[#DC2626]"
+                    : "border-[#CBD5E1] focus:border-[#0EA5E9] focus:ring-4 focus:ring-[#E0F2FE]"
+                    }`}
                 />
 
                 {nameError && (
@@ -191,15 +191,14 @@ function SignUp() {
                   htmlFor="phone"
                   className="mb-2 block text-sm font-semibold text-[#0F172A]"
                 >
-                  Phone Number
+                  {t("signUp.phoneNumber")}
                 </label>
 
                 <div
-                  className={`flex overflow-hidden rounded-xl border bg-white transition ${
-                    phoneError
-                      ? "border-[#DC2626]"
-                      : "border-[#CBD5E1] focus-within:border-[#0EA5E9] focus-within:ring-4 focus-within:ring-[#E0F2FE]"
-                  }`}
+                  className={`flex overflow-hidden rounded-xl border bg-white transition ${phoneError
+                    ? "border-[#DC2626]"
+                    : "border-[#CBD5E1] focus-within:border-[#0EA5E9] focus-within:ring-4 focus-within:ring-[#E0F2FE]"
+                    }`}
                 >
                   <select
                     value={countryCode}
@@ -228,7 +227,7 @@ function SignUp() {
                     onBlur={() =>
                       setPhoneError(validatePhone(phone))
                     }
-                    placeholder="70 123 4567"
+                    placeholder={t("signUp.phonePlaceholder")}
                     className="min-w-0 flex-1 px-4 py-3.5 text-sm text-[#0F172A] outline-none placeholder:text-[#94A3B8]"
                   />
                 </div>
@@ -242,11 +241,10 @@ function SignUp() {
 
               {/* Policy */}
               <div
-                className={`rounded-xl p-4 ${
-                  policyError
-                    ? "bg-[#FEF2F2]"
-                    : "bg-[#F0F9FF]"
-                }`}
+                className={`rounded-xl p-4 ${policyError
+                  ? "bg-[#FEF2F2]"
+                  : "bg-[#F0F9FF]"
+                  }`}
               >
                 <label className="flex cursor-pointer items-start gap-3">
                   <input
@@ -257,19 +255,22 @@ function SignUp() {
                   />
 
                   <span className="text-sm leading-6 text-[#64748B]">
-                    I agree to the{" "}
+                    {t("signUp.agree")}{" "}
                     <button
                       type="button"
                       className="font-semibold text-[#0EA5E9] hover:text-[#0284C7]"
                     >
-                      Terms & Conditions
+                      {t("signUp.terms")}
+
                     </button>{" "}
-                    and{" "}
+                    {t("signUp.and")}{" "}
+
                     <button
                       type="button"
                       className="font-semibold text-[#0EA5E9] hover:text-[#0284C7]"
                     >
-                      Privacy Policy
+                      {t("signUp.privacy")}
+
                     </button>
                     .
                   </span>
@@ -287,14 +288,14 @@ function SignUp() {
                 type="submit"
                 className="w-full rounded-xl bg-[#0EA5E9] px-6 py-4 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD]"
               >
-                Create Account
+                {t("signUp.createAccount")}
               </button>
             </form>
 
             {/* Login */}
             <div className="mt-7 border-t border-[#CBD5E1] pt-6 text-center">
               <p className="text-sm text-[#64748B]">
-                Already have an account?
+                {t("signUp.alreadyAccount")}
               </p>
 
               <button
@@ -302,7 +303,7 @@ function SignUp() {
                 onClick={() => navigate("/auth/sign-in")}
                 className="mt-2 font-semibold text-[#0EA5E9] transition hover:text-[#0284C7]"
               >
-                Login
+              {t("signUp.login")}
               </button>
             </div>
           </div>
