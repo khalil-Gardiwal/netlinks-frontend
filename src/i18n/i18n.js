@@ -3,9 +3,15 @@ import { initReactI18next } from "react-i18next";
 
 import fa from "./locales/fa.json";
 import ps from "./locales/ps.json";
+import en from "./locales/en.json";
 
 i18n.use(initReactI18next).init({
   resources: {
+
+    en:{
+    translation:en,
+
+    },
     fa: {
       translation: fa,
     },
@@ -14,8 +20,8 @@ i18n.use(initReactI18next).init({
     },
   },
 
-  lng: "fa",
-  fallbackLng: "fa",
+  lng: "en",
+  fallbackLng: "en",
 
   interpolation: {
     escapeValue: false,

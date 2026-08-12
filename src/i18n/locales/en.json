@@ -1,0 +1,67 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "login": "Login",
+    "signUp": "Sign Up",
+    "createAccount": "Create an Account",
+    "verify": "Verify",
+    "back": "Back",
+    "changePhone": "Change Phone Number",
+    "phoneNumber": "Phone Number",
+    "verification": "Verification",
+    "resendCode": "Resend Code"
+  },
+
+  "welcome": {
+    "title": "Welcome",
+    "description": "Your safe and reliable ride is just a few taps away.",
+    "createAccount": "Create an Account",
+    "login": "Login"
+  },
+
+  "signIn": {
+    "title": "Sign In",
+    "description": "Enter your phone number to continue.",
+    "phoneNumber": "Phone Number",
+    "placeholder": "70 123 4567",
+    "login": "Login",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign Up"
+  },
+
+  "signUp": {
+    "title": "Create an Account",
+    "description": "Create your account and start enjoying safe and reliable rides.",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "phoneNumber": "Phone Number",
+    "phonePlaceholder": "70 123 4567",
+    "agree": "I agree to the",
+    "terms": "Terms & Conditions",
+    "and": "and",
+    "privacy": "Privacy Policy",
+    "createAccount": "Create Account",
+    "alreadyAccount": "Already have an account?",
+    "login": "Login"
+  },
+
+  "verification": {
+    "title": "Verification",
+    "description": "Enter the 6-digit verification code we sent to your phone number.",
+    "didntReceive": "Didn't receive the code?",
+    "resend": "Resend Code",
+    "verify": "Verify",
+    "changePhone": "Change Phone Number",
+    "backToLogin": "Back to Login",
+    "backToSignUp": "Back to Sign Up"
+  },
+
+  "errors": {
+    "required": "This field is required",
+    "invalidPhone": "Invalid phone number",
+    "invalidVerificationCode": "Please enter the 6-digit verification code",
+    "somethingWentWrong": "Something went wrong",
+    "networkError": "Network connection error",
+    "serverError": "Server error"
+  }
+}

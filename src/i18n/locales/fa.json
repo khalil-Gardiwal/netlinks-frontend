@@ -1,7 +1,65 @@
 {
+  "common": {
+    "welcome": "خوش آمدید",
+    "login": "ورود",
+    "signUp": "ثبت نام",
+    "createAccount": "ایجاد حساب",
+    "verify": "تایید",
+    "back": "برگشت",
+    "changePhone": "تغییر شماره تلفن",
+    "phoneNumber": "شماره تلفن",
+    "verification": "تایید هویت",
+    "resendCode": "ارسال مجدد کد"
+  },
+
+  "welcome": {
+    "title": "خوش آمدید",
+    "description": "سفر امن و قابل اعتماد شما تنها با چند کلیک فاصله دارد.",
+    "createAccount": "ایجاد حساب",
+    "login": "ورود"
+  },
+
+  "signIn": {
+    "title": "ورود",
+    "description": "برای ادامه شماره تلفن خود را وارد کنید.",
+    "phoneNumber": "شماره تلفن",
+    "placeholder": "70 123 4567",
+    "login": "ورود",
+    "noAccount": "حساب ندارید؟",
+    "signUp": "ثبت نام"
+  },
+
+  "signUp": {
+    "title": "ایجاد حساب",
+    "description": "حساب خود را ایجاد کنید و از سفرهای امن و قابل اعتماد لذت ببرید.",
+    "fullName": "نام کامل",
+    "fullNamePlaceholder": "نام کامل خود را وارد کنید",
+    "phoneNumber": "شماره تلفن",
+    "phonePlaceholder": "70 123 4567",
+    "agree": "من موافقم با",
+    "terms": "شرایط و قوانین",
+    "and": "و",
+    "privacy": "سیاست حفظ حریم خصوصی",
+    "createAccount": "ایجاد حساب",
+    "alreadyAccount": "قبلاً حساب دارید؟",
+    "login": "ورود"
+  },
+
+  "verification": {
+    "title": "تایید هویت",
+    "description": "کد تایید ۶ رقمی ارسال شده به شماره تلفن خود را وارد کنید.",
+    "didntReceive": "کد را دریافت نکردید؟",
+    "resend": "ارسال مجدد کد",
+    "verify": "تایید",
+    "changePhone": "تغییر شماره تلفن",
+    "backToLogin": "برگشت به ورود",
+    "backToSignUp": "برگشت به ثبت نام"
+  },
+
   "errors": {
     "required": "این بخش الزامی است",
     "invalidPhone": "شماره تلفن نادرست است",
+    "invalidVerificationCode": "لطفاً کد تایید ۶ رقمی را وارد کنید",
     "somethingWentWrong": "مشکلی پیش آمد",
     "networkError": "خطا در اتصال به شبکه",
     "serverError": "خطا در سرور"

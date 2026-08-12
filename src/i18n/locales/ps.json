@@ -1,7 +1,66 @@
+
 {
+  "common": {
+    "welcome": "ښه راغلاست",
+    "login": "ننوتل",
+    "signUp": "نوم لیکنه",
+    "createAccount": "حساب جوړول",
+    "verify": "تایید",
+    "back": "شاته",
+    "changePhone": "د تلیفون شمېره بدلول",
+    "phoneNumber": "د تلیفون شمېره",
+    "verification": "تایید",
+    "resendCode": "کوډ بیا لېږل"
+  },
+
+  "welcome": {
+    "title": "ښه راغلاست",
+    "description": "ستاسو خوندي او باوري سفر یوازې څو کلیکونه لرې دی.",
+    "createAccount": "حساب جوړول",
+    "login": "ننوتل"
+  },
+
+  "signIn": {
+    "title": "ننوتل",
+    "description": "د دوام لپاره خپله د تلیفون شمېره دننه کړئ.",
+    "phoneNumber": "د تلیفون شمېره",
+    "placeholder": "70 123 4567",
+    "login": "ننوتل",
+    "noAccount": "حساب نه لرئ؟",
+    "signUp": "نوم لیکنه"
+  },
+
+  "signUp": {
+    "title": "حساب جوړول",
+    "description": "خپل حساب جوړ کړئ او له خوندي او باوري سفرونو څخه خوند واخلئ.",
+    "fullName": "بشپړ نوم",
+    "fullNamePlaceholder": "خپل بشپړ نوم دننه کړئ",
+    "phoneNumber": "د تلیفون شمېره",
+    "phonePlaceholder": "70 123 4567",
+    "agree": "زه موافق یم له",
+    "terms": "شرایطو او مقرراتو",
+    "and": "او",
+    "privacy": "د محرمیت پالیسۍ",
+    "createAccount": "حساب جوړول",
+    "alreadyAccount": "مخکې حساب لرئ؟",
+    "login": "ننوتل"
+  },
+
+  "verification": {
+    "title": "تایید",
+    "description": "هغه ۶ عددي تاییدي کوډ دننه کړئ چې ستاسو د تلیفون شمېرې ته مو لېږلی دی.",
+    "didntReceive": "کوډ مو ترلاسه نه کړ؟",
+    "resend": "کوډ بیا ولېږئ",
+    "verify": "تایید",
+    "changePhone": "د تلیفون شمېره بدلول",
+    "backToLogin": "ننوتلو ته شاته",
+    "backToSignUp": "نوم لیکنې ته شاته"
+  },
+
   "errors": {
     "required": "دا برخه اړینه ده",
     "invalidPhone": "د تلیفون شمېره ناسمه ده",
+    "invalidVerificationCode": "مهرباني وکړئ ۶ عددي تاییدي کوډ دننه کړئ",
     "somethingWentWrong": "یوه ستونزه رامنځته شوه",
     "networkError": "د شبکې د اتصال ستونزه",
     "serverError": "د سرور ستونزه"
