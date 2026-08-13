@@ -62,5 +62,14 @@
     "somethingWentWrong": "مشکلی پیش آمد",
     "networkError": "خطا در اتصال به شبکه",
     "serverError": "خطا در سرور"
+  },
+  
+  "account": {
+    "created": "حساب ایجاد شد",
+    "createdSuccessfully": "حساب شما با موفقیت ایجاد شد. اکنون می‌توانید وارد شوید و استفاده از ایزی‌راید را آغاز کنید.",
+    "continueToSignIn": "ادامه برای ورود",
+    "backToWelcome": "بازگشت به صفحه خوش‌آمدگویی"
   }
+
+
 }

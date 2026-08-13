@@ -54,7 +54,7 @@ const handleSubmit = (e) => {
           LEFT COLORFUL DECORATION
       ====================================== */}
 
-      <div className="pointer-events-none absolute -left-24 top-0 hidden h-full w-[400px] lg:block">
+      <div className="pointer-events-none absolute -left-24 top-40 hidden h-full w-[400px] lg:block">
 
         {/* Blue */}
         <div className="absolute -left-20 top-[5%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#0EA5E9]/20" />
@@ -82,7 +82,7 @@ const handleSubmit = (e) => {
           RIGHT COLORFUL DECORATION
       ====================================== */}
 
-      <div className="pointer-events-none absolute -right-24 top-0 hidden h-full w-[400px] lg:block">
+      <div className="pointer-events-none absolute -right-24 top-40 hidden h-full w-[400px] lg:block">
 
         {/* Blue */}
         <div className="absolute -right-20 top-[5%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#0EA5E9]/20" />

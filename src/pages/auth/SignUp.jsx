@@ -129,6 +129,61 @@ function SignUp() {
     <div className="min-h-screen bg-[#F8FAFC] px-5 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center justify-center">
         <div className="w-full">
+                {/* =====================================
+          LEFT COLORFUL DECORATION
+      ====================================== */}
+
+      <div className="pointer-events-none absolute -left-24 top-40 hidden h-full w-[400px] lg:block">
+
+        {/* Blue */}
+        <div className="absolute -left-20 top-[5%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#0EA5E9]/20" />
+
+        {/* Cyan */}
+        <div className="absolute -left-28 top-[11%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#20B8C5]/25" />
+
+        {/* Sky */}
+        <div className="absolute -left-36 top-[17%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#38BDF8]/20" />
+
+        {/* Purple / blue accent */}
+        <div className="absolute -left-44 top-[23%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#818CF8]/15" />
+
+        {/* Blue glow */}
+        <div className="absolute left-20 top-[25%] h-20 w-20 rounded-full bg-[#0EA5E9]/10 blur-2xl" />
+
+        {/* Cyan dot */}
+        <div className="absolute left-28 top-[30%] h-3 w-3 rounded-full bg-[#20B8C5]/60 shadow-lg shadow-[#20B8C5]/30" />
+
+        {/* Purple dot */}
+        <div className="absolute left-12 top-[68%] h-2.5 w-2.5 rounded-full bg-[#818CF8]/60" />
+      </div>
+
+      {/* =====================================
+          RIGHT COLORFUL DECORATION
+      ====================================== */}
+
+      <div className="pointer-events-none absolute -right-24 top-40 hidden h-full w-[400px] lg:block">
+
+        {/* Blue */}
+        <div className="absolute -right-20 top-[5%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#0EA5E9]/20" />
+
+        {/* Cyan */}
+        <div className="absolute -right-28 top-[11%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#20B8C5]/25" />
+
+        {/* Sky */}
+        <div className="absolute -right-36 top-[17%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#38BDF8]/20" />
+
+        {/* Purple / blue accent */}
+        <div className="absolute -right-44 top-[23%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#818CF8]/15" />
+
+        {/* Cyan glow */}
+        <div className="absolute right-20 top-[25%] h-20 w-20 rounded-full bg-[#20B8C5]/10 blur-2xl" />
+
+        {/* Blue dot */}
+        <div className="absolute right-28 top-[30%] h-3 w-3 rounded-full bg-[#0EA5E9]/60 shadow-lg shadow-[#0EA5E9]/30" />
+
+        {/* Purple dot */}
+        <div className="absolute right-12 top-[68%] h-2.5 w-2.5 rounded-full bg-[#818CF8]/60" />
+      </div>
 
           {/* Logo */}
           <div className="mb-8 flex justify-center">

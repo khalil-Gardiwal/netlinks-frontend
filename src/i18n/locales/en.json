@@ -63,5 +63,14 @@
     "somethingWentWrong": "Something went wrong",
     "networkError": "Network connection error",
     "serverError": "Server error"
+  },
+  
+  "account": {
+    "created": "Account Created",
+    "createdSuccessfully": "Your account has been created successfully. You can now sign in and start using Easy Ride.",
+    "continueToSignIn": "Continue to Sign In",
+    "backToWelcome": "Back to Welcome"
   }
+
+
 }

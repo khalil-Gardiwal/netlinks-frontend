@@ -6,7 +6,7 @@ import Verification from "./pages/auth/Verification";
 import AccountCreated from "./pages/auth/AccountCreated";
 import SignIn from "./pages/auth/SignIn";
 
-import ResetVerification from "./pages/auth/ResetVerification";
+
 
 
 function App() {
@@ -21,10 +21,7 @@ function App() {
 
         <Route path="/auth/sign-in" element={<SignIn />} />
         
-        <Route
-          path="/auth/reset-verification"
-          element={<ResetVerification />}
-        />
+     
         
         
 
