@@ -28,22 +28,22 @@
     "noAccount": "Don't have an account?",
     "signUp": "Sign Up"
   },
-
-  "signUp": {
-    "title": "Create an Account",
-    "description": "Create your account and start enjoying safe and reliable rides.",
-    "fullName": "Full Name",
-    "fullNamePlaceholder": "Enter your full name",
-    "phoneNumber": "Phone Number",
-    "phonePlaceholder": "70 123 4567",
-    "agree": "I agree to the",
-    "terms": "Terms & Conditions",
-    "and": "and",
-    "privacy": "Privacy Policy",
-    "createAccount": "Create Account",
-    "alreadyAccount": "Already have an account?",
-    "login": "Login"
-  },
+"signUp": {
+  "title": "Create an Account",
+  "description": "Create your account and start enjoying safe and reliable rides.",
+  "fullName": "Full Name",
+  "fullNamePlaceholder": "Enter your full name",
+  "phoneNumber": "Phone Number",
+  "phonePlaceholder": "70 123 4567",
+  "agree": "I agree to the",
+  "terms": "Terms & Conditions",
+  "and": "and",
+  "privacy": "Privacy Policy",
+  "agreeEnd": ".",
+  "createAccount": "Create Account",
+  "alreadyAccount": "Already have an account?",
+  "login": "Login"
+},
 
   "verification": {
     "title": "Verification",

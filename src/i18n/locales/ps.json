@@ -29,22 +29,22 @@
     "noAccount": "حساب نه لرئ؟",
     "signUp": "نوم لیکنه"
   },
-
-  "signUp": {
-    "title": "حساب جوړول",
-    "description": "خپل حساب جوړ کړئ او له خوندي او باوري سفرونو څخه خوند واخلئ.",
-    "fullName": "بشپړ نوم",
-    "fullNamePlaceholder": "خپل بشپړ نوم دننه کړئ",
-    "phoneNumber": "د تلیفون شمېره",
-    "phonePlaceholder": "70 123 4567",
-    "agree": "زه موافق یم له",
-    "terms": "شرایطو او مقرراتو",
-    "and": "او",
-    "privacy": "د محرمیت پالیسۍ",
-    "createAccount": "حساب جوړول",
-    "alreadyAccount": "مخکې حساب لرئ؟",
-    "login": "ننوتل"
-  },
+"signUp": {
+  "title": "حساب جوړول",
+  "description": "خپل حساب جوړ کړئ او له خوندي او باوري سفرونو څخه خوند واخلئ.",
+  "fullName": "بشپړ نوم",
+  "fullNamePlaceholder": "خپل بشپړ نوم دننه کړئ",
+  "phoneNumber": "د تلیفون شمېره",
+  "phonePlaceholder": "70 123 4567",
+  "agree": "زه د",
+  "terms": "شرایطو او مقرراتو",
+  "and": "او",
+  "privacy": "د محرمیت پالیسۍ",
+  "agreeEnd": "سره موافق یم.",
+  "createAccount": "حساب جوړول",
+  "alreadyAccount": "مخکې حساب لرئ؟",
+  "login": "ننوتل"
+},
 
   "verification": {
     "title": "تایید",

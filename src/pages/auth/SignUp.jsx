@@ -238,51 +238,49 @@ function SignUp() {
                   </p>
                 )}
               </div>
+{/* Policy */}
+<div
+  className={`rounded-xl p-4 ${
+    policyError ? "bg-[#FEF2F2]" : "bg-[#F0F9FF]"
+  }`}
+>
+  <label className="flex cursor-pointer items-start gap-3">
+    <input
+      type="checkbox"
+      checked={acceptedPolicy}
+      onChange={handlePolicyChange}
+      className="mt-1 h-4 w-4 cursor-pointer accent-[#0EA5E9]"
+    />
 
-              {/* Policy */}
-              <div
-                className={`rounded-xl p-4 ${policyError
-                  ? "bg-[#FEF2F2]"
-                  : "bg-[#F0F9FF]"
-                  }`}
-              >
-                <label className="flex cursor-pointer items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={acceptedPolicy}
-                    onChange={handlePolicyChange}
-                    className="mt-1 h-4 w-4 cursor-pointer accent-[#0EA5E9]"
-                  />
+    <span className="text-sm leading-6 text-[#64748B]">
+      {t("signUp.agree")}{" "}
 
-                  <span className="text-sm leading-6 text-[#64748B]">
-                    {t("signUp.agree")}{" "}
-                    <button
-                      type="button"
-                      className="font-semibold text-[#0EA5E9] hover:text-[#0284C7]"
-                    >
-                      {t("signUp.terms")}
+      <button
+        type="button"
+        className="font-semibold text-[#0EA5E9] hover:text-[#0284C7]"
+      >
+        {t("signUp.terms")}
+      </button>{" "}
 
-                    </button>{" "}
-                    {t("signUp.and")}{" "}
+      {t("signUp.and")}{" "}
 
-                    <button
-                      type="button"
-                      className="font-semibold text-[#0EA5E9] hover:text-[#0284C7]"
-                    >
-                      {t("signUp.privacy")}
+      <button
+        type="button"
+        className="font-semibold text-[#0EA5E9] hover:text-[#0284C7]"
+      >
+        {t("signUp.privacy")}
+      </button>{" "}
 
-                    </button>
-                    .
-                  </span>
-                </label>
+      {t("signUp.agreeEnd")}
+    </span>
+  </label>
 
-                {policyError && (
-                  <p className="mt-2 text-sm text-[#DC2626]">
-                    {policyError}
-                  </p>
-                )}
-              </div>
-
+  {policyError && (
+    <p className="mt-2 text-sm text-[#DC2626]">
+      {policyError}
+    </p>
+  )}
+</div>
               {/* Submit */}
               <button
                 type="submit"

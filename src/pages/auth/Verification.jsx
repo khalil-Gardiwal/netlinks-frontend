@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
 
 function Verification() {
   const { t } = useTranslation();
@@ -125,7 +126,7 @@ function Verification() {
             </div>
 
             <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">
-              Verification
+              {t("verification.title")}
             </h1>
 
             <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-[#64748B]">

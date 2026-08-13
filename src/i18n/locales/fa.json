@@ -28,23 +28,22 @@
     "noAccount": "حساب ندارید؟",
     "signUp": "ثبت نام"
   },
-
-  "signUp": {
-    "title": "ایجاد حساب",
-    "description": "حساب خود را ایجاد کنید و از سفرهای امن و قابل اعتماد لذت ببرید.",
-    "fullName": "نام کامل",
-    "fullNamePlaceholder": "نام کامل خود را وارد کنید",
-    "phoneNumber": "شماره تلفن",
-    "phonePlaceholder": "70 123 4567",
-    "agree": "من موافقم با",
-    "terms": "شرایط و قوانین",
-    "and": "و",
-    "privacy": "سیاست حفظ حریم خصوصی",
-    "createAccount": "ایجاد حساب",
-    "alreadyAccount": "قبلاً حساب دارید؟",
-    "login": "ورود"
-  },
-
+"signUp": {
+  "title": "ایجاد حساب",
+  "description": "حساب خود را ایجاد کنید و از سفرهای امن و قابل اعتماد لذت ببرید.",
+  "fullName": "نام کامل",
+  "fullNamePlaceholder": "نام کامل خود را وارد کنید",
+  "phoneNumber": "شماره تلفن",
+  "phonePlaceholder": "70 123 4567",
+  "agree": "من با",
+  "terms": "شرایط و مقررات",
+  "and": "و",
+  "privacy": "سیاست حفظ حریم خصوصی",
+  "agreeEnd": "موافقم.",
+  "createAccount": "ایجاد حساب",
+  "alreadyAccount": "قبلاً حساب دارید؟",
+  "login": "ورود"
+},
   "verification": {
     "title": "تایید هویت",
     "description": "کد تایید ۶ رقمی ارسال شده به شماره تلفن خود را وارد کنید.",
