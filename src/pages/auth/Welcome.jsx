@@ -9,69 +9,64 @@ function Welcome() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-[#F8FAFC] px-6">
-      {/* =====================================
-          LEFT COLORFUL DECORATION
-      ====================================== */}
+     {/* =====================================
+    COLORFUL DECORATIONS
+====================================== */}
 
-      <div className="pointer-events-none absolute -left-24 top-40 hidden h-full w-[400px] lg:block">
+<div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+  {/* LEFT */}
+  <div className="absolute left-0 top-40 hidden h-[700px] w-[320px] lg:block">
+    {/* Blue */}
+    <div className="absolute -left-32 top-[5%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#0EA5E9]/20" />
 
-        {/* Blue */}
-        <div className="absolute -left-20 top-[5%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#0EA5E9]/20" />
+    {/* Cyan */}
+    <div className="absolute -left-40 top-[11%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#20B8C5]/25" />
 
-        {/* Cyan */}
-        <div className="absolute -left-28 top-[11%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#20B8C5]/25" />
+    {/* Sky */}
+    <div className="absolute -left-48 top-[17%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#38BDF8]/20" />
 
-        {/* Sky */}
-        <div className="absolute -left-36 top-[17%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#38BDF8]/20" />
+    {/* Purple */}
+    <div className="absolute -left-56 top-[23%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#818CF8]/15" />
 
-        {/* Purple / blue accent */}
-        <div className="absolute -left-44 top-[23%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#818CF8]/15" />
+    {/* Glow */}
+    <div className="absolute left-20 top-[25%] h-20 w-20 rounded-full bg-[#0EA5E9]/10 blur-2xl" />
 
-        {/* Blue glow */}
-        <div className="absolute left-20 top-[25%] h-20 w-20 rounded-full bg-[#0EA5E9]/10 blur-2xl" />
+    {/* Dot */}
+    <div className="absolute left-28 top-[30%] h-3 w-3 rounded-full bg-[#20B8C5]/60 shadow-lg shadow-[#20B8C5]/30" />
 
-        {/* Cyan dot */}
-        <div className="absolute left-28 top-[30%] h-3 w-3 rounded-full bg-[#20B8C5]/60 shadow-lg shadow-[#20B8C5]/30" />
+    {/* Purple dot */}
+    <div className="absolute left-12 top-[68%] h-2.5 w-2.5 rounded-full bg-[#818CF8]/60" />
+  </div>
 
-        {/* Purple dot */}
-        <div className="absolute left-12 top-[68%] h-2.5 w-2.5 rounded-full bg-[#818CF8]/60" />
-      </div>
+  {/* RIGHT */}
+  <div className="absolute right-0 top-40 hidden h-[700px] w-[320px] lg:block">
+    {/* Blue */}
+    <div className="absolute -right-32 top-[5%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#0EA5E9]/20" />
 
-      {/* =====================================
-          RIGHT COLORFUL DECORATION
-      ====================================== */}
+    {/* Cyan */}
+    <div className="absolute -right-40 top-[11%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#20B8C5]/25" />
 
-      <div className="pointer-events-none absolute -right-24 top-40 hidden h-full w-[400px] lg:block">
+    {/* Sky */}
+    <div className="absolute -right-48 top-[17%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#38BDF8]/20" />
 
-        {/* Blue */}
-        <div className="absolute -right-20 top-[5%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#0EA5E9]/20" />
+    {/* Purple */}
+    <div className="absolute -right-56 top-[23%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#818CF8]/15" />
 
-        {/* Cyan */}
-        <div className="absolute -right-28 top-[11%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#20B8C5]/25" />
+    {/* Glow */}
+    <div className="absolute right-20 top-[25%] h-20 w-20 rounded-full bg-[#20B8C5]/10 blur-2xl" />
 
-        {/* Sky */}
-        <div className="absolute -right-36 top-[17%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#38BDF8]/20" />
+    {/* Dot */}
+    <div className="absolute right-28 top-[30%] h-3 w-3 rounded-full bg-[#0EA5E9]/60 shadow-lg shadow-[#0EA5E9]/30" />
 
-        {/* Purple / blue accent */}
-        <div className="absolute -right-44 top-[23%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#818CF8]/15" />
+    {/* Purple dot */}
+    <div className="absolute right-12 top-[68%] h-2.5 w-2.5 rounded-full bg-[#818CF8]/60" />
+  </div>
 
-        {/* Cyan glow */}
-        <div className="absolute right-20 top-[25%] h-20 w-20 rounded-full bg-[#20B8C5]/10 blur-2xl" />
+  {/* SOFT GLOWS */}
+  <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-[#0EA5E9]/5 blur-3xl" />
 
-        {/* Blue dot */}
-        <div className="absolute right-28 top-[30%] h-3 w-3 rounded-full bg-[#0EA5E9]/60 shadow-lg shadow-[#0EA5E9]/30" />
-
-        {/* Purple dot */}
-        <div className="absolute right-12 top-[68%] h-2.5 w-2.5 rounded-full bg-[#818CF8]/60" />
-      </div>
-
-      {/* =====================================
-          SOFT COLOR GLOWS
-      ====================================== */}
-
-      <div className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-[#0EA5E9]/5 blur-3xl" />
-
-      <div className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-[#20B8C5]/5 blur-3xl" />
+  <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-[#20B8C5]/5 blur-3xl" />
+</div>
 
 
       {/* Language Selector */}
