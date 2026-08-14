@@ -94,61 +94,193 @@ function Verification() {
     <div className="min-h-screen bg-[#F8FAFC] px-5 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center justify-center">
         <div className="w-full">
-                {/* =====================================
-          LEFT COLORFUL DECORATION
-      ====================================== */}
+          {/* =====================================
+    RESPONSIVE FIXED COLORFUL DECORATIONS
+====================================== */}
 
-      <div className="pointer-events-none absolute -left-24 top-40 hidden h-full w-[400px] lg:block">
+<div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
 
-        {/* Blue */}
-        <div className="absolute -left-20 top-[5%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#0EA5E9]/20" />
+  {/* ================= LEFT DECORATION ================= */}
+  <div className="
+    absolute left-0 top-40
+    hidden lg:block
+    h-[clamp(500px,70vh,700px)]
+    w-[clamp(220px,25vw,320px)]
+  ">
 
-        {/* Cyan */}
-        <div className="absolute -left-28 top-[11%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#20B8C5]/25" />
+    {/* Blue */}
+    <div className="
+      absolute -left-[clamp(80px,10vw,130px)] top-[5%]
+      h-[clamp(400px,55vh,520px)]
+      w-[clamp(300px,30vw,390px)]
+      rotate-25
+      rounded-[50%]
+      border-[3px] border-[#0EA5E9]/20
+    " />
 
-        {/* Sky */}
-        <div className="absolute -left-36 top-[17%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#38BDF8]/20" />
+    {/* Cyan */}
+    <div className="
+      absolute -left-[clamp(100px,12vw,160px)] top-[11%]
+      h-[clamp(400px,55vh,520px)]
+      w-[clamp(300px,30vw,390px)]
+      rotate-25
+      rounded-[50%]
+      border-[3px] border-[#20B8C5]/25
+    " />
 
-        {/* Purple / blue accent */}
-        <div className="absolute -left-44 top-[23%] h-[520px] w-97.5 rotate-25 rounded-[50%] border-[3px] border-[#818CF8]/15" />
+    {/* Sky */}
+    <div className="
+      absolute -left-[clamp(120px,14vw,190px)] top-[17%]
+      h-[clamp(400px,55vh,520px)]
+      w-[clamp(300px,30vw,390px)]
+      rotate-25
+      rounded-[50%]
+      border-[3px] border-[#38BDF8]/20
+    " />
 
-        {/* Blue glow */}
-        <div className="absolute left-20 top-[25%] h-20 w-20 rounded-full bg-[#0EA5E9]/10 blur-2xl" />
+    {/* Purple */}
+    <div className="
+      absolute -left-[clamp(140px,16vw,220px)] top-[23%]
+      h-[clamp(400px,55vh,520px)]
+      w-[clamp(300px,30vw,390px)]
+      rotate-25
+      rounded-[50%]
+      border-[3px] border-[#818CF8]/15
+    " />
 
-        {/* Cyan dot */}
-        <div className="absolute left-28 top-[30%] h-3 w-3 rounded-full bg-[#20B8C5]/60 shadow-lg shadow-[#20B8C5]/30" />
+    {/* Glow */}
+    <div className="
+      absolute left-[clamp(40px,6vw,80px)] top-[25%]
+      h-[clamp(50px,6vw,80px)]
+      w-[clamp(50px,6vw,80px)]
+      rounded-full
+      bg-[#0EA5E9]/10
+      blur-2xl
+    " />
 
-        {/* Purple dot */}
-        <div className="absolute left-12 top-[68%] h-2.5 w-2.5 rounded-full bg-[#818CF8]/60" />
-      </div>
+    {/* Dot */}
+    <div className="
+      absolute left-[clamp(50px,7vw,112px)] top-[30%]
+      h-3 w-3
+      rounded-full
+      bg-[#20B8C5]/60
+      shadow-lg shadow-[#20B8C5]/30
+    " />
 
-      {/* =====================================
-          RIGHT COLORFUL DECORATION
-      ====================================== */}
+    {/* Purple Dot */}
+    <div className="
+      absolute left-[clamp(30px,4vw,48px)] top-[68%]
+      h-2.5 w-2.5
+      rounded-full
+      bg-[#818CF8]/60
+    " />
 
-      <div className="pointer-events-none absolute -right-24 top-40 hidden h-full w-[400px] lg:block">
+  </div>
 
-        {/* Blue */}
-        <div className="absolute -right-20 top-[5%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#0EA5E9]/20" />
 
-        {/* Cyan */}
-        <div className="absolute -right-28 top-[11%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#20B8C5]/25" />
+  {/* ================= RIGHT DECORATION ================= */}
+  <div className="
+    absolute right-0 top-40
+    hidden lg:block
+    h-[clamp(500px,70vh,700px)]
+    w-[clamp(220px,25vw,320px)]
+  ">
 
-        {/* Sky */}
-        <div className="absolute -right-36 top-[17%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#38BDF8]/20" />
+    {/* Blue */}
+    <div className="
+      absolute -right-[clamp(80px,10vw,130px)] top-[5%]
+      h-[clamp(400px,55vh,520px)]
+      w-[clamp(300px,30vw,390px)]
+      rotate-[-25deg]
+      rounded-[50%]
+      border-[3px] border-[#0EA5E9]/20
+    " />
 
-        {/* Purple / blue accent */}
-        <div className="absolute -right-44 top-[23%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#818CF8]/15" />
+    {/* Cyan */}
+    <div className="
+      absolute -right-[clamp(100px,12vw,160px)] top-[11%]
+      h-[clamp(400px,55vh,520px)]
+      w-[clamp(300px,30vw,390px)]
+      rotate-[-25deg]
+      rounded-[50%]
+      border-[3px] border-[#20B8C5]/25
+    " />
 
-        {/* Cyan glow */}
-        <div className="absolute right-20 top-[25%] h-20 w-20 rounded-full bg-[#20B8C5]/10 blur-2xl" />
+    {/* Sky */}
+    <div className="
+      absolute -right-[clamp(120px,14vw,190px)] top-[17%]
+      h-[clamp(400px,55vh,520px)]
+      w-[clamp(300px,30vw,390px)]
+      rotate-[-25deg]
+      rounded-[50%]
+      border-[3px] border-[#38BDF8]/20
+    " />
 
-        {/* Blue dot */}
-        <div className="absolute right-28 top-[30%] h-3 w-3 rounded-full bg-[#0EA5E9]/60 shadow-lg shadow-[#0EA5E9]/30" />
+    {/* Purple */}
+    <div className="
+      absolute -right-[clamp(140px,16vw,220px)] top-[23%]
+      h-[clamp(400px,55vh,520px)]
+      w-[clamp(300px,30vw,390px)]
+      rotate-[-25deg]
+      rounded-[50%]
+      border-[3px] border-[#818CF8]/15
+    " />
 
-        {/* Purple dot */}
-        <div className="absolute right-12 top-[68%] h-2.5 w-2.5 rounded-full bg-[#818CF8]/60" />
-      </div>
+    {/* Glow */}
+    <div className="
+      absolute right-[clamp(40px,6vw,80px)] top-[25%]
+      h-[clamp(50px,6vw,80px)]
+      w-[clamp(50px,6vw,80px)]
+      rounded-full
+      bg-[#20B8C5]/10
+      blur-2xl
+    " />
+
+    {/* Dot */}
+    <div className="
+      absolute right-[clamp(50px,7vw,112px)] top-[30%]
+      h-3 w-3
+      rounded-full
+      bg-[#0EA5E9]/60
+      shadow-lg shadow-[#0EA5E9]/30
+    " />
+
+    {/* Purple Dot */}
+    <div className="
+      absolute right-[clamp(30px,4vw,48px)] top-[68%]
+      h-2.5 w-2.5
+      rounded-full
+      bg-[#818CF8]/60
+    " />
+
+  </div>
+
+
+  {/* ================= SOFT GLOWS ================= */}
+
+  <div className="
+    absolute
+    -left-[clamp(100px,15vw,160px)]
+    -top-[clamp(100px,15vw,160px)]
+    h-[clamp(250px,30vw,384px)]
+    w-[clamp(250px,30vw,384px)]
+    rounded-full
+    bg-[#0EA5E9]/5
+    blur-3xl
+  " />
+
+  <div className="
+    absolute
+    -bottom-[clamp(100px,15vw,160px)]
+    -right-[clamp(100px,15vw,160px)]
+    h-[clamp(250px,30vw,384px)]
+    w-[clamp(250px,30vw,384px)]
+    rounded-full
+    bg-[#20B8C5]/5
+    blur-3xl
+  " />
+
+</div>
 
           {/* Logo */}
           <div className="mb-8 flex justify-center">
