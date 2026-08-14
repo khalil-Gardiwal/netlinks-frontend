@@ -70,7 +70,39 @@
     "createdSuccessfully": "Your account has been created successfully. You can now sign in and start using Easy Ride.",
     "continueToSignIn": "Continue to Sign In",
     "backToWelcome": "Back to Welcome"
-  }
+  },
+  "twoFactor": {
+  "title": "Set Up Two-Factor Authentication",
+  "description": "Protect your account with an authenticator app.",
+  "stepOneTitle": "Scan the QR code",
+  "stepOneDescription": "Open your authenticator app and scan the QR code provided by your account.",
+  "qrPlaceholder": "QR code will appear here",
+  "or": "OR",
+  "manualKey": "Can't scan the QR code?",
+  "manualKeyDescription": "Use the setup key provided by your account.",
+  "stepTwoTitle": "Enter the verification code",
+  "stepTwoDescription": "Enter the 6-digit code shown in your authenticator app.",
+  "enableButton": "Verify & Enable 2FA",
+  "invalidCode": "Please enter the 6-digit verification code."
+},
+"twoFactorEnabled": {
+  "title": "Two-Factor Authentication Enabled",
+  "description": "Your account is now protected with an authenticator app.",
+  "statusTitle": "2FA is enabled",
+  "statusDescription": "You will be asked for a verification code from your authenticator app when you sign in.",
+  "continue": "Continue"
+},
+"twoFactorVerification": {
+  "title": "Two-Factor Authentication",
+  "description": "Enter the verification code from your authenticator app to continue.",
+  "authenticatorTitle": "Open your authenticator app",
+  "authenticatorDescription": "Use the authenticator app you connected to your account to get your 6-digit verification code.",
+  "codeLabel": "Verification Code",
+  "codeDescription": "Enter the 6-digit code shown in your authenticator app.",
+  "verify": "Verify & Continue",
+  "backToLogin": "Back to Login",
+  "invalidCode": "Please enter the 6-digit verification code."
+}
 
 
 }

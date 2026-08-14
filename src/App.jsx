@@ -5,6 +5,9 @@ import SignUp from "./pages/auth/SignUp";
 import Verification from "./pages/auth/Verification";
 import AccountCreated from "./pages/auth/AccountCreated";
 import SignIn from "./pages/auth/SignIn";
+import TwoFactorSetup from "./pages/auth/two-factor-setup/TwoFactorSetup";
+import TwoFactorEnabled from "./pages/auth/two-factor-setup/TwoFactorEnabled";
+import TwoFactorVerification from "./pages/auth/two-factor-setup/TwoFactorVerification";
 
 
 
@@ -20,8 +23,20 @@ function App() {
         <Route path="/auth/account-created" element={<AccountCreated />} />
 
         <Route path="/auth/sign-in" element={<SignIn />} />
+        <Route
+  path="/auth/two-factor-setup"
+  element={<TwoFactorSetup />}
+/>
+<Route
+  path="/auth/two-factor-enabled"
+  element={<TwoFactorEnabled />}
+  
+/>
         
-     
+     <Route
+  path="/auth/two-factor-verification"
+  element={<TwoFactorVerification />}
+/>
         
         
 

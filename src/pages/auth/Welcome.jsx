@@ -1,80 +1,133 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../../components/LanguageSwitcher";
 
-
 function Welcome() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [showTwoFactor, setShowTwoFactor] = useState(false);
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-[#F8FAFC] px-6">
-     {/* =====================================
-    COLORFUL DECORATIONS
-====================================== */}
 
-<div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-  {/* LEFT */}
-  <div className="absolute left-0 top-40 hidden h-[700px] w-[320px] lg:block">
-    {/* Blue */}
-    <div className="absolute -left-32 top-[5%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#0EA5E9]/20" />
+      {/* Top Controls */}
+      <div className="absolute right-6 top-6 z-50 flex items-start gap-2">
 
-    {/* Cyan */}
-    <div className="absolute -left-40 top-[11%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#20B8C5]/25" />
+        {/* 2FA */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowTwoFactor(!showTwoFactor)}
+            className={`flex items-center gap-2 rounded-xl border bg-white px-3 py-2 text-xs font-semibold shadow-sm transition ${
+              showTwoFactor
+                ? "border-[#0EA5E9] text-[#0EA5E9]"
+                : "border-[#CBD5E1] text-[#64748B] hover:bg-[#F0F9FF]"
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-4 w-4"
+            >
+              <rect
+                width="18"
+                height="11"
+                x="3"
+                y="10"
+                rx="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M7 10V7a5 5 0 0 1 10 0v3"
+              />
+            </svg>
 
-    {/* Sky */}
-    <div className="absolute -left-48 top-[17%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#38BDF8]/20" />
+            <span>2FA</span>
 
-    {/* Purple */}
-    <div className="absolute -left-56 top-[23%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#818CF8]/15" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className={`h-3 w-3 transition-transform ${
+                showTwoFactor ? "rotate-180" : ""
+              }`}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m6 9 6 6 6-6"
+              />
+            </svg>
+          </button>
 
-    {/* Glow */}
-    <div className="absolute left-20 top-[25%] h-20 w-20 rounded-full bg-[#0EA5E9]/10 blur-2xl" />
+          {/* 2FA Dropdown */}
+          {showTwoFactor && (
+            <div className="absolute right-0 top-12 w-72 rounded-2xl border border-[#CBD5E1] bg-white p-5 shadow-xl">
 
-    {/* Dot */}
-    <div className="absolute left-28 top-[30%] h-3 w-3 rounded-full bg-[#20B8C5]/60 shadow-lg shadow-[#20B8C5]/30" />
+              <div className="mb-4 flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E0F2FE]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="h-5 w-5 text-[#0EA5E9]"
+                  >
+                    <rect
+                      width="18"
+                      height="11"
+                      x="3"
+                      y="10"
+                      rx="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M7 10V7a5 5 0 0 1 10 0v3"
+                    />
+                  </svg>
+                </div>
 
-    {/* Purple dot */}
-    <div className="absolute left-12 top-[68%] h-2.5 w-2.5 rounded-full bg-[#818CF8]/60" />
-  </div>
+                <div>
+                  <h2 className="text-sm font-bold text-[#0F172A]">
+                    Two-Factor Authentication
+                  </h2>
 
-  {/* RIGHT */}
-  <div className="absolute right-0 top-40 hidden h-[700px] w-[320px] lg:block">
-    {/* Blue */}
-    <div className="absolute -right-32 top-[5%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#0EA5E9]/20" />
+                  <p className="mt-1 text-xs leading-5 text-[#64748B]">
+                    Add an extra layer of security to your account using an
+                    authenticator app.
+                  </p>
+                </div>
+              </div>
 
-    {/* Cyan */}
-    <div className="absolute -right-40 top-[11%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#20B8C5]/25" />
+              <button
+                type="button"
+                onClick={() => navigate("/auth/two-factor-setup")}
+                className="w-full rounded-xl bg-[#0EA5E9] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#E0F2FE]"
+              >
+                Enable 2FA
+              </button>
+            </div>
+          )}
+        </div>
 
-    {/* Sky */}
-    <div className="absolute -right-48 top-[17%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#38BDF8]/20" />
-
-    {/* Purple */}
-    <div className="absolute -right-56 top-[23%] h-[520px] w-[390px] rotate-[-25deg] rounded-[50%] border-[3px] border-[#818CF8]/15" />
-
-    {/* Glow */}
-    <div className="absolute right-20 top-[25%] h-20 w-20 rounded-full bg-[#20B8C5]/10 blur-2xl" />
-
-    {/* Dot */}
-    <div className="absolute right-28 top-[30%] h-3 w-3 rounded-full bg-[#0EA5E9]/60 shadow-lg shadow-[#0EA5E9]/30" />
-
-    {/* Purple dot */}
-    <div className="absolute right-12 top-[68%] h-2.5 w-2.5 rounded-full bg-[#818CF8]/60" />
-  </div>
-
-  {/* SOFT GLOWS */}
-  <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-[#0EA5E9]/5 blur-3xl" />
-
-  <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-[#20B8C5]/5 blur-3xl" />
-</div>
-
-
-      {/* Language Selector */}
-      <div className="absolute right-6 top-6 z-50">
+        {/* Language Selector */}
         <LanguageSwitcher />
       </div>
-    
 
+      {/* Main Content */}
       <div className="w-full max-w-md text-center">
 
         {/* Logo */}

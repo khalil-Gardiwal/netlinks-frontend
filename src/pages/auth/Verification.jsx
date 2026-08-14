@@ -110,7 +110,7 @@ function Verification() {
         <div className="absolute -left-36 top-[17%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#38BDF8]/20" />
 
         {/* Purple / blue accent */}
-        <div className="absolute -left-44 top-[23%] h-[520px] w-[390px] rotate-[25deg] rounded-[50%] border-[3px] border-[#818CF8]/15" />
+        <div className="absolute -left-44 top-[23%] h-[520px] w-97.5 rotate-25 rounded-[50%] border-[3px] border-[#818CF8]/15" />
 
         {/* Blue glow */}
         <div className="absolute left-20 top-[25%] h-20 w-20 rounded-full bg-[#0EA5E9]/10 blur-2xl" />
