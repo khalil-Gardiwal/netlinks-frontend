@@ -499,7 +499,7 @@ function SignUp() {
             className="mt-6 flex w-full items-center justify-center gap-2 text-sm font-medium text-[#64748B] transition hover:text-[#0F172A]"
           >
             <span>←</span>
-            Back to Welcome
+            {t("signUp.backToWelcome")}
           </button>
 
         </div>

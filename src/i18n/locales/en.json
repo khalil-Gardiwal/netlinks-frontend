@@ -16,7 +16,8 @@
     "title": "Welcome",
     "description": "Your safe and reliable ride is just a few taps away.",
     "createAccount": "Create an Account",
-    "login": "Login"
+    "login": "Login",
+     "backToWelcome":"Back to Welcome"
   },
 
   "signIn": {
@@ -71,6 +72,14 @@
     "continueToSignIn": "Continue to Sign In",
     "backToWelcome": "Back to Welcome"
   },
+"signInTwoFactor": {
+  "label": "2FA",
+  "title": "Two-Factor Authentication",
+  "description": "Add an extra layer of security to your account using an authenticator app.",
+  "enable": "Enable 2FA"
+}
+,
+
   "twoFactor": {
   "title": "Set Up Two-Factor Authentication",
   "description": "Protect your account with an authenticator app.",
@@ -85,6 +94,8 @@
   "enableButton": "Verify & Enable 2FA",
   "invalidCode": "Please enter the 6-digit verification code."
 },
+
+
 "twoFactorEnabled": {
   "title": "Two-Factor Authentication Enabled",
   "description": "Your account is now protected with an authenticator app.",

@@ -49,7 +49,7 @@ function Welcome() {
               />
             </svg>
 
-            <span>2FA</span>
+            <span>{t("signInTwoFactor.label")}</span>
 
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -102,12 +102,11 @@ function Welcome() {
 
                 <div>
                   <h2 className="text-sm font-bold text-[#0F172A]">
-                    Two-Factor Authentication
+                    {t("signInTwoFactor.title")}
                   </h2>
 
                   <p className="mt-1 text-xs leading-5 text-[#64748B]">
-                    Add an extra layer of security to your account using an
-                    authenticator app.
+                   {t("signInTwoFactor.description")}
                   </p>
                 </div>
               </div>
@@ -117,7 +116,7 @@ function Welcome() {
                 onClick={() => navigate("/auth/two-factor-setup")}
                 className="w-full rounded-xl bg-[#0EA5E9] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#E0F2FE]"
               >
-                Enable 2FA
+                {t("signInTwoFactor.enable")}
               </button>
             </div>
           )}

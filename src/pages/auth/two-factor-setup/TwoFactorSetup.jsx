@@ -189,7 +189,7 @@ function TwoFactorSetup() {
 
               <div className="mt-3 rounded-xl border border-[#CBD5E1] bg-white px-4 py-3 text-center">
                 <span className="break-all font-mono text-sm font-semibold tracking-wider text-[#0F172A]">
-                  BACKEND_SETUP_KEY
+               
                 </span>
               </div>
 
