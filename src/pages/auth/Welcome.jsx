@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../../components/LanguageSwitcher";
+import Desgin from "../../components/Designbackground";
 
 function Welcome() {
   const navigate = useNavigate();
@@ -10,7 +11,8 @@ function Welcome() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-[#F8FAFC] px-6">
-
+    
+   <Desgin/>
       {/* Top Controls */}
       <div className="absolute right-6 top-6 z-50 flex items-start gap-2">
 
@@ -70,56 +72,91 @@ function Welcome() {
           </button>
 
           {/* 2FA Dropdown */}
-          {showTwoFactor && (
-            <div className="absolute right-0 top-12 w-72 rounded-2xl border border-[#CBD5E1] bg-white p-5 shadow-xl">
+      {/* 2FA Dropdown */}
+{showTwoFactor && (
+  <div
+    className="
+      absolute z-50
+      top-12
+      left-1/2 -translate-x-1/2
+      w-[calc(100vw-2rem)]
+      max-w-sm
+      rounded-2xl
+      border border-[#CBD5E1]
+      bg-white
+      p-4
+      shadow-xl
 
-              <div className="mb-4 flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E0F2FE]">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    className="h-5 w-5 text-[#0EA5E9]"
-                  >
-                    <rect
-                      width="18"
-                      height="11"
-                      x="3"
-                      y="10"
-                      rx="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M7 10V7a5 5 0 0 1 10 0v3"
-                    />
-                  </svg>
-                </div>
+      sm:left-auto
+      sm:right-0
+      sm:translate-x-0
+      sm:w-72
+      sm:max-w-none
+      sm:p-5
+    "
+  >
+    <div className="mb-4 flex items-start gap-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E0F2FE]">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          className="h-5 w-5 text-[#0EA5E9]"
+        >
+          <rect
+            width="18"
+            height="11"
+            x="3"
+            y="10"
+            rx="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M7 10V7a5 5 0 0 1 10 0v3"
+          />
+        </svg>
+      </div>
 
-                <div>
-                  <h2 className="text-sm font-bold text-[#0F172A]">
-                    {t("signInTwoFactor.title")}
-                  </h2>
+      <div className="min-w-0 flex-1">
+        <h2 className="text-sm font-bold text-[#0F172A]">
+          {t("signInTwoFactor.title")}
+        </h2>
 
-                  <p className="mt-1 text-xs leading-5 text-[#64748B]">
-                   {t("signInTwoFactor.description")}
-                  </p>
-                </div>
-              </div>
+        <p className="mt-1 break-words text-xs leading-5 text-[#64748B]">
+          {t("signInTwoFactor.description")}
+        </p>
+      </div>
+    </div>
 
-              <button
-                type="button"
-                onClick={() => navigate("/auth/two-factor-setup")}
-                className="w-full rounded-xl bg-[#0EA5E9] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#E0F2FE]"
-              >
-                {t("signInTwoFactor.enable")}
-              </button>
-            </div>
-          )}
+    <button
+      type="button"
+      onClick={() => navigate("/auth/two-factor-setup")}
+      className="
+        w-full
+        rounded-xl
+        bg-[#0EA5E9]
+        px-4
+        py-3
+        text-sm
+        font-semibold
+        text-white
+        transition
+        hover:bg-[#0284C7]
+        focus:outline-none
+        focus:ring-4
+        focus:ring-[#E0F2FE]
+      "
+    >
+      {t("signInTwoFactor.enable")}
+    </button>
+  </div>
+)}
+
         </div>
 
         {/* Language Selector */}

@@ -16,8 +16,8 @@
     "title": "Welcome",
     "description": "Your safe and reliable ride is just a few taps away.",
     "createAccount": "Create an Account",
-    "login": "Login",
-     "backToWelcome":"Back to Welcome"
+    "login": "Login"
+    
   },
 
   "signIn": {
@@ -43,7 +43,8 @@
   "agreeEnd": ".",
   "createAccount": "Create Account",
   "alreadyAccount": "Already have an account?",
-  "login": "Login"
+  "login": "Login",
+  "backToWelcome":"Back to Welcome"
 },
 
   "verification": {
