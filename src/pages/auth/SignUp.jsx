@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../../components/LanguageSwitcher";
 import Desgin from "../../components/Designbackground";
+import { register } from "../../api/auth";
 
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;
@@ -96,35 +97,52 @@ function SignUp() {
       setPolicyError("");
     }
   };
+const handleSubmit = async (event) => {
+  event.preventDefault();
 
-  // -----------------------------
-  // Form submit
-  // -----------------------------
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const nameValidationError = validateName(name);
+  const phoneValidationError = validatePhone(phone);
 
-    const nameValidationError = validateName(name);
-    const phoneValidationError = validatePhone(phone);
+  setNameError(nameValidationError);
+  setPhoneError(phoneValidationError);
 
-    setNameError(nameValidationError);
-    setPhoneError(phoneValidationError);
+  if (!acceptedPolicy) {
+    setPolicyError(t("errors.required"));
+  } else {
+    setPolicyError("");
+  }
 
-    if (!acceptedPolicy) {
-      setPolicyError(t("errors.required"));
-    } else {
-      setPolicyError("");
-    }
+  if (
+    nameValidationError ||
+    phoneValidationError ||
+    !acceptedPolicy
+  ) {
+    return;
+  }
 
-    if (
-      nameValidationError ||
-      phoneValidationError ||
-      !acceptedPolicy
-    ) {
-      return;
-    }
+  try {
+    // Add country code only when sending to backend
+    const fullPhone = `${countryCode}${phone}`;
 
-    navigate("/auth/verification");
-  };
+    console.log("Sending phone:", fullPhone);
+
+    const response = await register({
+      fullname: name.trim(),
+      phone: fullPhone,
+    });
+
+    console.log("Registration successful:", response.data);
+
+    navigate("/auth/verification", {
+      state: {
+        phone: fullPhone,
+        from: "sign-up",
+      },
+    });
+  } catch (error) {
+    console.error("Registration failed:", error);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] px-5 py-8 sm:px-6 lg:px-8">

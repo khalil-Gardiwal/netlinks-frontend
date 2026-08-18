@@ -1,13 +1,34 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../../components/LanguageSwitcher";
 import Desgin from "../../components/Designbackground";
+import { getMe } from "../../api/auth";
 
 function Welcome() {
+useEffect(() => {
+  const testAuth = async () => {
+    try {
+      const response = await getMe();
+
+      console.log("CURRENT USER:", response.data);
+
+      setUser(response.data);
+    } catch (error) {
+      console.error("GET ME FAILED:", error);
+      console.log("STATUS:", error.response?.status);
+      console.log("DATA:", error.response?.data);
+    }
+  };
+
+  testAuth();
+}, []);
+
+
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [showTwoFactor, setShowTwoFactor] = useState(false);
+  const [user, setUser] = useState(null);
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-[#F8FAFC] px-6">
@@ -177,9 +198,12 @@ function Welcome() {
 
         {/* Welcome Text */}
         <div className="mb-10">
-          <h1 className="text-4xl font-bold tracking-tight text-[#0F172A]">
-            {t("welcome.title")}
-          </h1>
+         <h1 className="text-4xl font-bold tracking-tight text-[#0F172A]">
+  {user
+    ? `Welcome, ${user.fullname}`
+    : t("welcome.title")}
+</h1>
+
 
           <p className="mt-4 text-base leading-7 text-[#64748B]">
             {t("welcome.description")}

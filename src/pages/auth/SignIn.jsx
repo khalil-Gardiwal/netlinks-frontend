@@ -3,18 +3,22 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../../components/LanguageSwitcher";
 import Desgin from "../../components/Designbackground";
+import { login } from "../../api/auth";
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;
 
 
+
 const SignIn = () => {
+  
   const { t } = useTranslation();
   const navigate = useNavigate();
 
 
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
-const handleSubmit = (e) => {
+  
+const handleSubmit = async (e) => {
   e.preventDefault();
 
   if (!phone.trim()) {
@@ -27,26 +31,51 @@ const handleSubmit = (e) => {
     return;
   }
 
-  setError("");
+  try {
+    setError("");
 
-  navigate("/auth/verification", {
-    state: { from: "sign-in" },
-  });
+    // Add Afghanistan country code
+    const fullPhone = `+93${phone}`;
+
+    console.log("Login phone:", fullPhone);
+
+    const response = await login({
+      phone: fullPhone,
+    });
+
+    console.log("Login response:", response);
+
+    navigate("/auth/verification", {
+      state: {
+        from: "sign-in",
+        phone: fullPhone,
+      },
+    });
+  } catch (error) {
+    console.error("Login failed:", error);
+    console.log("Status:", error.response?.status);
+    console.log("Data:", error.response?.data);
+
+    setError(
+      error.response?.data?.message ||
+        t("errors.invalidPhone")
+    );
+  }
 };
 
-    // Frontend-only for now.
-    // Backend authentication will be connected later.
-  
 
-  const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/\D/g, "");
+const handlePhoneChange = (e) => {
+  const value = e.target.value
+    .replace(/\D/g, "")
+    .slice(0, 9);
 
-    setPhone(value);
+  setPhone(value);
 
-    if (error) {
-      setError("");
-    }
-  };
+  if (error) {
+    setError("");
+  }
+};
+
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F8FAFC] px-4 py-8">
