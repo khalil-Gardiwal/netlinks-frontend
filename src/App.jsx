@@ -8,6 +8,8 @@ import SignIn from "./pages/auth/SignIn";
 import TwoFactorSetup from "./pages/auth/two-factor-setup/TwoFactorSetup";
 import TwoFactorEnabled from "./pages/auth/two-factor-setup/TwoFactorEnabled";
 import TwoFactorVerification from "./pages/auth/two-factor-setup/TwoFactorVerification";
+import UserProfile from "./pages/user/profile/UserProfile";
+import EditUserProfile from "./pages/user/profile/EditUserProfile";
 
 
 
@@ -37,6 +39,13 @@ function App() {
   path="/auth/two-factor-verification"
   element={<TwoFactorVerification />}
 />
+<Route
+  path="/user/profile"
+  element={<UserProfile />}
+/>
+
+<Route path="/user/profile/edit"
+element={<EditUserProfile/>}/>
         
         
 

@@ -6,6 +6,7 @@ import Desgin from "../../components/Designbackground";
 import { getMe, logout } from "../../api/auth";
 import { QRCodeSVG } from "qrcode.react";
 import AttachmentModal from "../../components/attachment/AttachmentModal";
+import { uploadAttachment } from "../../api/attachments";
 
 
 
@@ -263,6 +264,14 @@ function Welcome() {
 
   {/* Language Selector */}
   <LanguageSwitcher />
+  <button
+  type="button"
+  onClick={() => navigate("/user/profile")}
+  className="rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-600 active:bg-sky-700"
+>
+  {t("profile.viewProfile", "My Profile")}
+</button>
+
 </div>
 
       {/* Main Content */}
@@ -317,16 +326,28 @@ function Welcome() {
               {logoutError}
             </p>
           )}
+          
           <AttachmentModal
   open={showAttachmentModal}
   onClose={() => setShowAttachmentModal(false)}
-  onComplete={(file) => {
-    console.log("Cropped file:", file);
-    console.log("File name:", file.name);
-    console.log("File size:", file.size);
-    console.log("File type:", file.type);
-  }}
+ onComplete={async (file) => {
+  try {
+    console.log("FILE:", file);
+    console.log("Is File:", file instanceof File);
+    console.log("Name:", file?.name);
+    console.log("Size:", file?.size);
+    console.log("Type:", file?.type);
+
+    const response = await uploadAttachment(file);
+
+    console.log("Attachment uploaded successfully:", response.data);
+  } catch (error) {
+    console.error("Attachment upload failed:", error);
+    console.log("Backend response:", error.response?.data);
+  }
+}}
 />
+
 
         </div>
         
