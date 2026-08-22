@@ -253,7 +253,8 @@ function Welcome() {
   </button>
   <button
   type="button"
-  onClick={() => setShowAttachmentModal(true)}
+  onClick={() => {setShowAttachmentModal(true); console.log("btn clicked")}}
+  
   className="rounded-xl bg-sky-500 px-5 py-3 font-semibold text-white transition hover:bg-sky-600"
 >
   Test Attachment

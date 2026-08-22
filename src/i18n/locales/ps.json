@@ -10,7 +10,9 @@
     "changePhone": "د تلیفون شمېره بدلول",
     "phoneNumber": "د تلیفون شمېره",
     "verification": "تایید",
-    "resendCode": "کوډ بیا لېږل"
+    "resendCode": "کوډ بیا لېږل",
+    "close": "بندول",
+  "cancel": "لغوه کول"
   },
 
   "welcome": {

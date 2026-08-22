@@ -9,7 +9,10 @@
     "changePhone": "Change Phone Number",
     "phoneNumber": "Phone Number",
     "verification": "Verification",
-    "resendCode": "Resend Code"
+    "resendCode": "Resend Code",
+      "close": "Close",
+  "cancel": "Cancel"
+
   },
 
   "welcome": {

@@ -2,8 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Cropper from "react-easy-crop";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-
 const createImage = (url) =>
   new Promise((resolve, reject) => {
     const image = new Image();
@@ -75,6 +73,8 @@ function AttachmentModal({
   onComplete,
   aspect = 1,
   title,
+  maxFileSize = 5 * 1024 * 1024,
+  acceptedTypes = ["image/jpeg", "image/png", "image/webp"],
 }) {
   const { t } = useTranslation();
 
@@ -89,10 +89,6 @@ function AttachmentModal({
   const [isProcessing, setIsProcessing] = useState(false);
 
   const resetState = useCallback(() => {
-    if (imageSrc) {
-      URL.revokeObjectURL(imageSrc);
-    }
-
     setSelectedFile(null);
     setImageSrc(null);
     setCrop({ x: 0, y: 0 });
@@ -100,7 +96,7 @@ function AttachmentModal({
     setCroppedAreaPixels(null);
     setError("");
     setIsProcessing(false);
-  }, [imageSrc]);
+  }, []);
 
   useEffect(() => {
     if (!open) {
@@ -127,23 +123,13 @@ function AttachmentModal({
 
     setError("");
 
-    if (!file.type.startsWith("image/")) {
-      setError(
-        t(
-          "attachment.invalidType",
-          "Please select a valid image file."
-        )
-      );
+    if (!acceptedTypes.includes(file.type)) {
+      setError(t("attachment.invalidType"));
       return;
     }
 
-    if (file.size > MAX_FILE_SIZE) {
-      setError(
-        t(
-          "attachment.fileTooLarge",
-          "Image size must be less than 5 MB."
-        )
-      );
+    if (file.size > maxFileSize) {
+      setError(t("attachment.fileTooLarge"));
       return;
     }
 
@@ -187,12 +173,7 @@ function AttachmentModal({
     } catch (err) {
       console.error("Image cropping failed:", err);
 
-      setError(
-        t(
-          "attachment.cropError",
-          "Something went wrong while processing the image."
-        )
-      );
+      setError(t("attachment.cropError"));
     } finally {
       setIsProcessing(false);
     }
@@ -217,19 +198,13 @@ function AttachmentModal({
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">
-              {title ||
-                t("attachment.title")}
+              {title || t("attachment.title")}
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
               {selectedFile
-                ? t(
-                    "attachment.adjustImage"
-                  )
-                : t(
-                    "attachment.selectImage",
-                    
-                  )}
+                ? t("attachment.adjustImage")
+                : t("attachment.selectImage")}
             </p>
           </div>
 
@@ -238,7 +213,7 @@ function AttachmentModal({
             onClick={handleClose}
             disabled={isProcessing}
             className="flex h-9 w-9 items-center justify-center rounded-full text-2xl leading-none text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-            aria-label={t("common.close", "Close")}
+            aria-label={t("common.close")}
           >
             ×
           </button>
@@ -271,28 +246,19 @@ function AttachmentModal({
               </div>
 
               <h3 className="text-base font-semibold text-slate-900">
-                {t(
-                  "attachment.chooseImage",
-                  
-                )}
+                {t("attachment.chooseImage")}
               </h3>
 
               <p className="mt-2 max-w-sm text-sm text-slate-500">
-                {t(
-                  "attachment.imageHint",
-                  
-                )}
+                {t("attachment.imageHint")}
               </p>
 
               <label className="mt-6 inline-flex cursor-pointer items-center rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-600 active:bg-sky-700">
-                {t(
-                  "attachment.browse",
-                 
-                )}
+                {t("attachment.browse")}
 
                 <input
                   type="file"
-                  accept="image/*"
+                  accept={acceptedTypes.join(",")}
                   onChange={handleFileChange}
                   className="hidden"
                 />
@@ -345,14 +311,11 @@ function AttachmentModal({
 
               {/* Replace image */}
               <label className="inline-flex cursor-pointer items-center text-sm font-semibold text-sky-600 transition hover:text-sky-700">
-                {t(
-                  "attachment.changeImage"
-            
-                )}
+                {t("attachment.changeImage")}
 
                 <input
                   type="file"
-                  accept="image/*"
+                  accept={acceptedTypes.join(",")}
                   onChange={handleFileChange}
                   className="hidden"
                 />
@@ -387,13 +350,8 @@ function AttachmentModal({
               className="rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-600 active:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isProcessing
-                ? t(
-                    "attachment.processing"
-                  )
-                : t(
-                    "attachment.confirm"
-                   
-                  )}
+                ? t("attachment.processing")
+                : t("attachment.confirm")}
             </button>
           )}
         </div>

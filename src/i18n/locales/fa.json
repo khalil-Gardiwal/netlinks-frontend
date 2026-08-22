@@ -9,7 +9,9 @@
     "changePhone": "تغییر شماره تلفن",
     "phoneNumber": "شماره تلفن",
     "verification": "تایید هویت",
-    "resendCode": "ارسال مجدد کد"
+    "resendCode": "ارسال مجدد کد",
+    "close": "بستن",
+  "cancel": "لغو"
   },
 
   "welcome": {
