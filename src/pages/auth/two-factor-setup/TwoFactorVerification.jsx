@@ -1,13 +1,43 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
+import { verifyTwoFactor } from "../../../api/auth";
 
 function TwoFactorVerification() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
 
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
+  /*
+   * This token was created by the backend after
+   * the phone OTP was successfully verified.
+   *
+   * Backend:
+   *
+   * POST /auth/login/verify
+   *
+   * Response when 2FA is enabled:
+   *
+   * {
+   *   challengeToken: "..."
+   * }
+   */
+  const challengeToken =
+    location.state?.challengeToken;
+
+  const [code, setCode] = useState([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
+
   const [error, setError] = useState("");
+  const [isVerifying, setIsVerifying] =
+    useState(false);
 
   const handleChange = (value, index) => {
     if (!/^\d?$/.test(value)) {
@@ -15,14 +45,20 @@ function TwoFactorVerification() {
     }
 
     const newCode = [...code];
+
     newCode[index] = value;
 
     setCode(newCode);
     setError("");
 
-    if (value && index < code.length - 1) {
+    if (
+      value &&
+      index < code.length - 1
+    ) {
       document
-        .getElementById(`login-two-factor-${index + 1}`)
+        .getElementById(
+          `login-two-factor-${index + 1}`
+        )
         ?.focus();
     }
   };
@@ -34,7 +70,9 @@ function TwoFactorVerification() {
       index > 0
     ) {
       document
-        .getElementById(`login-two-factor-${index - 1}`)
+        .getElementById(
+          `login-two-factor-${index - 1}`
+        )
         ?.focus();
     }
   };
@@ -51,45 +89,176 @@ function TwoFactorVerification() {
       return;
     }
 
-    const newCode = [...code];
+    const newCode = [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+    ];
 
-    pastedValue.split("").forEach((digit, index) => {
-      newCode[index] = digit;
-    });
+    pastedValue
+      .split("")
+      .forEach((digit, index) => {
+        newCode[index] = digit;
+      });
 
     setCode(newCode);
     setError("");
 
-    const nextIndex = Math.min(pastedValue.length, 5);
+    const nextIndex = Math.min(
+      pastedValue.length,
+      5
+    );
 
     document
-      .getElementById(`login-two-factor-${nextIndex}`)
+      .getElementById(
+        `login-two-factor-${nextIndex}`
+      )
       ?.focus();
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const verificationCode = code.join("");
 
+    /*
+     * Make sure exactly 6 digits were entered.
+     */
     if (verificationCode.length !== 6) {
-      setError(t("twoFactorVerification.invalidCode"));
+      setError(
+        t(
+          "twoFactorVerification.invalidCode",
+          {
+            defaultValue:
+              "Please enter the 6-digit authenticator code.",
+          }
+        )
+      );
+
       return;
     }
 
     /*
-      BACKEND INTEGRATION WILL GO HERE.
+     * The challengeToken is extremely important.
+     *
+     * It proves that:
+     *
+     * 1. The user already passed phone verification.
+     * 2. The backend created a 2FA login challenge.
+     *
+     * We NEVER verify a TOTP code without this token.
+     */
+    if (!challengeToken) {
+      setError(
+        "Authentication session is missing. Please login again."
+      );
 
-      The backend will receive the 6-digit TOTP code
-      and verify it against the user's authenticator.
+      return;
+    }
 
-      Only after the backend confirms the code should
-      the user be considered fully authenticated.
+    try {
+      setIsVerifying(true);
+      setError("");
 
-      For now, this is frontend-only.
-    */
+      console.log(
+        "Sending 2FA verification to backend..."
+      );
 
-    navigate("/");
+      const response =
+        await verifyTwoFactor({
+          challengeToken,
+          code: verificationCode,
+        });
+
+      console.log(
+        "2FA verification response:",
+        response.data
+      );
+
+      /*
+       * Backend should return:
+       *
+       * {
+       *   accessToken,
+       *   refreshToken,
+       *   sessionId
+       * }
+       */
+
+      const {
+        accessToken,
+        refreshToken,
+        sessionId,
+      } = response.data;
+
+      /*
+       * Never consider login successful unless
+       * the backend returned the session tokens.
+       */
+      if (
+        !accessToken ||
+        !refreshToken ||
+        !sessionId
+      ) {
+        throw new Error(
+          "2FA verification succeeded but session tokens were not returned."
+        );
+      }
+
+      /*
+       * Save authenticated session.
+       */
+      localStorage.setItem(
+        "accessToken",
+        accessToken
+      );
+
+      localStorage.setItem(
+        "refreshToken",
+        refreshToken
+      );
+
+      localStorage.setItem(
+        "sessionId",
+        sessionId
+      );
+
+      console.log(
+        "2FA verification successful."
+      );
+
+      /*
+       * Now login is actually complete.
+       */
+      navigate("/auth/welcome", {
+        replace: true,
+      });
+    } catch (error) {
+      console.error(
+        "2FA verification failed:",
+        error
+      );
+
+      console.log(
+        "STATUS:",
+        error.response?.status
+      );
+
+      console.log(
+        "DATA:",
+        error.response?.data
+      );
+
+      setError(
+        error.response?.data?.message ||
+          "Invalid authenticator code."
+      );
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   return (
@@ -138,11 +307,15 @@ function TwoFactorVerification() {
             </div>
 
             <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">
-              {t("twoFactorVerification.title")}
+              {t(
+                "twoFactorVerification.title"
+              )}
             </h1>
 
             <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#64748B]">
-              {t("twoFactorVerification.description")}
+              {t(
+                "twoFactorVerification.description"
+              )}
             </p>
           </div>
 
@@ -178,11 +351,15 @@ function TwoFactorVerification() {
 
                 <div>
                   <p className="text-sm font-semibold text-[#0F172A]">
-                    {t("twoFactorVerification.authenticatorTitle")}
+                    {t(
+                      "twoFactorVerification.authenticatorTitle"
+                    )}
                   </p>
 
                   <p className="mt-1 text-xs leading-5 text-[#64748B]">
-                    {t("twoFactorVerification.authenticatorDescription")}
+                    {t(
+                      "twoFactorVerification.authenticatorDescription"
+                    )}
                   </p>
                 </div>
 
@@ -192,11 +369,15 @@ function TwoFactorVerification() {
             {/* Code Label */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-[#0F172A]">
-                {t("twoFactorVerification.codeLabel")}
+                {t(
+                  "twoFactorVerification.codeLabel"
+                )}
               </label>
 
               <p className="mt-1 text-xs text-[#64748B]">
-                {t("twoFactorVerification.codeDescription")}
+                {t(
+                  "twoFactorVerification.codeDescription"
+                )}
               </p>
             </div>
 
@@ -205,28 +386,41 @@ function TwoFactorVerification() {
               className="mb-3 flex justify-center gap-2 sm:gap-3"
               onPaste={handlePaste}
             >
-              {code.map((digit, index) => (
-                <input
-                  key={index}
-                  id={`login-two-factor-${index}`}
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete={index === 0 ? "one-time-code" : "off"}
-                  maxLength={1}
-                  value={digit}
-                  onChange={(event) =>
-                    handleChange(event.target.value, index)
-                  }
-                  onKeyDown={(event) =>
-                    handleKeyDown(event, index)
-                  }
-                  className={`h-12 w-10 rounded-xl border bg-white text-center text-lg font-bold text-[#0F172A] outline-none transition focus:ring-4 sm:h-14 sm:w-12 ${
-                    error
-                      ? "border-[#DC2626] focus:border-[#DC2626] focus:ring-red-100"
-                      : "border-[#CBD5E1] focus:border-[#0EA5E9] focus:ring-[#E0F2FE]"
-                  }`}
-                />
-              ))}
+              {code.map(
+                (digit, index) => (
+                  <input
+                    key={index}
+                    id={`login-two-factor-${index}`}
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete={
+                      index === 0
+                        ? "one-time-code"
+                        : "off"
+                    }
+                    maxLength={1}
+                    value={digit}
+                    onChange={(event) =>
+                      handleChange(
+                        event.target.value,
+                        index
+                      )
+                    }
+                    onKeyDown={(event) =>
+                      handleKeyDown(
+                        event,
+                        index
+                      )
+                    }
+                    disabled={isVerifying}
+                    className={`h-12 w-10 rounded-xl border bg-white text-center text-lg font-bold text-[#0F172A] outline-none transition focus:ring-4 sm:h-14 sm:w-12 ${
+                      error
+                        ? "border-[#DC2626] focus:border-[#DC2626] focus:ring-red-100"
+                        : "border-[#CBD5E1] focus:border-[#0EA5E9] focus:ring-[#E0F2FE]"
+                    }`}
+                  />
+                )
+              )}
             </div>
 
             {/* Error */}
@@ -240,18 +434,28 @@ function TwoFactorVerification() {
             <button
               type="button"
               onClick={handleSubmit}
-              className="mt-5 w-full rounded-xl bg-[#0EA5E9] px-6 py-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD]"
+              disabled={isVerifying}
+              className="mt-5 w-full rounded-xl bg-[#0EA5E9] px-6 py-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {t("twoFactorVerification.verify")}
+              {isVerifying
+                ? "Verifying..."
+                : t(
+                    "twoFactorVerification.verify"
+                  )}
             </button>
 
             {/* Back */}
             <button
               type="button"
-              onClick={() => navigate("/auth/sign-in")}
-              className="mt-5 w-full text-sm font-semibold text-[#64748B] transition hover:text-[#0F172A]"
+              onClick={() =>
+                navigate("/auth/sign-in")
+              }
+              disabled={isVerifying}
+              className="mt-5 w-full text-sm font-semibold text-[#64748B] transition hover:text-[#0F172A] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {t("twoFactorVerification.backToLogin")}
+              {t(
+                "twoFactorVerification.backToLogin"
+              )}
             </button>
 
           </div>

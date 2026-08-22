@@ -91,17 +91,23 @@ function Verification() {
       );
 
       // If 2FA is enabled, backend returns challengeToken
-      if (response.data.challengeToken) {
-        console.log(
-          "2FA required:",
-          response.data.challengeToken
-        );
+     if (response.data.challengeToken) {
+  console.log(
+    "2FA required:",
+    response.data.challengeToken
+  );
 
-        // We can connect your 2FA page here later.
-        // For now, don't pretend login is complete.
-        setError("Two-factor authentication is required.");
-        return;
-      }
+  navigate("/auth/two-factor-verification", {
+    state: {
+      challengeToken:
+        response.data.challengeToken,
+    },
+  });
+
+  return;
+}
+
+
 
       // Normal login session
       const {

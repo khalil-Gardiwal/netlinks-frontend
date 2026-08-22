@@ -19,7 +19,22 @@
     "login": "Login"
     
   },
-
+"attachment": {
+  "title": "Upload Image",
+  "selectImage": "Select an image from your device.",
+  "adjustImage": "Adjust your image before continuing.",
+  "chooseImage": "Choose an image",
+  "imageHint": "JPG, PNG or WebP. Maximum size 5 MB.",
+  "browse": "Browse files",
+  "zoom": "Zoom",
+  "changeImage": "Choose another image",
+  "processing": "Processing...",
+  "confirm": "Use this image",
+  "invalidType": "Please select a valid image file.",
+  "fileTooLarge": "Image size must be less than 5 MB.",
+  "cropError": "Something went wrong while processing the image."
+}
+,
   "signIn": {
     "title": "Sign In",
     "description": "Enter your phone number to continue.",
