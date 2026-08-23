@@ -118,7 +118,23 @@
   "statusTitle": "احراز هویت دو مرحله‌ای فعال است",
   "statusDescription": "هنگام ورود به حساب خود، از شما کد تأیید برنامه احراز هویت خواسته خواهد شد.",
   "continue": "ادامه"
-}
+},
+
+  "profile": {
+    "title": "پروفایل من",
+    "subtitle": "معلومات شخصی خود را مدیریت کنید.",
+    "loadError": "پروفایل شما بارگذاری نشد.",
+    "profilePicture": "عکس پروفایل",
+    "changePicture": "تغییر عکس پروفایل",
+    "personalInformation": "معلومات شخصی",
+    "personalInformationDescription": "معلومات اساسی حساب شما.",
+    "fullName": "نام کامل",
+    "phone": "شماره تلفن",
+    "completeProfile": "پروفایل خود را تکمیل کنید",
+    "completeProfileDescription": "معلومات اضافی پروفایل را می‌توانید در اینجا اضافه کنید.",
+    "editProfile": "ویرایش پروفایل"
+  }
+
 
 
 

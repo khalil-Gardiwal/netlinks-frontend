@@ -10,9 +10,8 @@
     "phoneNumber": "Phone Number",
     "verification": "Verification",
     "resendCode": "Resend Code",
-      "close": "Close",
-  "cancel": "Cancel"
-
+    "close": "Close",
+    "cancel": "Cancel"
   },
 
   "welcome": {
@@ -20,24 +19,22 @@
     "description": "Your safe and reliable ride is just a few taps away.",
     "createAccount": "Create an Account",
     "login": "Login"
-    
   },
-"attachment": {
-  "title": "Upload Image",
-  "selectImage": "Select an image from your device.",
-  "adjustImage": "Adjust your image before continuing.",
-  "chooseImage": "Choose an image",
-  "imageHint": "JPG, PNG or WebP. Maximum size 5 MB.",
-  "browse": "Browse files",
-  "zoom": "Zoom",
-  "changeImage": "Choose another image",
-  "processing": "Processing...",
-  "confirm": "Use this image",
-  "invalidType": "Please select a valid image file.",
-  "fileTooLarge": "Image size must be less than 5 MB.",
-  "cropError": "Something went wrong while processing the image."
-}
-,
+  "attachment": {
+    "title": "Upload Image",
+    "selectImage": "Select an image from your device.",
+    "adjustImage": "Adjust your image before continuing.",
+    "chooseImage": "Choose an image",
+    "imageHint": "JPG, PNG or WebP. Maximum size 5 MB.",
+    "browse": "Browse files",
+    "zoom": "Zoom",
+    "changeImage": "Choose another image",
+    "processing": "Processing...",
+    "confirm": "Use this image",
+    "invalidType": "Please select a valid image file.",
+    "fileTooLarge": "Image size must be less than 5 MB.",
+    "cropError": "Something went wrong while processing the image."
+  },
   "signIn": {
     "title": "Sign In",
     "description": "Enter your phone number to continue.",
@@ -47,23 +44,23 @@
     "noAccount": "Don't have an account?",
     "signUp": "Sign Up"
   },
-"signUp": {
-  "title": "Create an Account",
-  "description": "Create your account and start enjoying safe and reliable rides.",
-  "fullName": "Full Name",
-  "fullNamePlaceholder": "Enter your full name",
-  "phoneNumber": "Phone Number",
-  "phonePlaceholder": "70 123 4567",
-  "agree": "I agree to the",
-  "terms": "Terms & Conditions",
-  "and": "and",
-  "privacy": "Privacy Policy",
-  "agreeEnd": ".",
-  "createAccount": "Create Account",
-  "alreadyAccount": "Already have an account?",
-  "login": "Login",
-  "backToWelcome":"Back to Welcome"
-},
+  "signUp": {
+    "title": "Create an Account",
+    "description": "Create your account and start enjoying safe and reliable rides.",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "phoneNumber": "Phone Number",
+    "phonePlaceholder": "70 123 4567",
+    "agree": "I agree to the",
+    "terms": "Terms & Conditions",
+    "and": "and",
+    "privacy": "Privacy Policy",
+    "agreeEnd": ".",
+    "createAccount": "Create Account",
+    "alreadyAccount": "Already have an account?",
+    "login": "Login",
+    "backToWelcome": "Back to Welcome"
+  },
 
   "verification": {
     "title": "Verification",
@@ -77,12 +74,12 @@
   },
 
   "errors": {
-  "required": "This field is required",
-  "invalidPhone": "Invalid phone number",
-  "somethingWentWrong": "Something went wrong. Please try again.",
-  "networkError": "Unable to connect to the server. Please check your connection and try again.",
-  "serverError": "The server is currently unavailable. Please try again later."
-},
+    "required": "This field is required",
+    "invalidPhone": "Invalid phone number",
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "networkError": "Unable to connect to the server. Please check your connection and try again.",
+    "serverError": "The server is currently unavailable. Please try again later."
+  },
 
   "account": {
     "created": "Account Created",
@@ -90,48 +87,61 @@
     "continueToSignIn": "Continue to Sign In",
     "backToWelcome": "Back to Welcome"
   },
-"signInTwoFactor": {
-  "label": "2FA",
-  "title": "Two-Factor Authentication",
-  "description": "Add an extra layer of security to your account using an authenticator app.",
-  "enable": "Enable 2FA"
-}
-,
-
+  "signInTwoFactor": {
+    "label": "2FA",
+    "title": "Two-Factor Authentication",
+    "description": "Add an extra layer of security to your account using an authenticator app.",
+    "enable": "Enable 2FA"
+  },
   "twoFactor": {
-  "title": "Set Up Two-Factor Authentication",
-  "description": "Protect your account with an authenticator app.",
-  "stepOneTitle": "Scan the QR code",
-  "stepOneDescription": "Open your authenticator app and scan the QR code provided by your account.",
-  "qrPlaceholder": "QR code will appear here",
-  "or": "OR",
-  "manualKey": "Can't scan the QR code?",
-  "manualKeyDescription": "Use the setup key provided by your account.",
-  "stepTwoTitle": "Enter the verification code",
-  "stepTwoDescription": "Enter the 6-digit code shown in your authenticator app.",
-  "enableButton": "Verify & Enable 2FA",
-  "invalidCode": "Please enter the 6-digit verification code."
-},
+    "title": "Set Up Two-Factor Authentication",
+    "description": "Protect your account with an authenticator app.",
+    "stepOneTitle": "Scan the QR code",
+    "stepOneDescription": "Open your authenticator app and scan the QR code provided by your account.",
+    "qrPlaceholder": "QR code will appear here",
+    "or": "OR",
+    "manualKey": "Can't scan the QR code?",
+    "manualKeyDescription": "Use the setup key provided by your account.",
+    "stepTwoTitle": "Enter the verification code",
+    "stepTwoDescription": "Enter the 6-digit code shown in your authenticator app.",
+    "enableButton": "Verify & Enable 2FA",
+    "invalidCode": "Please enter the 6-digit verification code."
+  },
 
+  "twoFactorEnabled": {
+    "title": "Two-Factor Authentication Enabled",
+    "description": "Your account is now protected with an authenticator app.",
+    "statusTitle": "2FA is enabled",
+    "statusDescription": "You will be asked for a verification code from your authenticator app when you sign in.",
+    "continue": "Continue"
+  },
+  "twoFactorVerification": {
+    "title": "Two-Factor Authentication",
+    "description": "Enter the verification code from your authenticator app to continue.",
+    "authenticatorTitle": "Open your authenticator app",
+    "authenticatorDescription": "Use the authenticator app you connected to your account to get your 6-digit verification code.",
+    "codeLabel": "Verification Code",
+    "codeDescription": "Enter the 6-digit code shown in your authenticator app.",
+    "verify": "Verify & Continue",
+    "backToLogin": "Back to Login",
+    "invalidCode": "Please enter the 6-digit verification code."
+  },
+  
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal information.",
+    "loadError": "Unable to load your profile.",
+    "profilePicture": "Profile picture",
+    "changePicture": "Change profile picture",
+    "personalInformation": "Personal Information",
+    "personalInformationDescription": "Your basic account information.",
+    "fullName": "Full name",
+    "phone": "Phone",
+    "completeProfile": "Complete your profile",
+    "completeProfileDescription": "Additional profile information can be added here.",
+    "editProfile": "Edit profile"
 
-"twoFactorEnabled": {
-  "title": "Two-Factor Authentication Enabled",
-  "description": "Your account is now protected with an authenticator app.",
-  "statusTitle": "2FA is enabled",
-  "statusDescription": "You will be asked for a verification code from your authenticator app when you sign in.",
-  "continue": "Continue"
-},
-"twoFactorVerification": {
-  "title": "Two-Factor Authentication",
-  "description": "Enter the verification code from your authenticator app to continue.",
-  "authenticatorTitle": "Open your authenticator app",
-  "authenticatorDescription": "Use the authenticator app you connected to your account to get your 6-digit verification code.",
-  "codeLabel": "Verification Code",
-  "codeDescription": "Enter the 6-digit code shown in your authenticator app.",
-  "verify": "Verify & Continue",
-  "backToLogin": "Back to Login",
-  "invalidCode": "Please enter the 6-digit verification code."
 }
 
-
+  
 }

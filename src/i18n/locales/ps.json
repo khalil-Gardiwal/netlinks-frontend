@@ -120,7 +120,21 @@
   "statusTitle": "دوه پړاوه تصدیق فعال دی",
   "statusDescription": "کله چې تاسو خپل حساب ته ننوزئ، له تاسو څخه به د تصدیق کوونکي اپلیکیشن د تایید کوډ وغوښتل شي.",
   "continue": "دوام ورکړئ"
-}
+},
+"profile": {
+    "title": "زما پروفایل",
+    "subtitle": "خپل شخصي معلومات تنظیم کړئ.",
+    "loadError": "ستاسو پروفایل نه شو لوستلای.",
+    "profilePicture": "د پروفایل انځور",
+    "changePicture": "د پروفایل انځور بدلول",
+    "personalInformation": "شخصي معلومات",
+    "personalInformationDescription": "ستاسو د حساب اساسي معلومات.",
+    "fullName": "بشپړ نوم",
+    "phone": "د تلیفون شمېره",
+    "completeProfile": "خپل پروفایل بشپړ کړئ",
+    "completeProfileDescription": "نور شخصي معلومات دلته اضافه کېدای شي.",
+    "editProfile": "پروفایل سمول"
+  }
 
 
 
