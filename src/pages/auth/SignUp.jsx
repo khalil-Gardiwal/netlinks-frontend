@@ -23,6 +23,9 @@ function SignUp() {
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
   const [policyError, setPolicyError] = useState("");
 
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const countries = [
     {
       name: "Afghanistan",
@@ -65,6 +68,11 @@ function SignUp() {
 
     setName(value);
 
+    // Clear API error when user starts editing
+    if (submitError) {
+      setSubmitError("");
+    }
+
     if (nameError) {
       setNameError(validateName(value));
     }
@@ -79,6 +87,11 @@ function SignUp() {
       .slice(0, 9);
 
     setPhone(value);
+
+    // Clear API error when user starts editing
+    if (submitError) {
+      setSubmitError("");
+    }
 
     if (phoneError) {
       setPhoneError(validatePhone(value));
@@ -96,60 +109,113 @@ function SignUp() {
     if (checked) {
       setPolicyError("");
     }
+
+    if (submitError) {
+      setSubmitError("");
+    }
   };
-const handleSubmit = async (event) => {
-  event.preventDefault();
 
-  const nameValidationError = validateName(name);
-  const phoneValidationError = validatePhone(phone);
+  // -----------------------------
+  // Submit
+  // -----------------------------
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  setNameError(nameValidationError);
-  setPhoneError(phoneValidationError);
+    // Clear previous server/network error
+    setSubmitError("");
 
-  if (!acceptedPolicy) {
-    setPolicyError(t("errors.required"));
-  } else {
-    setPolicyError("");
-  }
+    // Prevent duplicate requests
+    if (isSubmitting) {
+      return;
+    }
 
-  if (
-    nameValidationError ||
-    phoneValidationError ||
-    !acceptedPolicy
-  ) {
-    return;
-  }
+    const nameValidationError = validateName(name);
+    const phoneValidationError = validatePhone(phone);
 
-  try {
-    // Add country code only when sending to backend
-    const fullPhone = `${countryCode}${phone}`;
+    setNameError(nameValidationError);
+    setPhoneError(phoneValidationError);
 
-    console.log("Sending phone:", fullPhone);
+    if (!acceptedPolicy) {
+      setPolicyError(t("errors.required"));
+    } else {
+      setPolicyError("");
+    }
 
-    const response = await register({
-      fullname: name.trim(),
-      phone: fullPhone,
-    });
+    // Stop if validation fails
+    if (
+      nameValidationError ||
+      phoneValidationError ||
+      !acceptedPolicy
+    ) {
+      return;
+    }
 
-    console.log("Registration successful:", response.data);
+    try {
+      setIsSubmitting(true);
 
-    navigate("/auth/verification", {
-      state: {
+      // Add country code only when sending to backend
+      const fullPhone = `${countryCode}${phone}`;
+
+      console.log("Sending registration request:", {
+        fullname: name.trim(),
         phone: fullPhone,
-        from: "sign-up",
-      },
-    });
-  } catch (error) {
-    console.error("Registration failed:", error);
-  }
-};
+      });
+
+      const response = await register({
+        fullname: name.trim(),
+        phone: fullPhone,
+      });
+
+      console.log(
+        "Registration successful:",
+        response.data
+      );
+
+      navigate("/auth/verification", {
+        state: {
+          phone: fullPhone,
+          from: "sign-up",
+        },
+      });
+    } catch (error) {
+      // Keep technical error available for developers
+      console.error("Registration failed:", error);
+
+      // No response means the request never reached
+      // the backend or the browser could not connect.
+      if (!error.response) {
+        setSubmitError(t("errors.networkError"));
+        return;
+      }
+
+      // Backend/server error
+      if (error.response.status >= 500) {
+        setSubmitError(t("errors.serverError"));
+        return;
+      }
+
+      // Backend returned a validation/client error
+      const backendMessage =
+        error.response.data?.message;
+
+      if (backendMessage) {
+        setSubmitError(backendMessage);
+      } else {
+        setSubmitError(
+          t("errors.somethingWentWrong")
+        );
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] px-5 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center justify-center">
         <div className="w-full">
-          <Desgin/>
-                
+          <Desgin />
+
           {/* Logo */}
           <div className="mb-8 flex justify-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0EA5E9] shadow-md">
@@ -172,8 +238,10 @@ const handleSubmit = async (event) => {
 
           {/* Form Card */}
           <div className="rounded-3xl border border-[#CBD5E1] bg-white p-6 shadow-sm sm:p-8">
-            <form onSubmit={handleSubmit} className="space-y-5">
-
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-5"
+            >
               {/* Name */}
               <div>
                 <label
@@ -191,11 +259,15 @@ const handleSubmit = async (event) => {
                   onBlur={() =>
                     setNameError(validateName(name))
                   }
-                  placeholder={t("signUp.fullNamePlaceholder")}
-                  className={`w-full rounded-xl border bg-white px-4 py-3.5 text-sm text-[#0F172A] outline-none transition placeholder:text-[#94A3B8] ${nameError
-                    ? "border-[#DC2626]"
-                    : "border-[#CBD5E1] focus:border-[#0EA5E9] focus:ring-4 focus:ring-[#E0F2FE]"
-                    }`}
+                  disabled={isSubmitting}
+                  placeholder={t(
+                    "signUp.fullNamePlaceholder"
+                  )}
+                  className={`w-full rounded-xl border bg-white px-4 py-3.5 text-sm text-[#0F172A] outline-none transition placeholder:text-[#94A3B8] disabled:cursor-not-allowed disabled:bg-[#F8FAFC] ${
+                    nameError
+                      ? "border-[#DC2626]"
+                      : "border-[#CBD5E1] focus:border-[#0EA5E9] focus:ring-4 focus:ring-[#E0F2FE]"
+                  }`}
                 />
 
                 {nameError && (
@@ -215,17 +287,19 @@ const handleSubmit = async (event) => {
                 </label>
 
                 <div
-                  className={`flex overflow-hidden rounded-xl border bg-white transition ${phoneError
-                    ? "border-[#DC2626]"
-                    : "border-[#CBD5E1] focus-within:border-[#0EA5E9] focus-within:ring-4 focus-within:ring-[#E0F2FE]"
-                    }`}
+                  className={`flex overflow-hidden rounded-xl border bg-white transition ${
+                    phoneError
+                      ? "border-[#DC2626]"
+                      : "border-[#CBD5E1] focus-within:border-[#0EA5E9] focus-within:ring-4 focus-within:ring-[#E0F2FE]"
+                  }`}
                 >
                   <select
                     value={countryCode}
                     onChange={(event) =>
                       setCountryCode(event.target.value)
                     }
-                    className="cursor-pointer border-r border-[#CBD5E1] bg-[#F8FAFC] px-3 py-3.5 text-sm font-medium text-[#0F172A] outline-none"
+                    disabled={isSubmitting}
+                    className="cursor-pointer border-r border-[#CBD5E1] bg-[#F8FAFC] px-3 py-3.5 text-sm font-medium text-[#0F172A] outline-none disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {countries.map((country) => (
                       <option
@@ -247,8 +321,11 @@ const handleSubmit = async (event) => {
                     onBlur={() =>
                       setPhoneError(validatePhone(phone))
                     }
-                    placeholder={t("signUp.phonePlaceholder")}
-                    className="min-w-0 flex-1 px-4 py-3.5 text-sm text-[#0F172A] outline-none placeholder:text-[#94A3B8]"
+                    disabled={isSubmitting}
+                    placeholder={t(
+                      "signUp.phonePlaceholder"
+                    )}
+                    className="min-w-0 flex-1 px-4 py-3.5 text-sm text-[#0F172A] outline-none placeholder:text-[#94A3B8] disabled:cursor-not-allowed disabled:bg-[#F8FAFC]"
                   />
                 </div>
 
@@ -258,55 +335,81 @@ const handleSubmit = async (event) => {
                   </p>
                 )}
               </div>
-{/* Policy */}
-<div
-  className={`rounded-xl p-4 ${
-    policyError ? "bg-[#FEF2F2]" : "bg-[#F0F9FF]"
-  }`}
->
-  <label className="flex cursor-pointer items-start gap-3">
-    <input
-      type="checkbox"
-      checked={acceptedPolicy}
-      onChange={handlePolicyChange}
-      className="mt-1 h-4 w-4 cursor-pointer accent-[#0EA5E9]"
-    />
 
-    <span className="text-sm leading-6 text-[#64748B]">
-      {t("signUp.agree")}{" "}
+              {/* Policy */}
+              <div
+                className={`rounded-xl p-4 ${
+                  policyError
+                    ? "bg-[#FEF2F2]"
+                    : "bg-[#F0F9FF]"
+                }`}
+              >
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={acceptedPolicy}
+                    onChange={handlePolicyChange}
+                    disabled={isSubmitting}
+                    className="mt-1 h-4 w-4 cursor-pointer accent-[#0EA5E9]"
+                  />
 
-      <button
-        type="button"
-        className="font-semibold text-[#0EA5E9] hover:text-[#0284C7]"
-      >
-        {t("signUp.terms")}
-      </button>{" "}
+                  <span className="text-sm leading-6 text-[#64748B]">
+                    {t("signUp.agree")}{" "}
 
-      {t("signUp.and")}{" "}
+                    <button
+                      type="button"
+                      className="font-semibold text-[#0EA5E9] hover:text-[#0284C7]"
+                    >
+                      {t("signUp.terms")}
+                    </button>{" "}
 
-      <button
-        type="button"
-        className="font-semibold text-[#0EA5E9] hover:text-[#0284C7]"
-      >
-        {t("signUp.privacy")}
-      </button>{" "}
+                    {t("signUp.and")}{" "}
 
-      {t("signUp.agreeEnd")}
-    </span>
-  </label>
+                    <button
+                      type="button"
+                      className="font-semibold text-[#0EA5E9] hover:text-[#0284C7]"
+                    >
+                      {t("signUp.privacy")}
+                    </button>{" "}
 
-  {policyError && (
-    <p className="mt-2 text-sm text-[#DC2626]">
-      {policyError}
-    </p>
-  )}
-</div>
+                    {t("signUp.agreeEnd")}
+                  </span>
+                </label>
+
+                {policyError && (
+                  <p className="mt-2 text-sm text-[#DC2626]">
+                    {policyError}
+                  </p>
+                )}
+              </div>
+
+              {/* Server / Network Error */}
+              {submitError && (
+                <div
+                  role="alert"
+                  className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm leading-6 text-[#B91C1C]"
+                >
+                  {submitError}
+                </div>
+              )}
+
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full rounded-xl bg-[#0EA5E9] px-6 py-4 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD]"
+                disabled={isSubmitting}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0EA5E9] px-6 py-4 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {t("signUp.createAccount")}
+                {isSubmitting ? (
+                  <>
+                    <span
+                      className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                      aria-hidden="true"
+                    />
+                    Creating account...
+                  </>
+                ) : (
+                  t("signUp.createAccount")
+                )}
               </button>
             </form>
 
@@ -318,10 +421,13 @@ const handleSubmit = async (event) => {
 
               <button
                 type="button"
-                onClick={() => navigate("/auth/sign-in")}
-                className="mt-2 font-semibold text-[#0EA5E9] transition hover:text-[#0284C7]"
+                onClick={() =>
+                  navigate("/auth/sign-in")
+                }
+                disabled={isSubmitting}
+                className="mt-2 font-semibold text-[#0EA5E9] transition hover:text-[#0284C7] disabled:cursor-not-allowed disabled:opacity-60"
               >
-              {t("signUp.login")}
+                {t("signUp.login")}
               </button>
             </div>
           </div>
@@ -329,13 +435,15 @@ const handleSubmit = async (event) => {
           {/* Back */}
           <button
             type="button"
-            onClick={() => navigate("/auth/welcome")}
-            className="mt-6 flex w-full items-center justify-center gap-2 text-sm font-medium text-[#64748B] transition hover:text-[#0F172A]"
+            onClick={() =>
+              navigate("/auth/welcome")
+            }
+            disabled={isSubmitting}
+            className="mt-6 flex w-full items-center justify-center gap-2 text-sm font-medium text-[#64748B] transition hover:text-[#0F172A] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span>←</span>
             {t("signUp.backToWelcome")}
           </button>
-
         </div>
       </div>
     </div>

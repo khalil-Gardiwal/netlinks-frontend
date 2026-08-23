@@ -77,14 +77,13 @@
   },
 
   "errors": {
-    "required": "This field is required",
-    "invalidPhone": "Invalid phone number",
-    "invalidVerificationCode": "Please enter the 6-digit verification code",
-    "somethingWentWrong": "Something went wrong",
-    "networkError": "Network connection error",
-    "serverError": "Server error"
-  },
-  
+  "required": "This field is required",
+  "invalidPhone": "Invalid phone number",
+  "somethingWentWrong": "Something went wrong. Please try again.",
+  "networkError": "Unable to connect to the server. Please check your connection and try again.",
+  "serverError": "The server is currently unavailable. Please try again later."
+},
+
   "account": {
     "created": "Account Created",
     "createdSuccessfully": "Your account has been created successfully. You can now sign in and start using Easy Ride.",

@@ -1,85 +1,123 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "../../components/LanguageSwitcher";
 import Desgin from "../../components/Designbackground";
 import { login } from "../../api/auth";
+
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;
 
-
-
 const SignIn = () => {
-  
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
-  
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (!phone.trim()) {
-    setError(t("errors.required"));
-    return;
-  }
+  // -----------------------------
+  // Phone change
+  // -----------------------------
+  const handlePhoneChange = (e) => {
+    const value = e.target.value
+      .replace(/\D/g, "")
+      .slice(0, 9);
 
-  if (!AFGHAN_PHONE_REGEX.test(phone)) {
-    setError(t("errors.invalidPhone"));
-    return;
-  }
+    setPhone(value);
 
-  try {
+    // Clear old error when user starts editing
+    if (error) {
+      setError("");
+    }
+  };
+
+  // -----------------------------
+  // Submit
+  // -----------------------------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Clear previous error
     setError("");
 
-    // Add Afghanistan country code
-    const fullPhone = `+93${phone}`;
+    // Prevent duplicate requests
+    if (isSubmitting) {
+      return;
+    }
 
-    console.log("Login phone:", fullPhone);
+    // Required validation
+    if (!phone.trim()) {
+      setError(t("errors.required"));
+      return;
+    }
 
-    const response = await login({
-      phone: fullPhone,
-    });
+    // Phone format validation
+    if (!AFGHAN_PHONE_REGEX.test(phone)) {
+      setError(t("errors.invalidPhone"));
+      return;
+    }
 
-    console.log("Login response:", response);
+    try {
+      setIsSubmitting(true);
 
-    navigate("/auth/verification", {
-      state: {
-        from: "sign-in",
+      // Add Afghanistan country code
+      const fullPhone = `+93${phone}`;
+
+      console.log("Login phone:", fullPhone);
+
+      const response = await login({
         phone: fullPhone,
-      },
-    });
-  } catch (error) {
-    console.error("Login failed:", error);
-    console.log("Status:", error.response?.status);
-    console.log("Data:", error.response?.data);
+      });
 
-    setError(
-      error.response?.data?.message ||
-        t("errors.invalidPhone")
-    );
-  }
-};
+      console.log("Login response:", response);
 
+      navigate("/auth/verification", {
+        state: {
+          from: "sign-in",
+          phone: fullPhone,
+        },
+      });
+    } catch (error) {
+      // Keep technical information for developers
+      console.error("Login failed:", error);
+      console.log("Status:", error.response?.status);
+      console.log("Data:", error.response?.data);
 
-const handlePhoneChange = (e) => {
-  const value = e.target.value
-    .replace(/\D/g, "")
-    .slice(0, 9);
+      // ------------------------------------
+      // No response = network/server unreachable
+      // ------------------------------------
+      if (!error.response) {
+        setError(t("errors.networkError"));
+        return;
+      }
 
-  setPhone(value);
+      // ------------------------------------
+      // Server error
+      // ------------------------------------
+      if (error.response.status >= 500) {
+        setError(t("errors.serverError"));
+        return;
+      }
 
-  if (error) {
-    setError("");
-  }
-};
+      // ------------------------------------
+      // Backend returned a client error
+      // ------------------------------------
+      const backendMessage =
+        error.response.data?.message;
 
+      if (backendMessage) {
+        setError(backendMessage);
+      } else {
+        setError(t("errors.somethingWentWrong"));
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F8FAFC] px-4 py-8">
-    <Desgin/>
+      <Desgin />
 
       {/* =====================================
           MAIN CONTENT
@@ -101,7 +139,10 @@ const handlePhoneChange = (e) => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
 
             {/* Phone */}
             <div>
@@ -135,24 +176,41 @@ const handlePhoneChange = (e) => {
                   value={phone}
                   onChange={handlePhoneChange}
                   placeholder="70 123 4567"
-                  className="min-w-0 flex-1 bg-white px-4 py-3.5 text-sm text-[#0F172A] outline-none placeholder:text-[#94A3B8]"
+                  disabled={isSubmitting}
+                  className="min-w-0 flex-1 bg-white px-4 py-3.5 text-sm text-[#0F172A] outline-none placeholder:text-[#94A3B8] disabled:cursor-not-allowed disabled:bg-[#F8FAFC]"
                 />
               </div>
 
               {/* Error */}
               {error && (
-                <p className="mt-2 text-sm text-[#DC2626]">
-                  {error}
-                </p>
+                <div
+                  role="alert"
+                  className="mt-2 rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-3 py-2.5"
+                >
+                  <p className="text-sm text-[#B91C1C]">
+                    {error}
+                  </p>
+                </div>
               )}
             </div>
 
             {/* Login */}
             <button
               type="submit"
-              className="w-full rounded-xl bg-[#0EA5E9] px-4 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#0284C7] hover:shadow-lg hover:shadow-[#0EA5E9]/20 active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD]"
+              disabled={isSubmitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0EA5E9] px-4 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#0284C7] hover:shadow-lg hover:shadow-[#0EA5E9]/20 active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {t("signIn.login")}
+              {isSubmitting ? (
+                <>
+                  <span
+                    className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                    aria-hidden="true"
+                  />
+                  Signing in...
+                </>
+              ) : (
+                t("signIn.login")
+              )}
             </button>
           </form>
 
@@ -164,7 +222,7 @@ const handlePhoneChange = (e) => {
 
             <Link
               to="/auth/signup"
-              className="font-semibold text-[#0EA5E9] transition-colors hover:text-[#0284C7]"
+              className="ml-1 font-semibold text-[#0EA5E9] transition-colors hover:text-[#0284C7]"
             >
               {t("signIn.signUp")}
             </Link>
