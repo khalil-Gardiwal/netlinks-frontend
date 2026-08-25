@@ -6,6 +6,10 @@ import LanguageSwitcher from "../../components/LanguageSwitcher";
 import Desgin from "../../components/Designbackground";
 
 import { getMe, logout } from "../../api/auth";
+import {
+  getDriverMe,
+  logoutDriver,
+} from "../../api/driverapi";
 
 import AttachmentModal from "../../components/attachment/AttachmentModal";
 import { uploadAttachment } from "../../api/attachments";
@@ -20,66 +24,269 @@ function Welcome() {
 
   const [user, setUser] = useState(null);
 
+  const [accountType, setAccountType] = useState(null);
+
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
+
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
 
   const [showAttachmentModal, setShowAttachmentModal] =
     useState(false);
 
+  // ============================================================
+  // LOAD CURRENT ACCOUNT
+  // ============================================================
+
   useEffect(() => {
-    const testAuth = async () => {
+    const loadCurrentAccount = async () => {
+      setIsLoadingUser(true);
+
       try {
-        const response = await getMe();
+        const driverToken =
+          localStorage.getItem("driverAccessToken");
 
-        console.log("CURRENT USER:", response.data);
+        const userToken =
+          localStorage.getItem("accessToken");
 
-        setUser(response.data);
-      } catch (error) {
-        console.error("GET ME FAILED:", error);
-        console.log("STATUS:", error.response?.status);
-        console.log("DATA:", error.response?.data);
+        // ======================================================
+        // DRIVER
+        // ======================================================
+
+        if (driverToken) {
+          console.log(
+            "Driver access token found. Loading driver..."
+          );
+
+          try {
+            const response = await getDriverMe();
+
+            console.log(
+              "CURRENT DRIVER:",
+              response.data
+            );
+
+            setUser(response.data);
+            setAccountType("driver");
+
+            return;
+          } catch (driverError) {
+            console.error(
+              "GET DRIVER ME FAILED:",
+              driverError
+            );
+
+            console.log(
+              "DRIVER STATUS:",
+              driverError.response?.status
+            );
+
+            console.log(
+              "DRIVER DATA:",
+              driverError.response?.data
+            );
+
+            // Driver token is invalid/expired.
+            localStorage.removeItem(
+              "driverAccessToken"
+            );
+
+            localStorage.removeItem(
+              "driverRefreshToken"
+            );
+          }
+        }
+
+        // ======================================================
+        // PASSENGER / NORMAL USER
+        // ======================================================
+
+        if (userToken) {
+          console.log(
+            "User access token found. Loading user..."
+          );
+
+          try {
+            const response = await getMe();
+
+            console.log(
+              "CURRENT USER:",
+              response.data
+            );
+
+            setUser(response.data);
+            setAccountType("passenger");
+
+            return;
+          } catch (userError) {
+            console.error(
+              "GET USER ME FAILED:",
+              userError
+            );
+
+            console.log(
+              "USER STATUS:",
+              userError.response?.status
+            );
+
+            console.log(
+              "USER DATA:",
+              userError.response?.data
+            );
+
+            localStorage.removeItem(
+              "accessToken"
+            );
+
+            localStorage.removeItem(
+              "refreshToken"
+            );
+
+            localStorage.removeItem(
+              "sessionId"
+            );
+          }
+        }
+
+        // ======================================================
+        // NO AUTHENTICATED ACCOUNT
+        // ======================================================
+
+        setUser(null);
+        setAccountType(null);
+
+      } finally {
+        setIsLoadingUser(false);
       }
     };
 
-    testAuth();
+    loadCurrentAccount();
   }, []);
 
+  // ============================================================
+  // LOGOUT
+  // ============================================================
+
   const handleLogout = async () => {
+    if (isLoggingOut) {
+      return;
+    }
+
     try {
       setIsLoggingOut(true);
       setLogoutError("");
 
-      const response = await logout();
+      // ======================================================
+      // DRIVER LOGOUT
+      // ======================================================
 
-      console.log("Logout response:", response.data);
+      if (accountType === "driver") {
+        try {
+          const response = await logoutDriver();
+
+          console.log(
+            "Driver logout response:",
+            response.data
+          );
+        } catch (driverLogoutError) {
+          console.error(
+            "Driver logout request failed:",
+            driverLogoutError
+          );
+
+          console.log(
+            "DRIVER LOGOUT STATUS:",
+            driverLogoutError.response?.status
+          );
+
+          console.log(
+            "DRIVER LOGOUT DATA:",
+            driverLogoutError.response?.data
+          );
+        }
+
+        // Always clear local driver authentication.
+        localStorage.removeItem(
+          "driverAccessToken"
+        );
+
+        localStorage.removeItem(
+          "driverRefreshToken"
+        );
+
+        setUser(null);
+        setAccountType(null);
+
+        navigate("/auth/welcome");
+
+        return;
+      }
+
+      // ======================================================
+      // NORMAL USER LOGOUT
+      // ======================================================
+
+      try {
+        const response = await logout();
+
+        console.log(
+          "User logout response:",
+          response.data
+        );
+      } catch (userLogoutError) {
+        console.error(
+          "User logout request failed:",
+          userLogoutError
+        );
+
+        console.log(
+          "USER LOGOUT STATUS:",
+          userLogoutError.response?.status
+        );
+
+        console.log(
+          "USER LOGOUT DATA:",
+          userLogoutError.response?.data
+        );
+      }
 
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("sessionId");
 
-      navigate("/auth/sign-in");
+      setUser(null);
+      setAccountType(null);
+
+      navigate("/auth/welcome");
+
     } catch (error) {
-      console.error("Logout failed:", error);
-      console.log("STATUS:", error.response?.status);
-      console.log("DATA:", error.response?.data);
+      console.error(
+        "Logout failed:",
+        error
+      );
 
-      /*
-       * Even if the backend logout request fails,
-       * clear the local authentication state.
-       */
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("sessionId");
-
-      navigate("/auth/sign-in");
+      setLogoutError(
+        t("errors.somethingWentWrong", {
+          defaultValue:
+            "Something went wrong. Please try again.",
+        })
+      );
     } finally {
       setIsLoggingOut(false);
     }
   };
 
+  // ============================================================
+  // ACCOUNT TYPE SELECTION
+  // ============================================================
+
   const handleSelectType = (type) => {
     setSelectedType(type);
   };
+
+  // ============================================================
+  // LOGIN
+  // ============================================================
 
   const handleLogin = () => {
     if (selectedType === "driver") {
@@ -90,6 +297,10 @@ function Welcome() {
     navigate("/auth/sign-in");
   };
 
+  // ============================================================
+  // SIGNUP
+  // ============================================================
+
   const handleSignup = () => {
     if (selectedType === "driver") {
       navigate("/driver/auth/signup");
@@ -99,19 +310,59 @@ function Welcome() {
     navigate("/auth/signup");
   };
 
+  // ============================================================
+  // DISPLAY NAME
+  // ============================================================
+
+  const getDisplayName = () => {
+    if (!user) {
+      return "";
+    }
+
+    return (
+      user.fullname ||
+      user.fullName ||
+      user.name ||
+      user.firstName ||
+      user.phone ||
+      ""
+    );
+  };
+
+  const displayName = getDisplayName();
+
+  // ============================================================
+  // AUTHENTICATED ACCOUNT
+  // ============================================================
+
+  const isAuthenticated =
+    !!user && !!accountType;
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#F8FAFC]">
+
       <Desgin />
 
       {/* =====================================================
           TOP CONTROLS
       ====================================================== */}
+
       <div className="absolute right-5 top-5 z-50 flex items-start gap-2 sm:right-6 sm:top-6">
-        {/* Profile */}
-        {user && (
+
+        {/* ===================================================
+            PROFILE
+        ==================================================== */}
+
+        {isAuthenticated && (
           <button
             type="button"
-            onClick={() => navigate("/user/profile")}
+            onClick={() => {
+              if (accountType === "driver") {
+                navigate("/driver/profile");
+              } else {
+                navigate("/user/profile");
+              }
+            }}
             className="flex items-center gap-2 rounded-xl border border-[#CBD5E1] bg-white px-3 py-2 text-xs font-semibold text-[#0F172A] shadow-sm transition hover:border-[#0EA5E9] hover:bg-[#F0F9FF] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:ring-offset-2"
           >
             <svg
@@ -128,24 +379,37 @@ function Welcome() {
                 strokeLinejoin="round"
               />
 
-              <circle cx="12" cy="7" r="4" />
+              <circle
+                cx="12"
+                cy="7"
+                r="4"
+              />
             </svg>
 
             <span className="hidden sm:inline">
-              {t("profile.viewProfile", {
-                defaultValue: "My Profile",
-              })}
+              {accountType === "driver"
+                ? "Driver Profile"
+                : t("profile.viewProfile", {
+                    defaultValue:
+                      "My Profile",
+                  })}
             </span>
           </button>
         )}
 
-        {/* 2FA */}
-        {user && (
+        {/* ===================================================
+            2FA
+        ==================================================== */}
+
+        {isAuthenticated && (
           <div className="relative">
+
             <button
               type="button"
               onClick={() =>
-                setShowTwoFactor(!showTwoFactor)
+                setShowTwoFactor(
+                  !showTwoFactor
+                )
               }
               className={`flex items-center gap-2 rounded-xl border bg-white px-3 py-2 text-xs font-semibold shadow-sm transition ${
                 showTwoFactor
@@ -179,9 +443,13 @@ function Welcome() {
               </svg>
 
               <span className="hidden sm:inline">
-                {t("signInTwoFactor.label", {
-                  defaultValue: "2FA",
-                })}
+                {t(
+                  "signInTwoFactor.label",
+                  {
+                    defaultValue:
+                      "2FA",
+                  }
+                )}
               </span>
 
               <svg
@@ -191,7 +459,9 @@ function Welcome() {
                 stroke="currentColor"
                 strokeWidth="2"
                 className={`h-3 w-3 transition-transform ${
-                  showTwoFactor ? "rotate-180" : ""
+                  showTwoFactor
+                    ? "rotate-180"
+                    : ""
                 }`}
               >
                 <path
@@ -203,6 +473,7 @@ function Welcome() {
             </button>
 
             {/* 2FA Dropdown */}
+
             {showTwoFactor && (
               <div
                 className="
@@ -219,12 +490,13 @@ function Welcome() {
                   p-4
                   text-left
                   shadow-xl
-
                   sm:w-72
                   sm:p-5
                 "
               >
+
                 <div className="mb-4 flex items-start gap-3">
+
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E0F2FE]">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -253,27 +525,46 @@ function Welcome() {
                   </div>
 
                   <div className="min-w-0 flex-1">
+
                     <h2 className="text-sm font-bold text-[#0F172A]">
-                      {t("signInTwoFactor.title", {
-                        defaultValue:
-                          "Two-factor authentication",
-                      })}
+                      {t(
+                        "signInTwoFactor.title",
+                        {
+                          defaultValue:
+                            "Two-factor authentication",
+                        }
+                      )}
                     </h2>
 
                     <p className="mt-1 break-words text-xs leading-5 text-[#64748B]">
-                      {t("signInTwoFactor.description", {
-                        defaultValue:
-                          "Add an extra layer of security to your account.",
-                      })}
+                      {t(
+                        "signInTwoFactor.description",
+                        {
+                          defaultValue:
+                            "Add an extra layer of security to your account.",
+                        }
+                      )}
                     </p>
+
                   </div>
                 </div>
 
                 <button
                   type="button"
-                  onClick={() =>
-                    navigate("/auth/two-factor-setup")
-                  }
+                  onClick={() => {
+                    if (
+                      accountType ===
+                      "driver"
+                    ) {
+                      navigate(
+                        "/driver/auth/two-factor-setup"
+                      );
+                    } else {
+                      navigate(
+                        "/auth/two-factor-setup"
+                      );
+                    }
+                  }}
                   className="
                     w-full
                     rounded-xl
@@ -290,23 +581,33 @@ function Welcome() {
                     focus:ring-[#E0F2FE]
                   "
                 >
-                  {t("signInTwoFactor.enable", {
-                    defaultValue: "Enable 2FA",
-                  })}
+                  {t(
+                    "signInTwoFactor.enable",
+                    {
+                      defaultValue:
+                        "Enable 2FA",
+                    }
+                  )}
                 </button>
+
               </div>
             )}
+
           </div>
         )}
 
-        {/* Logout */}
-        {user && (
+        {/* ===================================================
+            LOGOUT
+        ==================================================== */}
+
+        {isAuthenticated && (
           <button
             type="button"
             onClick={handleLogout}
             disabled={isLoggingOut}
             className="flex items-center gap-2 rounded-xl border border-[#DC2626] bg-white px-3 py-2 text-xs font-semibold text-[#DC2626] shadow-sm transition hover:bg-[#FEF2F2] focus:outline-none focus:ring-2 focus:ring-[#DC2626] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
           >
+
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -330,386 +631,526 @@ function Welcome() {
 
             <span className="hidden sm:inline">
               {isLoggingOut
-                ? t("welcome.loggingOut", {
-                    defaultValue: "Logging out...",
-                  })
-                : t("welcome.logout", {
-                    defaultValue: "Logout",
-                  })}
+                ? t(
+                    "welcome.loggingOut",
+                    {
+                      defaultValue:
+                        "Logging out...",
+                    }
+                  )
+                : t(
+                    "welcome.logout",
+                    {
+                      defaultValue:
+                        "Logout",
+                    }
+                  )}
             </span>
+
           </button>
         )}
 
-        {/* Language */}
+        {/* ===================================================
+            LANGUAGE
+        ==================================================== */}
+
         <LanguageSwitcher />
+
       </div>
 
       {/* =====================================================
           MAIN CONTENT
       ====================================================== */}
+
       <div className="relative z-10 flex min-h-screen items-center justify-center px-5 py-24 sm:px-6">
+
         <div className="w-full max-w-3xl text-center">
+
           {/* =================================================
               LOGO
           ================================================== */}
+
           <div className="mb-8 flex justify-center">
+
             <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-[#0EA5E9] shadow-lg shadow-[#0EA5E9]/20">
+
               <span className="text-4xl font-bold text-white">
                 AT
               </span>
+
             </div>
+
           </div>
 
           {/* =================================================
               WELCOME TEXT
           ================================================== */}
+
           <div className="mx-auto mb-9 max-w-xl">
+
             <h1 className="text-3xl font-bold tracking-tight text-[#0F172A] sm:text-4xl">
-              {user
-                ? t("welcome.greeting", {
-                    name: user.fullname,
-                    defaultValue: `Welcome, ${user.fullname}`,
-                  })
-                : t("welcome.title", {
-                    defaultValue: "Welcome to Netlinks",
-                  })}
+
+              {isLoadingUser ? (
+                "Welcome"
+              ) : isAuthenticated ? (
+                accountType === "driver" ? (
+                  displayName
+                    ? `Welcome, ${displayName}`
+                    : "Welcome, Driver"
+                ) : (
+                  displayName
+                    ? t(
+                        "welcome.greeting",
+                        {
+                          name:
+                            displayName,
+                          defaultValue:
+                            `Welcome, ${displayName}`,
+                        }
+                      )
+                    : "Welcome"
+                )
+              ) : (
+                t(
+                  "welcome.title",
+                  {
+                    defaultValue:
+                      "Welcome to Netlinks",
+                  }
+                )
+              )}
+
             </h1>
 
             <p className="mt-4 text-sm leading-6 text-[#64748B] sm:text-base sm:leading-7">
-              {t("welcome.description", {
-                defaultValue:
-                  "Your reliable ride, whenever you need it.",
-              })}
+
+              {accountType === "driver"
+                ? "Welcome back. Manage your driver account and continue with Netlinks."
+                : t(
+                    "welcome.description",
+                    {
+                      defaultValue:
+                        "Your reliable ride, whenever you need it.",
+                    }
+                  )}
+
             </p>
+
           </div>
 
           {/* =================================================
               ACCOUNT TYPE
           ================================================== */}
-          <div className="mx-auto max-w-2xl">
-            <h2 className="text-lg font-bold text-[#0F172A]">
-              {t("welcome.chooseAccountType", {
-                defaultValue:
-                  "How would you like to continue?",
-              })}
-            </h2>
 
-            <p className="mt-1 text-sm text-[#64748B]">
-              {t("welcome.chooseAccountDescription", {
-                defaultValue:
-                  "Choose how you want to use Netlinks.",
-              })}
-            </p>
+          {!isAuthenticated && (
+            <div className="mx-auto max-w-2xl">
 
-            {/* =================================================
-                TYPE CARDS
-            ================================================== */}
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {/* Passenger */}
-              <button
-                type="button"
-                onClick={() =>
-                  handleSelectType("passenger")
-                }
-                className={`group relative rounded-2xl border bg-white p-6 text-left shadow-sm transition-all duration-200 ${
-                  selectedType === "passenger"
-                    ? "border-[#0EA5E9] bg-[#F0F9FF] shadow-md shadow-[#0EA5E9]/10"
-                    : "border-[#CBD5E1] hover:-translate-y-0.5 hover:border-[#0EA5E9] hover:shadow-md"
-                }`}
-              >
-                {/* Selection */}
-                <div
-                  className={`absolute right-5 top-5 flex h-6 w-6 items-center justify-center rounded-full border ${
-                    selectedType === "passenger"
-                      ? "border-[#0EA5E9] bg-[#0EA5E9]"
-                      : "border-[#CBD5E1] bg-white"
-                  }`}
-                >
-                  {selectedType === "passenger" && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      className="h-3.5 w-3.5 text-white"
-                    >
-                      <path
-                        d="m5 12 4 4L19 6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  )}
-                </div>
-
-                {/* Icon */}
-                <div
-                  className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl ${
-                    selectedType === "passenger"
-                      ? "bg-[#0EA5E9]"
-                      : "bg-[#E0F2FE]"
-                  }`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    className={`h-7 w-7 ${
-                      selectedType === "passenger"
-                        ? "text-white"
-                        : "text-[#0EA5E9]"
-                    }`}
-                  >
-                    <path
-                      d="M5 17h14"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-
-                    <path
-                      d="M6 17a2 2 0 0 1-2-2v-2.5a2 2 0 0 1 2-2h1.2l1.4-3.2A2 2 0 0 1 10.43 6h3.14a2 2 0 0 1 1.83 1.3l1.4 3.2H18a2 2 0 0 1 2 2V15a2 2 0 0 1-2 2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-
-                    <circle cx="7.5" cy="17.5" r="1.5" />
-                    <circle cx="16.5" cy="17.5" r="1.5" />
-                  </svg>
-                </div>
-
-                <h3 className="text-lg font-bold text-[#0F172A]">
-                  {t("welcome.passenger", {
-                    defaultValue: "Passenger",
-                  })}
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-[#64748B]">
-                  {t("welcome.passengerDescription", {
+              <h2 className="text-lg font-bold text-[#0F172A]">
+                {t(
+                  "welcome.chooseAccountType",
+                  {
                     defaultValue:
-                      "Book a comfortable ride and get where you need to go.",
-                  })}
-                </p>
+                      "How would you like to continue?",
+                  }
+                )}
+              </h2>
 
-                <div
-                  className={`mt-5 flex items-center gap-2 text-sm font-semibold ${
-                    selectedType === "passenger"
-                      ? "text-[#0EA5E9]"
-                      : "text-[#64748B] group-hover:text-[#0EA5E9]"
-                  }`}
-                >
-                  <span>
-                    {t("welcome.continueAsPassenger", {
-                      defaultValue:
-                        "Continue as passenger",
-                    })}
-                  </span>
-
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                  >
-                    <path
-                      d="M5 12h14"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-
-                    <path
-                      d="m13 6 6 6-6 6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              </button>
-
-              {/* Driver */}
-              <button
-                type="button"
-                onClick={() =>
-                  handleSelectType("driver")
-                }
-                className={`group relative rounded-2xl border bg-white p-6 text-left shadow-sm transition-all duration-200 ${
-                  selectedType === "driver"
-                    ? "border-[#20B8C5] bg-[#F0FDFA] shadow-md shadow-[#20B8C5]/10"
-                    : "border-[#CBD5E1] hover:-translate-y-0.5 hover:border-[#20B8C5] hover:shadow-md"
-                }`}
-              >
-                {/* Selection */}
-                <div
-                  className={`absolute right-5 top-5 flex h-6 w-6 items-center justify-center rounded-full border ${
-                    selectedType === "driver"
-                      ? "border-[#20B8C5] bg-[#20B8C5]"
-                      : "border-[#CBD5E1] bg-white"
-                  }`}
-                >
-                  {selectedType === "driver" && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      className="h-3.5 w-3.5 text-white"
-                    >
-                      <path
-                        d="m5 12 4 4L19 6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  )}
-                </div>
-
-                {/* Icon */}
-                <div
-                  className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl ${
-                    selectedType === "driver"
-                      ? "bg-[#20B8C5]"
-                      : "bg-[#CCFBF1]"
-                  }`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    className={`h-7 w-7 ${
-                      selectedType === "driver"
-                        ? "text-white"
-                        : "text-[#20B8C5]"
-                    }`}
-                  >
-                    <circle cx="12" cy="12" r="8" />
-
-                    <circle cx="12" cy="12" r="2.5" />
-
-                    <path
-                      d="M12 4v5.5M12 14.5V20M4 12h5.5M14.5 12H20"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </div>
-
-                <h3 className="text-lg font-bold text-[#0F172A]">
-                  {t("welcome.driver", {
-                    defaultValue: "Driver",
-                  })}
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-[#64748B]">
-                  {t("welcome.driverDescription", {
+              <p className="mt-1 text-sm text-[#64748B]">
+                {t(
+                  "welcome.chooseAccountDescription",
+                  {
                     defaultValue:
-                      "Drive with Netlinks and earn while helping passengers reach their destination.",
-                  })}
-                </p>
-
-                <div
-                  className={`mt-5 flex items-center gap-2 text-sm font-semibold ${
-                    selectedType === "driver"
-                      ? "text-[#20B8C5]"
-                      : "text-[#64748B] group-hover:text-[#20B8C5]"
-                  }`}
-                >
-                  <span>
-                    {t("welcome.continueAsDriver", {
-                      defaultValue:
-                        "Continue as driver",
-                    })}
-                  </span>
-
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                  >
-                    <path
-                      d="M5 12h14"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-
-                    <path
-                      d="m13 6 6 6-6 6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              </button>
-            </div>
-
-            {/* =================================================
-                LOGIN / SIGNUP
-            ================================================== */}
-            {selectedType && (
-              <div className="mt-6 rounded-2xl border border-[#CBD5E1] bg-white p-4 shadow-sm">
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  {/* Login */}
-                  <button
-                    type="button"
-                    onClick={handleLogin}
-                    className={`flex-1 rounded-xl px-5 py-3.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-4 ${
-                      selectedType === "driver"
-                        ? "bg-[#20B8C5] hover:bg-[#1597A3] focus:ring-[#CCFBF1]"
-                        : "bg-[#0EA5E9] hover:bg-[#0284C7] focus:ring-[#E0F2FE]"
-                    }`}
-                  >
-                    {t("welcome.login", {
-                      defaultValue: "Login",
-                    })}
-                  </button>
-
-                  {/* Create Account */}
-                  <button
-                    type="button"
-                    onClick={handleSignup}
-                    className="flex-1 rounded-xl border border-[#CBD5E1] bg-white px-5 py-3.5 text-sm font-semibold text-[#0F172A] transition hover:border-[#94A3B8] hover:bg-[#F8FAFC] focus:outline-none focus:ring-4 focus:ring-[#E2E8F0]"
-                  >
-                    {t("welcome.createAccount", {
-                      defaultValue: "Create Account",
-                    })}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Logout Error */}
-            {logoutError && (
-              <p
-                className="mt-4 text-sm font-medium text-[#DC2626]"
-                role="alert"
-              >
-                {logoutError}
+                      "Choose how you want to use Netlinks.",
+                  }
+                )}
               </p>
-            )}
-          </div>
+
+              {/* =================================================
+                  TYPE CARDS
+              ================================================== */}
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+
+                {/* Passenger */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleSelectType(
+                      "passenger"
+                    )
+                  }
+                  className={`group relative rounded-2xl border bg-white p-6 text-left shadow-sm transition-all duration-200 ${
+                    selectedType ===
+                    "passenger"
+                      ? "border-[#0EA5E9] bg-[#F0F9FF] shadow-md shadow-[#0EA5E9]/10"
+                      : "border-[#CBD5E1] hover:-translate-y-0.5 hover:border-[#0EA5E9] hover:shadow-md"
+                  }`}
+                >
+
+                  <div
+                    className={`absolute right-5 top-5 flex h-6 w-6 items-center justify-center rounded-full border ${
+                      selectedType ===
+                      "passenger"
+                        ? "border-[#0EA5E9] bg-[#0EA5E9]"
+                        : "border-[#CBD5E1] bg-white"
+                    }`}
+                  >
+                    {selectedType ===
+                      "passenger" && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        className="h-3.5 w-3.5 text-white"
+                      >
+                        <path
+                          d="m5 12 4 4L19 6"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </div>
+
+                  <div
+                    className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl ${
+                      selectedType ===
+                      "passenger"
+                        ? "bg-[#0EA5E9]"
+                        : "bg-[#E0F2FE]"
+                    }`}
+                  >
+
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      className={`h-7 w-7 ${
+                        selectedType ===
+                        "passenger"
+                          ? "text-white"
+                          : "text-[#0EA5E9]"
+                      }`}
+                    >
+                      <path
+                        d="M5 17h14"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+
+                      <path
+                        d="M6 17a2 2 0 0 1-2-2v-2.5a2 2 0 0 1 2-2h1.2l1.4-3.2A2 2 0 0 1 10.43 6h3.14a2 2 0 0 1 1.83 1.3l1.4 3.2H18a2 2 0 0 1 2 2V15a2 2 0 0 1-2 2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+
+                      <circle
+                        cx="7.5"
+                        cy="17.5"
+                        r="1.5"
+                      />
+
+                      <circle
+                        cx="16.5"
+                        cy="17.5"
+                        r="1.5"
+                      />
+                    </svg>
+
+                  </div>
+
+                  <h3 className="text-lg font-bold text-[#0F172A]">
+                    {t(
+                      "welcome.passenger",
+                      {
+                        defaultValue:
+                          "Passenger",
+                      }
+                    )}
+                  </h3>
+
+                  <p className="mt-2 text-sm leading-6 text-[#64748B]">
+                    {t(
+                      "welcome.passengerDescription",
+                      {
+                        defaultValue:
+                          "Book a comfortable ride and get where you need to go.",
+                      }
+                    )}
+                  </p>
+
+                  <div
+                    className={`mt-5 flex items-center gap-2 text-sm font-semibold ${
+                      selectedType ===
+                      "passenger"
+                        ? "text-[#0EA5E9]"
+                        : "text-[#64748B] group-hover:text-[#0EA5E9]"
+                    }`}
+                  >
+                    <span>
+                      {t(
+                        "welcome.continueAsPassenger",
+                        {
+                          defaultValue:
+                            "Continue as passenger",
+                        }
+                      )}
+                    </span>
+
+                    <span>→</span>
+                  </div>
+
+                </button>
+
+                {/* Driver */}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleSelectType(
+                      "driver"
+                    )
+                  }
+                  className={`group relative rounded-2xl border bg-white p-6 text-left shadow-sm transition-all duration-200 ${
+                    selectedType === "driver"
+                      ? "border-[#20B8C5] bg-[#F0FDFA] shadow-md shadow-[#20B8C5]/10"
+                      : "border-[#CBD5E1] hover:-translate-y-0.5 hover:border-[#20B8C5] hover:shadow-md"
+                  }`}
+                >
+
+                  <div
+                    className={`absolute right-5 top-5 flex h-6 w-6 items-center justify-center rounded-full border ${
+                      selectedType ===
+                      "driver"
+                        ? "border-[#20B8C5] bg-[#20B8C5]"
+                        : "border-[#CBD5E1] bg-white"
+                    }`}
+                  >
+                    {selectedType ===
+                      "driver" && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        className="h-3.5 w-3.5 text-white"
+                      >
+                        <path
+                          d="m5 12 4 4L19 6"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </div>
+
+                  <div
+                    className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl ${
+                      selectedType ===
+                      "driver"
+                        ? "bg-[#20B8C5]"
+                        : "bg-[#CCFBF1]"
+                    }`}
+                  >
+
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      className={`h-7 w-7 ${
+                        selectedType ===
+                        "driver"
+                          ? "text-white"
+                          : "text-[#20B8C5]"
+                      }`}
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="8"
+                      />
+
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="2.5"
+                      />
+
+                      <path
+                        d="M12 4v5.5M12 14.5V20M4 12h5.5M14.5 12H20"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+
+                  </div>
+
+                  <h3 className="text-lg font-bold text-[#0F172A]">
+                    {t(
+                      "welcome.driver",
+                      {
+                        defaultValue:
+                          "Driver",
+                      }
+                    )}
+                  </h3>
+
+                  <p className="mt-2 text-sm leading-6 text-[#64748B]">
+                    {t(
+                      "welcome.driverDescription",
+                      {
+                        defaultValue:
+                          "Drive with Netlinks and earn while helping passengers reach their destination.",
+                      }
+                    )}
+                  </p>
+
+                  <div
+                    className={`mt-5 flex items-center gap-2 text-sm font-semibold ${
+                      selectedType ===
+                      "driver"
+                        ? "text-[#20B8C5]"
+                        : "text-[#64748B] group-hover:text-[#20B8C5]"
+                    }`}
+                  >
+                    <span>
+                      {t(
+                        "welcome.continueAsDriver",
+                        {
+                          defaultValue:
+                            "Continue as driver",
+                        }
+                      )}
+                    </span>
+
+                    <span>→</span>
+                  </div>
+
+                </button>
+
+              </div>
+
+              {/* =================================================
+                  LOGIN / SIGNUP
+              ================================================== */}
+
+              {selectedType && (
+                <div className="mt-6 rounded-2xl border border-[#CBD5E1] bg-white p-4 shadow-sm">
+
+                  <div className="flex flex-col gap-3 sm:flex-row">
+
+                    <button
+                      type="button"
+                      onClick={handleLogin}
+                      className={`flex-1 rounded-xl px-5 py-3.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-4 ${
+                        selectedType ===
+                        "driver"
+                          ? "bg-[#20B8C5] hover:bg-[#1597A3] focus:ring-[#CCFBF1]"
+                          : "bg-[#0EA5E9] hover:bg-[#0284C7] focus:ring-[#E0F2FE]"
+                      }`}
+                    >
+                      {t(
+                        "welcome.login",
+                        {
+                          defaultValue:
+                            "Login",
+                        }
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleSignup}
+                      className="flex-1 rounded-xl border border-[#CBD5E1] bg-white px-5 py-3.5 text-sm font-semibold text-[#0F172A] transition hover:border-[#94A3B8] hover:bg-[#F8FAFC] focus:outline-none focus:ring-4 focus:ring-[#E2E8F0]"
+                    >
+                      {t(
+                        "welcome.createAccount",
+                        {
+                          defaultValue:
+                            "Create Account",
+                        }
+                      )}
+                    </button>
+
+                  </div>
+
+                </div>
+              )}
+
+            </div>
+          )}
 
           {/* =================================================
-              TEMPORARY ATTACHMENT TEST
+              LOGGED-IN ACCOUNT INFORMATION
           ================================================== */}
-          <div className="mt-7 flex justify-center">
-            <button
-              type="button"
-              onClick={() =>
-                setShowAttachmentModal(true)
-              }
-              className="text-xs font-medium text-[#94A3B8] underline underline-offset-4 transition hover:text-[#64748B]"
-            >
-              Test attachment
-            </button>
-          </div>
+
+          {isAuthenticated && (
+            <div className="mx-auto max-w-xl">
+
+              <div
+                className={`rounded-2xl border p-6 shadow-sm ${
+                  accountType ===
+                  "driver"
+                    ? "border-[#99F6E4] bg-[#F0FDFA]"
+                    : "border-[#BAE6FD] bg-[#F0F9FF]"
+                }`}
+              >
+
+                <p className="text-sm font-semibold text-[#64748B]">
+                  {accountType ===
+                  "driver"
+                    ? "Driver account"
+                    : "Passenger account"}
+                </p>
+
+                <h2 className="mt-2 text-xl font-bold text-[#0F172A]">
+                  {displayName ||
+                    (accountType ===
+                    "driver"
+                      ? "Driver"
+                      : "Passenger")}
+                </h2>
+
+                <p className="mt-2 text-sm text-[#64748B]">
+                  {accountType ===
+                  "driver"
+                    ? "You are signed in as a driver."
+                    : "You are signed in as a passenger."}
+                </p>
+
+              </div>
+
+            </div>
+          )}
+
+          {/* =================================================
+              ATTACHMENT TEST
+          ================================================== */}
+
+          {!isAuthenticated && (
+            <div className="mt-7 flex justify-center">
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowAttachmentModal(
+                    true
+                  )
+                }
+                className="text-xs font-medium text-[#94A3B8] underline underline-offset-4 transition hover:text-[#64748B]"
+              >
+                Test attachment
+              </button>
+
+            </div>
+          )}
 
           <AttachmentModal
             open={showAttachmentModal}
@@ -718,24 +1159,44 @@ function Welcome() {
             }
             onComplete={async (file) => {
               try {
-                console.log("FILE:", file);
+                console.log(
+                  "FILE:",
+                  file
+                );
+
                 console.log(
                   "Is File:",
                   file instanceof File
                 );
-                console.log("Name:", file?.name);
-                console.log("Size:", file?.size);
-                console.log("Type:", file?.type);
+
+                console.log(
+                  "Name:",
+                  file?.name
+                );
+
+                console.log(
+                  "Size:",
+                  file?.size
+                );
+
+                console.log(
+                  "Type:",
+                  file?.type
+                );
 
                 const response =
-                  await uploadAttachment(file);
+                  await uploadAttachment(
+                    file
+                  );
 
                 console.log(
                   "Attachment uploaded successfully:",
                   response.data
                 );
 
-                setShowAttachmentModal(false);
+                setShowAttachmentModal(
+                  false
+                );
               } catch (error) {
                 console.error(
                   "Attachment upload failed:",
@@ -749,6 +1210,7 @@ function Welcome() {
               }
             }}
           />
+
         </div>
       </div>
     </div>

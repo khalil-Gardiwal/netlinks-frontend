@@ -1,59 +1,108 @@
 import api from "./axios";
 
-// Driver registration
+// ============================================
+// DRIVER REGISTRATION
+// ============================================
+
 export const registerDriver = (data) => {
-  return api.post("/auth/driver/register", data);
+  return api.post(
+    "/auth/driver/register",
+    data
+  );
 };
 
-// Driver registration OTP verification
+// ============================================
+// DRIVER REGISTRATION OTP
+// ============================================
+
 export const verifyDriverRegistration = (data) => {
-  return api.post("/auth/driver/register/verify", data);
+  return api.post(
+    "/auth/driver/register/verify",
+    data
+  );
 };
 
-// Driver login
+// ============================================
+// DRIVER LOGIN
+// ============================================
+
 export const loginDriver = (data) => {
-  return api.post("/auth/driver/login", data);
+  return api.post(
+    "/auth/driver/login",
+    data
+  );
 };
 
-// Driver login OTP verification
+// ============================================
+// DRIVER LOGIN OTP
+// ============================================
+
 export const verifyDriverLogin = (data) => {
-  return api.post("/auth/driver/login/verify", data);
+  return api.post(
+    "/auth/driver/login/verify",
+    data
+  );
 };
 
-// Get current driver
+// ============================================
+// CURRENT DRIVER
+// ============================================
+
 export const getDriverMe = () => {
-  return api.get("/auth/driver/me");
+  return api.get(
+    "/auth/driver/me"
+  );
 };
 
-// Driver logout
+// ============================================
+// DRIVER LOGOUT
+// ============================================
+
 export const logoutDriver = () => {
-  return api.post("/auth/driver/logout");
+  return api.post(
+    "/auth/driver/logout"
+  );
 };
 
-// Enable driver 2FA
+// ============================================
+// DRIVER 2FA
+// ============================================
+
 export const enableDriverTwoFactor = () => {
-  return api.post("/auth/driver/2fa/enable");
+  return api.post(
+    "/auth/driver/2fa/enable"
+  );
 };
 
-// Verify driver 2FA setup
-export const verifyDriverTwoFactorSetup = (data) => {
+export const verifyDriverTwoFactorSetup = (
+  data
+) => {
   return api.post(
     "/auth/driver/2fa/enable/verify",
     data
   );
 };
 
-// Verify driver 2FA during login
-export const verifyDriverTwoFactor = (data) => {
+export const verifyDriverTwoFactor = (
+  data
+) => {
   return api.post(
     "/auth/driver/2fa/verify",
     data
   );
 };
 
-// Refresh driver session
-export const refreshDriver = (refreshToken) => {
-  return api.post("/auth/driver/refresh", {
-    refreshToken,
-  });
+// ============================================
+// DRIVER REFRESH
+// ============================================
+
+export const refreshDriver = (
+  refreshToken
+) => {
+  return api.post(
+    "/auth/driver/refresh",
+    {
+      refreshToken,
+    }
+  );
 };
