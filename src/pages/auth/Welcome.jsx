@@ -1,25 +1,30 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
 import LanguageSwitcher from "../../components/LanguageSwitcher";
 import Desgin from "../../components/Designbackground";
+
 import { getMe, logout } from "../../api/auth";
-import { QRCodeSVG } from "qrcode.react";
+
 import AttachmentModal from "../../components/attachment/AttachmentModal";
 import { uploadAttachment } from "../../api/attachments";
-
-
 
 function Welcome() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const [selectedType, setSelectedType] = useState(null);
+
   const [showTwoFactor, setShowTwoFactor] = useState(false);
+
   const [user, setUser] = useState(null);
+
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
-  const [showAttachmentModal, setShowAttachmentModal] = useState(false);
 
+  const [showAttachmentModal, setShowAttachmentModal] =
+    useState(false);
 
   useEffect(() => {
     const testAuth = async () => {
@@ -39,322 +44,714 @@ function Welcome() {
     testAuth();
   }, []);
 
- const handleLogout = async () => {
-  try {
-    setIsLoggingOut(true);
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      setLogoutError("");
 
-    const response = await logout();
+      const response = await logout();
 
-    console.log("Logout response:", response.data);
+      console.log("Logout response:", response.data);
 
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("sessionId");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("sessionId");
+
+      navigate("/auth/sign-in");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      console.log("STATUS:", error.response?.status);
+      console.log("DATA:", error.response?.data);
+
+      /*
+       * Even if the backend logout request fails,
+       * clear the local authentication state.
+       */
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("sessionId");
+
+      navigate("/auth/sign-in");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  const handleSelectType = (type) => {
+    setSelectedType(type);
+  };
+
+  const handleLogin = () => {
+    if (selectedType === "driver") {
+      navigate("/driver/auth/sign-in");
+      return;
+    }
 
     navigate("/auth/sign-in");
-  } catch (error) {
-    console.error("Logout failed:", error);
-    console.log("STATUS:", error.response?.status);
-    console.log("DATA:", error.response?.data);
+  };
 
-    // Still clear the local session
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("sessionId");
+  const handleSignup = () => {
+    if (selectedType === "driver") {
+      navigate("/driver/auth/signup");
+      return;
+    }
 
-    navigate("/auth/sign-in");
-  } finally {
-    setIsLoggingOut(false);
-  }
-};
+    navigate("/auth/signup");
+  };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-[#F8FAFC] px-6">
+    <div className="relative min-h-screen overflow-hidden bg-[#F8FAFC]">
       <Desgin />
 
-      {/* Top Controls */}
-<div className="absolute right-6 top-6 z-50 flex items-start gap-2">
-  {/* 2FA */}
-  <div className="relative">
-    <button
-      type="button"
-      onClick={() => setShowTwoFactor(!showTwoFactor)}
-      className={`flex items-center gap-2 rounded-xl border bg-white px-3 py-2 text-xs font-semibold shadow-sm transition ${
-        showTwoFactor
-          ? "border-[#0EA5E9] text-[#0EA5E9]"
-          : "border-[#CBD5E1] text-[#64748B] hover:bg-[#F0F9FF]"
-      }`}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        className="h-4 w-4"
-      >
-        <rect
-          width="18"
-          height="11"
-          x="3"
-          y="10"
-          rx="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M7 10V7a5 5 0 0 1 10 0v3"
-        />
-      </svg>
-
-      <span>{t("signInTwoFactor.label")}</span>
-
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        className={`h-3 w-3 transition-transform ${
-          showTwoFactor ? "rotate-180" : ""
-        }`}
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="m6 9 6 6 6-6"
-        />
-      </svg>
-    </button>
-
-    {/* 2FA Dropdown */}
-    {showTwoFactor && (
-      <div
-        className="
-          absolute z-50
-          top-12
-          left-1/2 -translate-x-1/2
-          w-[calc(100vw-2rem)]
-          max-w-sm
-          rounded-2xl
-          border border-[#CBD5E1]
-          bg-white
-          p-4
-          shadow-xl
-
-          sm:left-auto
-          sm:right-0
-          sm:translate-x-0
-          sm:w-72
-          sm:max-w-none
-          sm:p-5
-        "
-      >
-        <div className="mb-4 flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E0F2FE]">
+      {/* =====================================================
+          TOP CONTROLS
+      ====================================================== */}
+      <div className="absolute right-5 top-5 z-50 flex items-start gap-2 sm:right-6 sm:top-6">
+        {/* Profile */}
+        {user && (
+          <button
+            type="button"
+            onClick={() => navigate("/user/profile")}
+            className="flex items-center gap-2 rounded-xl border border-[#CBD5E1] bg-white px-3 py-2 text-xs font-semibold text-[#0F172A] shadow-sm transition hover:border-[#0EA5E9] hover:bg-[#F0F9FF] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:ring-offset-2"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
-              className="h-5 w-5 text-[#0EA5E9]"
+              className="h-4 w-4"
             >
-              <rect
-                width="18"
-                height="11"
-                x="3"
-                y="10"
-                rx="2"
+              <path
+                d="M20 21a8 8 0 0 0-16 0"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
+
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+
+            <span className="hidden sm:inline">
+              {t("profile.viewProfile", {
+                defaultValue: "My Profile",
+              })}
+            </span>
+          </button>
+        )}
+
+        {/* 2FA */}
+        {user && (
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() =>
+                setShowTwoFactor(!showTwoFactor)
+              }
+              className={`flex items-center gap-2 rounded-xl border bg-white px-3 py-2 text-xs font-semibold shadow-sm transition ${
+                showTwoFactor
+                  ? "border-[#0EA5E9] text-[#0EA5E9]"
+                  : "border-[#CBD5E1] text-[#64748B] hover:border-[#0EA5E9] hover:bg-[#F0F9FF]"
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="h-4 w-4"
+              >
+                <rect
+                  width="18"
+                  height="11"
+                  x="3"
+                  y="10"
+                  rx="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+
+                <path
+                  d="M7 10V7a5 5 0 0 1 10 0v3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+
+              <span className="hidden sm:inline">
+                {t("signInTwoFactor.label", {
+                  defaultValue: "2FA",
+                })}
+              </span>
+
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className={`h-3 w-3 transition-transform ${
+                  showTwoFactor ? "rotate-180" : ""
+                }`}
+              >
+                <path
+                  d="m6 9 6 6 6-6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+
+            {/* 2FA Dropdown */}
+            {showTwoFactor && (
+              <div
+                className="
+                  absolute
+                  right-0
+                  top-12
+                  z-50
+                  w-[calc(100vw-2rem)]
+                  max-w-sm
+                  rounded-2xl
+                  border
+                  border-[#CBD5E1]
+                  bg-white
+                  p-4
+                  text-left
+                  shadow-xl
+
+                  sm:w-72
+                  sm:p-5
+                "
+              >
+                <div className="mb-4 flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E0F2FE]">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="h-5 w-5 text-[#0EA5E9]"
+                    >
+                      <rect
+                        width="18"
+                        height="11"
+                        x="3"
+                        y="10"
+                        rx="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+
+                      <path
+                        d="M7 10V7a5 5 0 0 1 10 0v3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-sm font-bold text-[#0F172A]">
+                      {t("signInTwoFactor.title", {
+                        defaultValue:
+                          "Two-factor authentication",
+                      })}
+                    </h2>
+
+                    <p className="mt-1 break-words text-xs leading-5 text-[#64748B]">
+                      {t("signInTwoFactor.description", {
+                        defaultValue:
+                          "Add an extra layer of security to your account.",
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate("/auth/two-factor-setup")
+                  }
+                  className="
+                    w-full
+                    rounded-xl
+                    bg-[#0EA5E9]
+                    px-4
+                    py-3
+                    text-sm
+                    font-semibold
+                    text-white
+                    transition
+                    hover:bg-[#0284C7]
+                    focus:outline-none
+                    focus:ring-4
+                    focus:ring-[#E0F2FE]
+                  "
+                >
+                  {t("signInTwoFactor.enable", {
+                    defaultValue: "Enable 2FA",
+                  })}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Logout */}
+        {user && (
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="flex items-center gap-2 rounded-xl border border-[#DC2626] bg-white px-3 py-2 text-xs font-semibold text-[#DC2626] shadow-sm transition hover:bg-[#FEF2F2] focus:outline-none focus:ring-2 focus:ring-[#DC2626] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-4 w-4"
+            >
               <path
+                d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M7 10V7a5 5 0 0 1 10 0v3"
+              />
+
+              <path
+                d="m16 17 5-5-5-5M21 12H9"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </svg>
+
+            <span className="hidden sm:inline">
+              {isLoggingOut
+                ? t("welcome.loggingOut", {
+                    defaultValue: "Logging out...",
+                  })
+                : t("welcome.logout", {
+                    defaultValue: "Logout",
+                  })}
+            </span>
+          </button>
+        )}
+
+        {/* Language */}
+        <LanguageSwitcher />
+      </div>
+
+      {/* =====================================================
+          MAIN CONTENT
+      ====================================================== */}
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-5 py-24 sm:px-6">
+        <div className="w-full max-w-3xl text-center">
+          {/* =================================================
+              LOGO
+          ================================================== */}
+          <div className="mb-8 flex justify-center">
+            <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-[#0EA5E9] shadow-lg shadow-[#0EA5E9]/20">
+              <span className="text-4xl font-bold text-white">
+                AT
+              </span>
+            </div>
           </div>
 
-          <div className="min-w-0 flex-1">
-            <h2 className="text-sm font-bold text-[#0F172A]">
-              {t("signInTwoFactor.title")}
+          {/* =================================================
+              WELCOME TEXT
+          ================================================== */}
+          <div className="mx-auto mb-9 max-w-xl">
+            <h1 className="text-3xl font-bold tracking-tight text-[#0F172A] sm:text-4xl">
+              {user
+                ? t("welcome.greeting", {
+                    name: user.fullname,
+                    defaultValue: `Welcome, ${user.fullname}`,
+                  })
+                : t("welcome.title", {
+                    defaultValue: "Welcome to Netlinks",
+                  })}
+            </h1>
+
+            <p className="mt-4 text-sm leading-6 text-[#64748B] sm:text-base sm:leading-7">
+              {t("welcome.description", {
+                defaultValue:
+                  "Your reliable ride, whenever you need it.",
+              })}
+            </p>
+          </div>
+
+          {/* =================================================
+              ACCOUNT TYPE
+          ================================================== */}
+          <div className="mx-auto max-w-2xl">
+            <h2 className="text-lg font-bold text-[#0F172A]">
+              {t("welcome.chooseAccountType", {
+                defaultValue:
+                  "How would you like to continue?",
+              })}
             </h2>
 
-            <p className="mt-1 break-words text-xs leading-5 text-[#64748B]">
-              {t("signInTwoFactor.description")}
+            <p className="mt-1 text-sm text-[#64748B]">
+              {t("welcome.chooseAccountDescription", {
+                defaultValue:
+                  "Choose how you want to use Netlinks.",
+              })}
             </p>
+
+            {/* =================================================
+                TYPE CARDS
+            ================================================== */}
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {/* Passenger */}
+              <button
+                type="button"
+                onClick={() =>
+                  handleSelectType("passenger")
+                }
+                className={`group relative rounded-2xl border bg-white p-6 text-left shadow-sm transition-all duration-200 ${
+                  selectedType === "passenger"
+                    ? "border-[#0EA5E9] bg-[#F0F9FF] shadow-md shadow-[#0EA5E9]/10"
+                    : "border-[#CBD5E1] hover:-translate-y-0.5 hover:border-[#0EA5E9] hover:shadow-md"
+                }`}
+              >
+                {/* Selection */}
+                <div
+                  className={`absolute right-5 top-5 flex h-6 w-6 items-center justify-center rounded-full border ${
+                    selectedType === "passenger"
+                      ? "border-[#0EA5E9] bg-[#0EA5E9]"
+                      : "border-[#CBD5E1] bg-white"
+                  }`}
+                >
+                  {selectedType === "passenger" && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      className="h-3.5 w-3.5 text-white"
+                    >
+                      <path
+                        d="m5 12 4 4L19 6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </div>
+
+                {/* Icon */}
+                <div
+                  className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl ${
+                    selectedType === "passenger"
+                      ? "bg-[#0EA5E9]"
+                      : "bg-[#E0F2FE]"
+                  }`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    className={`h-7 w-7 ${
+                      selectedType === "passenger"
+                        ? "text-white"
+                        : "text-[#0EA5E9]"
+                    }`}
+                  >
+                    <path
+                      d="M5 17h14"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+
+                    <path
+                      d="M6 17a2 2 0 0 1-2-2v-2.5a2 2 0 0 1 2-2h1.2l1.4-3.2A2 2 0 0 1 10.43 6h3.14a2 2 0 0 1 1.83 1.3l1.4 3.2H18a2 2 0 0 1 2 2V15a2 2 0 0 1-2 2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+
+                    <circle cx="7.5" cy="17.5" r="1.5" />
+                    <circle cx="16.5" cy="17.5" r="1.5" />
+                  </svg>
+                </div>
+
+                <h3 className="text-lg font-bold text-[#0F172A]">
+                  {t("welcome.passenger", {
+                    defaultValue: "Passenger",
+                  })}
+                </h3>
+
+                <p className="mt-2 text-sm leading-6 text-[#64748B]">
+                  {t("welcome.passengerDescription", {
+                    defaultValue:
+                      "Book a comfortable ride and get where you need to go.",
+                  })}
+                </p>
+
+                <div
+                  className={`mt-5 flex items-center gap-2 text-sm font-semibold ${
+                    selectedType === "passenger"
+                      ? "text-[#0EA5E9]"
+                      : "text-[#64748B] group-hover:text-[#0EA5E9]"
+                  }`}
+                >
+                  <span>
+                    {t("welcome.continueAsPassenger", {
+                      defaultValue:
+                        "Continue as passenger",
+                    })}
+                  </span>
+
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                  >
+                    <path
+                      d="M5 12h14"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+
+                    <path
+                      d="m13 6 6 6-6 6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              </button>
+
+              {/* Driver */}
+              <button
+                type="button"
+                onClick={() =>
+                  handleSelectType("driver")
+                }
+                className={`group relative rounded-2xl border bg-white p-6 text-left shadow-sm transition-all duration-200 ${
+                  selectedType === "driver"
+                    ? "border-[#20B8C5] bg-[#F0FDFA] shadow-md shadow-[#20B8C5]/10"
+                    : "border-[#CBD5E1] hover:-translate-y-0.5 hover:border-[#20B8C5] hover:shadow-md"
+                }`}
+              >
+                {/* Selection */}
+                <div
+                  className={`absolute right-5 top-5 flex h-6 w-6 items-center justify-center rounded-full border ${
+                    selectedType === "driver"
+                      ? "border-[#20B8C5] bg-[#20B8C5]"
+                      : "border-[#CBD5E1] bg-white"
+                  }`}
+                >
+                  {selectedType === "driver" && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      className="h-3.5 w-3.5 text-white"
+                    >
+                      <path
+                        d="m5 12 4 4L19 6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </div>
+
+                {/* Icon */}
+                <div
+                  className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl ${
+                    selectedType === "driver"
+                      ? "bg-[#20B8C5]"
+                      : "bg-[#CCFBF1]"
+                  }`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    className={`h-7 w-7 ${
+                      selectedType === "driver"
+                        ? "text-white"
+                        : "text-[#20B8C5]"
+                    }`}
+                  >
+                    <circle cx="12" cy="12" r="8" />
+
+                    <circle cx="12" cy="12" r="2.5" />
+
+                    <path
+                      d="M12 4v5.5M12 14.5V20M4 12h5.5M14.5 12H20"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
+
+                <h3 className="text-lg font-bold text-[#0F172A]">
+                  {t("welcome.driver", {
+                    defaultValue: "Driver",
+                  })}
+                </h3>
+
+                <p className="mt-2 text-sm leading-6 text-[#64748B]">
+                  {t("welcome.driverDescription", {
+                    defaultValue:
+                      "Drive with Netlinks and earn while helping passengers reach their destination.",
+                  })}
+                </p>
+
+                <div
+                  className={`mt-5 flex items-center gap-2 text-sm font-semibold ${
+                    selectedType === "driver"
+                      ? "text-[#20B8C5]"
+                      : "text-[#64748B] group-hover:text-[#20B8C5]"
+                  }`}
+                >
+                  <span>
+                    {t("welcome.continueAsDriver", {
+                      defaultValue:
+                        "Continue as driver",
+                    })}
+                  </span>
+
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                  >
+                    <path
+                      d="M5 12h14"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+
+                    <path
+                      d="m13 6 6 6-6 6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              </button>
+            </div>
+
+            {/* =================================================
+                LOGIN / SIGNUP
+            ================================================== */}
+            {selectedType && (
+              <div className="mt-6 rounded-2xl border border-[#CBD5E1] bg-white p-4 shadow-sm">
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  {/* Login */}
+                  <button
+                    type="button"
+                    onClick={handleLogin}
+                    className={`flex-1 rounded-xl px-5 py-3.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-4 ${
+                      selectedType === "driver"
+                        ? "bg-[#20B8C5] hover:bg-[#1597A3] focus:ring-[#CCFBF1]"
+                        : "bg-[#0EA5E9] hover:bg-[#0284C7] focus:ring-[#E0F2FE]"
+                    }`}
+                  >
+                    {t("welcome.login", {
+                      defaultValue: "Login",
+                    })}
+                  </button>
+
+                  {/* Create Account */}
+                  <button
+                    type="button"
+                    onClick={handleSignup}
+                    className="flex-1 rounded-xl border border-[#CBD5E1] bg-white px-5 py-3.5 text-sm font-semibold text-[#0F172A] transition hover:border-[#94A3B8] hover:bg-[#F8FAFC] focus:outline-none focus:ring-4 focus:ring-[#E2E8F0]"
+                  >
+                    {t("welcome.createAccount", {
+                      defaultValue: "Create Account",
+                    })}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Logout Error */}
+            {logoutError && (
+              <p
+                className="mt-4 text-sm font-medium text-[#DC2626]"
+                role="alert"
+              >
+                {logoutError}
+              </p>
+            )}
           </div>
-        </div>
 
-        <button
-          type="button"
-          onClick={() => navigate("/auth/two-factor-setup")}
-          className="
-            w-full
-            rounded-xl
-            bg-[#0EA5E9]
-            px-4
-            py-3
-            text-sm
-            font-semibold
-            text-white
-            transition
-            hover:bg-[#0284C7]
-            focus:outline-none
-            focus:ring-4
-            focus:ring-[#E0F2FE]
-          "
-        >
-          {t("signInTwoFactor.enable")}
-        </button>
-      </div>
-    )}
-  </div>
-
-  {/* Logout */}
-  <button
-    type="button"
-    onClick={handleLogout}
-    disabled={isLoggingOut}
-    className="flex items-center gap-2 rounded-xl border border-[#DC2626] bg-white px-3 py-2 text-xs font-semibold text-[#DC2626] shadow-sm transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-[#DC2626] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="h-4 w-4"
-    >
-      <path
-        d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M16 17l5-5-5-5M21 12H9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-
-    <span>
-      {isLoggingOut
-        ? t("welcome.loggingOut", {
-            defaultValue: "Logging out...",
-          })
-        : t("welcome.logout", {
-            defaultValue: "Logout",
-          })}
-    </span>
-  </button>
-  <button
-  type="button"
-  onClick={() => {setShowAttachmentModal(true); console.log("btn clicked")}}
-  
-  className="rounded-xl bg-sky-500 px-5 py-3 font-semibold text-white transition hover:bg-sky-600"
->
-  Test Attachment
-</button>
-
-
-  {/* Language Selector */}
-  <LanguageSwitcher />
-  <button
-  type="button"
-  onClick={() => navigate("/user/profile")}
-  className="rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-600 active:bg-sky-700"
->
-  {t("profile.viewProfile", "My Profile")}
-</button>
-
-</div>
-
-      {/* Main Content */}
-      <div className="w-full max-w-md text-center">
-        {/* Logo */}
-        <div className="mb-10 flex justify-center">
-          <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-[#0EA5E9] shadow-lg">
-            <span className="text-4xl font-bold text-white">AT</span>
+          {/* =================================================
+              TEMPORARY ATTACHMENT TEST
+          ================================================== */}
+          <div className="mt-7 flex justify-center">
+            <button
+              type="button"
+              onClick={() =>
+                setShowAttachmentModal(true)
+              }
+              className="text-xs font-medium text-[#94A3B8] underline underline-offset-4 transition hover:text-[#64748B]"
+            >
+              Test attachment
+            </button>
           </div>
-        </div>
 
-        {/* Welcome Text */}
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold tracking-tight text-[#0F172A]">
-            {user
-              ? t("welcome.greeting", {
-                  name: user.fullname,
-                  defaultValue: `Welcome, ${user.fullname}`,
-                })
-              : t("welcome.title")}
-          </h1>
-
-          <p className="mt-4 text-base leading-7 text-[#64748B]">
-            {t("welcome.description")}
-          </p>
-        </div>
-
-        {/* Buttons */}
-        <div className="space-y-4">
-          {/* Create Account */}
-          <button
-            type="button"
-            onClick={() => navigate("/auth/signup")}
-            className="w-full rounded-xl bg-[#0EA5E9] px-6 py-4 text-base font-semibold text-white transition-colors duration-200 hover:bg-[#0284C7] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:ring-offset-2"
-          >
-            {t("welcome.createAccount")}
-          </button>
-
-          {/* Login */}
-          <button
-            type="button"
-            onClick={() => navigate("/auth/sign-in")}
-            className="w-full rounded-xl border border-[#CBD5E1] bg-white px-6 py-4 text-base font-semibold text-[#0F172A] transition-colors duration-200 hover:bg-[#F0F9FF] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:ring-offset-2"
-          >
-            {t("welcome.login")}
-          </button>
-
-
-          {/* Logout Error */}
-          {logoutError && (
-            <p className="text-sm font-medium text-[#DC2626]" role="alert">
-              {logoutError}
-            </p>
-          )}
-          
           <AttachmentModal
-  open={showAttachmentModal}
-  onClose={() => setShowAttachmentModal(false)}
- onComplete={async (file) => {
-  try {
-    console.log("FILE:", file);
-    console.log("Is File:", file instanceof File);
-    console.log("Name:", file?.name);
-    console.log("Size:", file?.size);
-    console.log("Type:", file?.type);
+            open={showAttachmentModal}
+            onClose={() =>
+              setShowAttachmentModal(false)
+            }
+            onComplete={async (file) => {
+              try {
+                console.log("FILE:", file);
+                console.log(
+                  "Is File:",
+                  file instanceof File
+                );
+                console.log("Name:", file?.name);
+                console.log("Size:", file?.size);
+                console.log("Type:", file?.type);
 
-    const response = await uploadAttachment(file);
+                const response =
+                  await uploadAttachment(file);
 
-    console.log("Attachment uploaded successfully:", response.data);
-  } catch (error) {
-    console.error("Attachment upload failed:", error);
-    console.log("Backend response:", error.response?.data);
-  }
-}}
-/>
+                console.log(
+                  "Attachment uploaded successfully:",
+                  response.data
+                );
 
+                setShowAttachmentModal(false);
+              } catch (error) {
+                console.error(
+                  "Attachment upload failed:",
+                  error
+                );
 
+                console.log(
+                  "Backend response:",
+                  error.response?.data
+                );
+              }
+            }}
+          />
         </div>
-        
       </div>
-      
     </div>
-    
   );
 }
 

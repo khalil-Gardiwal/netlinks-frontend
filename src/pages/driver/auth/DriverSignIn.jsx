@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Desgin from "../../components/Designbackground";
-import { login } from "../../api/auth";
+
+import Desgin from "../../../components/Designbackground";
+import LanguageSwitcher from "../../../components/LanguageSwitcher";
+
+import { loginDriver } from "../../../api/driverapi";
 
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;
 
-const SignIn = () => {
+const DriverSignIn = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -15,9 +18,6 @@ const SignIn = () => {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // -----------------------------
-  // Phone change
-  // -----------------------------
   const handlePhoneChange = (e) => {
     const value = e.target.value
       .replace(/\D/g, "")
@@ -25,33 +25,25 @@ const SignIn = () => {
 
     setPhone(value);
 
-    // Clear old error when user starts editing
     if (error) {
       setError("");
     }
   };
 
-  // -----------------------------
-  // Submit
-  // -----------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Clear previous error
     setError("");
 
-    // Prevent duplicate requests
     if (isSubmitting) {
       return;
     }
 
-    // Required validation
     if (!phone.trim()) {
       setError(t("errors.required"));
       return;
     }
 
-    // Phone format validation
     if (!AFGHAN_PHONE_REGEX.test(phone)) {
       setError(t("errors.invalidPhone"));
       return;
@@ -60,55 +52,69 @@ const SignIn = () => {
     try {
       setIsSubmitting(true);
 
-      // Add Afghanistan country code
       const fullPhone = `+93${phone}`;
 
-      console.log("Login phone:", fullPhone);
+      console.log(
+        "Driver login phone:",
+        fullPhone
+      );
 
-      const response = await login({
+      // Send login OTP
+      const response = await loginDriver({
         phone: fullPhone,
       });
 
-      console.log("Login response:", response);
+      console.log(
+        "Driver login response:",
+        response.data
+      );
 
-      navigate("/auth/verification", {
-        state: {
-          from: "sign-in",
-          phone: fullPhone,
-        },
-      });
+     navigate("/driver/auth/verification", {
+  state: {
+    phone: fullPhone,
+    verificationType: "login",
+  },
+});
+
     } catch (error) {
-     
-      console.error("Login failed:", error);
-      console.log("Status:", error.response?.status);
-      console.log("Data:", error.response?.data);
+      console.error(
+        "Driver login failed:",
+        error
+      );
 
-      // ------------------------------------
-      // No response = network/server unreachable
-      // ------------------------------------
+      console.log(
+        "Status:",
+        error.response?.status
+      );
+
+      console.log(
+        "Data:",
+        error.response?.data
+      );
+
       if (!error.response) {
-        setError(t("errors.networkError"));
+        setError(
+          t("errors.networkError")
+        );
         return;
       }
 
-      // ------------------------------------
-      // Server error
-      // ------------------------------------
       if (error.response.status >= 500) {
-        setError(t("errors.serverError"));
+        setError(
+          t("errors.serverError")
+        );
         return;
       }
 
-      // ------------------------------------
-      // Backend returned a client error
-      // ------------------------------------
       const backendMessage =
         error.response.data?.message;
 
       if (backendMessage) {
         setError(backendMessage);
       } else {
-        setError(t("errors.somethingWentWrong"));
+        setError(
+          t("errors.somethingWentWrong")
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -119,24 +125,34 @@ const SignIn = () => {
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F8FAFC] px-4 py-8">
       <Desgin />
 
-      {/* =====================================
-          MAIN CONTENT
-      ====================================== */}
-
       <div className="relative z-10 w-full max-w-md">
 
-        {/* Card */}
+        {/* Language */}
+        <div className="mb-6 flex justify-end">
+          <LanguageSwitcher />
+        </div>
+
         <div className="rounded-3xl border border-[#CBD5E1]/80 bg-white/95 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-8">
 
           {/* Header */}
           <div className="mb-8 text-center">
+
+            <div className="mb-5 flex justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0EA5E9] shadow-md">
+                <span className="text-2xl font-bold text-white">
+                  AT
+                </span>
+              </div>
+            </div>
+
             <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">
-              {t("signIn.title")}
+              Driver Login
             </h1>
 
             <p className="mx-auto mt-3 max-w-xs text-sm leading-6 text-[#64748B]">
-              {t("signIn.description")}
+              Sign in to your driver account to continue.
             </p>
+
           </div>
 
           <form
@@ -146,11 +162,12 @@ const SignIn = () => {
 
             {/* Phone */}
             <div>
+
               <label
                 htmlFor="phone"
                 className="mb-2 block text-sm font-semibold text-[#0F172A]"
               >
-                {t("signIn.phoneNumber")}
+                Phone Number
               </label>
 
               <div
@@ -161,13 +178,16 @@ const SignIn = () => {
                 }`}
               >
 
-                {/* Afghanistan */}
                 <div className="flex items-center gap-2 border-r border-[#CBD5E1] bg-[#F8FAFC] px-3 text-sm font-medium text-[#0F172A] sm:px-4">
-                  <span className="text-lg">🇦🇫</span>
-                  <span>+93</span>
+                  <span className="text-lg">
+                    🇦🇫
+                  </span>
+
+                  <span>
+                    +93
+                  </span>
                 </div>
 
-                {/* Phone Input */}
                 <input
                   id="phone"
                   type="tel"
@@ -179,9 +199,9 @@ const SignIn = () => {
                   disabled={isSubmitting}
                   className="min-w-0 flex-1 bg-white px-4 py-3.5 text-sm text-[#0F172A] outline-none placeholder:text-[#94A3B8] disabled:cursor-not-allowed disabled:bg-[#F8FAFC]"
                 />
+
               </div>
 
-              {/* Error */}
               {error && (
                 <div
                   role="alert"
@@ -192,6 +212,7 @@ const SignIn = () => {
                   </p>
                 </div>
               )}
+
             </div>
 
             {/* Login */}
@@ -200,40 +221,47 @@ const SignIn = () => {
               disabled={isSubmitting}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0EA5E9] px-4 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#0284C7] hover:shadow-lg hover:shadow-[#0EA5E9]/20 active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD] disabled:cursor-not-allowed disabled:opacity-60"
             >
+
               {isSubmitting ? (
                 <>
                   <span
                     className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
                     aria-hidden="true"
                   />
+
                   Signing in...
                 </>
               ) : (
-                t("signIn.login")
+                "Login as Driver"
               )}
+
             </button>
+
           </form>
 
           {/* Sign Up */}
           <div className="mt-8 border-t border-[#CBD5E1] pt-6 text-center text-sm text-[#64748B]">
+
             <span>
-              {t("signIn.noAccount")}
+              Don't have a driver account?
             </span>
 
             <Link
-              to="/auth/signup"
+              to="/driver/auth/signup"
               className="ml-1 font-semibold text-[#0EA5E9] transition-colors hover:text-[#0284C7]"
             >
-              {t("signIn.signUp")}
+              Sign up as Driver
             </Link>
+
           </div>
+
         </div>
 
-        {/* Bottom colorful accent */}
         <div className="mx-auto mt-6 h-1 w-24 rounded-full bg-linear-to-r from-[#0EA5E9] via-[#20B8C5] to-[#818CF8] opacity-70" />
+
       </div>
     </div>
   );
 };
 
-export default SignIn;
+export default DriverSignIn;
