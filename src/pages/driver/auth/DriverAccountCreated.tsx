@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Desgin from "../../../components/Designbackground";
 
+import Desgin from "../../../components/Designbackground";
 
 function DriverAccountCreated() {
   const navigate = useNavigate();
@@ -53,11 +53,14 @@ function DriverAccountCreated() {
           <div className="mt-8 rounded-3xl border border-[#CBD5E1] bg-white p-6 shadow-sm sm:p-8">
             <button
               type="button"
-              onClick={() => navigate("/driver/auth/sign-in")}
+              onClick={() =>
+                navigate("/driver/auth/sign-in")
+              }
               className="w-full rounded-xl bg-[#0EA5E9] px-6 py-4 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD]"
             >
               {t("driverAccount.continueToSignIn", {
-                defaultValue: "Continue to Driver Sign In",
+                defaultValue:
+                  "Continue to Driver Sign In",
               })}
             </button>
           </div>
@@ -65,13 +68,16 @@ function DriverAccountCreated() {
           {/* Back to Welcome */}
           <button
             type="button"
-            onClick={() => navigate("/auth/welcome")}
+            onClick={() =>
+              navigate("/auth/welcome")
+            }
             className="mt-6 flex w-full items-center justify-center gap-2 text-sm font-medium text-[#64748B] transition hover:text-[#0F172A]"
           >
             <span>←</span>
 
             {t("driverAccount.backToWelcome", {
-              defaultValue: "Back to Welcome",
+              defaultValue:
+                "Back to Welcome",
             })}
           </button>
         </div>

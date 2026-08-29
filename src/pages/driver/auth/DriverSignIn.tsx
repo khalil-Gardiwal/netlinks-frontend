@@ -1,10 +1,10 @@
 import { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import axios from "axios";
 
 import Desgin from "../../../components/Designbackground";
-
-
 import { loginDriver } from "../../../api/driverapi";
 
 const AFGHAN_PHONE_REGEX =
@@ -14,11 +14,13 @@ const DriverSignIn = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [phone, setPhone] = useState("");
-  const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [phone, setPhone] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const handlePhoneChange = (e) => {
+  const handlePhoneChange = (
+    e: ChangeEvent<HTMLInputElement>,
+  ) => {
     const value = e.target.value
       .replace(/\D/g, "")
       .slice(0, 9);
@@ -30,7 +32,9 @@ const DriverSignIn = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (
+    e: FormEvent<HTMLFormElement>,
+  ) => {
     e.preventDefault();
 
     setError("");
@@ -56,7 +60,7 @@ const DriverSignIn = () => {
 
       console.log(
         "Driver login phone:",
-        fullPhone
+        fullPhone,
       );
 
       // Send login OTP
@@ -66,54 +70,59 @@ const DriverSignIn = () => {
 
       console.log(
         "Driver login response:",
-        response.data
+        response.data,
       );
 
-     navigate("/driver/auth/verification", {
-  state: {
-    phone: fullPhone,
-    verificationType: "login",
-  },
-});
-
-    } catch (error) {
+      navigate("/driver/auth/verification", {
+        state: {
+          phone: fullPhone,
+          verificationType: "login",
+        },
+      });
+    } catch (error: unknown) {
       console.error(
         "Driver login failed:",
-        error
+        error,
       );
 
-      console.log(
-        "Status:",
-        error.response?.status
-      );
-
-      console.log(
-        "Data:",
-        error.response?.data
-      );
-
-      if (!error.response) {
-        setError(
-          t("errors.networkError")
+      if (axios.isAxiosError(error)) {
+        console.log(
+          "Status:",
+          error.response?.status,
         );
-        return;
-      }
 
-      if (error.response.status >= 500) {
-        setError(
-          t("errors.serverError")
+        console.log(
+          "Data:",
+          error.response?.data,
         );
-        return;
-      }
 
-      const backendMessage =
-        error.response.data?.message;
+        if (!error.response) {
+          setError(
+            t("errors.networkError"),
+          );
+          return;
+        }
 
-      if (backendMessage) {
-        setError(backendMessage);
+        if (error.response.status >= 500) {
+          setError(
+            t("errors.serverError"),
+          );
+          return;
+        }
+
+        const backendMessage =
+          error.response.data?.message;
+
+        if (backendMessage) {
+          setError(backendMessage);
+        } else {
+          setError(
+            t("errors.somethingWentWrong"),
+          );
+        }
       } else {
         setError(
-          t("errors.somethingWentWrong")
+          t("errors.somethingWentWrong"),
         );
       }
     } finally {
@@ -126,14 +135,10 @@ const DriverSignIn = () => {
       <Desgin />
 
       <div className="relative z-10 w-full max-w-md">
-
-      
-
         <div className="rounded-3xl border border-[#CBD5E1]/80 bg-white/95 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-8">
 
           {/* Header */}
           <div className="mb-8 text-center">
-
             <div className="mb-5 flex justify-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0EA5E9] shadow-md">
                 <span className="text-2xl font-bold text-white">
@@ -143,28 +148,25 @@ const DriverSignIn = () => {
             </div>
 
             <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">
-          {t("signIn.title")}
+              {t("signIn.title")}
             </h1>
 
             <p className="mx-auto mt-3 max-w-xs text-sm leading-6 text-[#64748B]">
               {t("signIn.description")}
             </p>
-
           </div>
 
           <form
             onSubmit={handleSubmit}
             className="space-y-6"
           >
-
             {/* Phone */}
             <div>
-
               <label
                 htmlFor="phone"
                 className="mb-2 block text-sm font-semibold text-[#0F172A]"
               >
-                 {t("signIn.phoneNumber")}
+                {t("signIn.phoneNumber")}
               </label>
 
               <div
@@ -174,7 +176,6 @@ const DriverSignIn = () => {
                     : "border-[#CBD5E1] focus-within:border-[#0EA5E9] focus-within:ring-4 focus-within:ring-[#E0F2FE]"
                 }`}
               >
-
                 <div className="flex items-center gap-2 border-r border-[#CBD5E1] bg-[#F8FAFC] px-3 text-sm font-medium text-[#0F172A] sm:px-4">
                   <span className="text-lg">
                     🇦🇫
@@ -196,7 +197,6 @@ const DriverSignIn = () => {
                   disabled={isSubmitting}
                   className="min-w-0 flex-1 bg-white px-4 py-3.5 text-sm text-[#0F172A] outline-none placeholder:text-[#94A3B8] disabled:cursor-not-allowed disabled:bg-[#F8FAFC]"
                 />
-
               </div>
 
               {error && (
@@ -209,7 +209,6 @@ const DriverSignIn = () => {
                   </p>
                 </div>
               )}
-
             </div>
 
             {/* Login */}
@@ -218,7 +217,6 @@ const DriverSignIn = () => {
               disabled={isSubmitting}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0EA5E9] px-4 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#0284C7] hover:shadow-lg hover:shadow-[#0EA5E9]/20 active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD] disabled:cursor-not-allowed disabled:opacity-60"
             >
-
               {isSubmitting ? (
                 <>
                   <span
@@ -231,14 +229,11 @@ const DriverSignIn = () => {
               ) : (
                 "Login as Driver"
               )}
-
             </button>
-
           </form>
 
           {/* Sign Up */}
           <div className="mt-8 border-t border-[#CBD5E1] pt-6 text-center text-sm text-[#64748B]">
-
             <span>
               Don't have a driver account?
             </span>
@@ -249,13 +244,10 @@ const DriverSignIn = () => {
             >
               Sign up as Driver
             </Link>
-
           </div>
-
         </div>
 
         <div className="mx-auto mt-6 h-1 w-24 rounded-full bg-linear-to-r from-[#0EA5E9] via-[#20B8C5] to-[#818CF8] opacity-70" />
-
       </div>
     </div>
   );

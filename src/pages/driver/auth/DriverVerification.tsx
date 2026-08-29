@@ -1,17 +1,39 @@
 import { useRef, useState } from "react";
+import type {
+  ChangeEvent,
+  KeyboardEvent,
+  FormEvent,
+} from "react";
 import {
   useLocation,
-  useNavigate,
+  useNavigate
 } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import axios from "axios";
 
 import Desgin from "../../../components/Designbackground";
-import LanguageSwitcher from "../../../components/LanguageSwitcher";
+
 
 import {
   verifyDriverLogin,
   verifyDriverRegistration,
 } from "../../../api/driverapi";
+
+type VerificationType =
+  | "login"
+  | "registration";
+
+interface VerificationState {
+  phone?: string;
+  verificationType?: VerificationType;
+}
+
+interface VerificationResponse {
+  accessToken?: string;
+  refreshToken?: string;
+  sessionId?: string;
+  challengeToken?: string;
+}
 
 function DriverVerification() {
   const { t } = useTranslation();
@@ -22,27 +44,17 @@ function DriverVerification() {
    * ============================================
    * VERIFICATION SESSION
    * ============================================
-   *
-   * DriverSignIn sends:
-   *
-   * {
-   *   phone,
-   *   verificationType: "login"
-   * }
-   *
-   * DriverSignUp sends:
-   *
-   * {
-   *   phone,
-   *   verificationType: "registration"
-   * }
    */
 
-  const phone = location.state?.phone;
-  const verificationType =
-    location.state?.verificationType;
+  const state =
+    location.state as VerificationState | null;
 
-  const [otp, setOtp] = useState([
+  const phone = state?.phone;
+
+  const verificationType =
+    state?.verificationType;
+
+  const [otp, setOtp] = useState<string[]>([
     "",
     "",
     "",
@@ -51,11 +63,14 @@ function DriverVerification() {
     "",
   ]);
 
-  const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] =
-    useState(false);
+  const [error, setError] =
+    useState<string>("");
 
-  const inputRefs = useRef([]);
+  const [isSubmitting, setIsSubmitting] =
+    useState<boolean>(false);
+
+  const inputRefs =
+    useRef<(HTMLInputElement | null)[]>([]);
 
   /*
    * ============================================
@@ -63,7 +78,10 @@ function DriverVerification() {
    * ============================================
    */
 
-  const handleChange = (value, index) => {
+  const handleChange = (
+    value: string,
+    index: number,
+  ) => {
     /*
      * Only allow one digit.
      */
@@ -104,8 +122,8 @@ function DriverVerification() {
    */
 
   const handleKeyDown = (
-    event,
-    index
+    event: KeyboardEvent<HTMLInputElement>,
+    index: number,
   ) => {
     if (
       event.key === "Backspace" &&
@@ -125,7 +143,7 @@ function DriverVerification() {
    */
 
   const handleSubmit = async (
-    event
+    event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
@@ -143,7 +161,7 @@ function DriverVerification() {
 
     if (!phone) {
       setError(
-        "Phone number is missing. Please start again."
+        "Phone number is missing. Please start again.",
       );
 
       return;
@@ -165,11 +183,11 @@ function DriverVerification() {
           phone,
           verificationType,
           state: location.state,
-        }
+        },
       );
 
       setError(
-        "Verification session is invalid. Please start again."
+        "Verification session is invalid. Please start again.",
       );
 
       return;
@@ -185,7 +203,7 @@ function DriverVerification() {
 
     if (code.length !== 6) {
       setError(
-        "Please enter the 6-digit verification code."
+        "Please enter the 6-digit verification code.",
       );
 
       return;
@@ -200,7 +218,9 @@ function DriverVerification() {
     try {
       setIsSubmitting(true);
 
-      let response;
+      let response: {
+        data: VerificationResponse;
+      };
 
       /*
        * ========================================
@@ -212,30 +232,30 @@ function DriverVerification() {
         verificationType === "login"
       ) {
         console.log(
-          "================================"
+          "================================",
         );
 
         console.log(
-          "VERIFYING DRIVER LOGIN"
+          "VERIFYING DRIVER LOGIN",
         );
 
         console.log(
           "Phone:",
-          phone
+          phone,
         );
 
         console.log(
           "OTP:",
-          code
+          code,
         );
 
         console.log(
           "Endpoint:",
-          "/auth/driver/login/verify"
+          "/auth/driver/login/verify",
         );
 
         console.log(
-          "================================"
+          "================================",
         );
 
         response =
@@ -246,17 +266,18 @@ function DriverVerification() {
 
         console.log(
           "Driver login verification response:",
-          response.data
+          response.data,
         );
-        console.log(
-  "DRIVER ACCESS TOKEN:",
-  response.data?.accessToken
-);
 
-console.log(
-  "DRIVER REFRESH TOKEN:",
-  response.data?.refreshToken
-);
+        console.log(
+          "DRIVER ACCESS TOKEN:",
+          response.data?.accessToken,
+        );
+
+        console.log(
+          "DRIVER REFRESH TOKEN:",
+          response.data?.refreshToken,
+        );
 
         /*
          * ======================================
@@ -269,7 +290,7 @@ console.log(
         ) {
           localStorage.setItem(
             "driverAccessToken",
-            response.data.accessToken
+            response.data.accessToken,
           );
 
           if (
@@ -277,7 +298,7 @@ console.log(
           ) {
             localStorage.setItem(
               "driverRefreshToken",
-              response.data.refreshToken
+              response.data.refreshToken,
             );
           }
 
@@ -286,22 +307,19 @@ console.log(
           ) {
             localStorage.setItem(
               "driverSessionId",
-              response.data.sessionId
+              response.data.sessionId,
             );
           }
 
           console.log(
-            "Driver login successful."
+            "Driver login successful.",
           );
 
-          /*
-        
-           */
           navigate(
             "/auth/welcome",
             {
               replace: true,
-            }
+            },
           );
 
           return;
@@ -317,7 +335,7 @@ console.log(
           response.data?.challengeToken
         ) {
           console.log(
-            "Driver 2FA verification required."
+            "Driver 2FA verification required.",
           );
 
           navigate(
@@ -331,7 +349,7 @@ console.log(
 
                 phone,
               },
-            }
+            },
           );
 
           return;
@@ -345,11 +363,11 @@ console.log(
 
         console.error(
           "Unexpected login response:",
-          response.data
+          response.data,
         );
 
         setError(
-          "Login verification completed, but no authentication session was returned."
+          "Login verification completed, but no authentication session was returned.",
         );
 
         return;
@@ -362,30 +380,30 @@ console.log(
        */
 
       console.log(
-        "================================"
+        "================================",
       );
 
       console.log(
-        "VERIFYING DRIVER REGISTRATION"
+        "VERIFYING DRIVER REGISTRATION",
       );
 
       console.log(
         "Phone:",
-        phone
+        phone,
       );
 
       console.log(
         "OTP:",
-        code
+        code,
       );
 
       console.log(
         "Endpoint:",
-        "/auth/driver/register/verify"
+        "/auth/driver/register/verify",
       );
 
       console.log(
-        "================================"
+        "================================",
       );
 
       response =
@@ -396,7 +414,7 @@ console.log(
 
       console.log(
         "Driver registration verification response:",
-        response.data
+        response.data,
       );
 
       /*
@@ -410,7 +428,7 @@ console.log(
       ) {
         localStorage.setItem(
           "driverAccessToken",
-          response.data.accessToken
+          response.data.accessToken,
         );
       }
 
@@ -419,7 +437,7 @@ console.log(
       ) {
         localStorage.setItem(
           "driverRefreshToken",
-          response.data.refreshToken
+          response.data.refreshToken,
         );
       }
 
@@ -428,12 +446,12 @@ console.log(
       ) {
         localStorage.setItem(
           "driverSessionId",
-          response.data.sessionId
+          response.data.sessionId,
         );
       }
 
       console.log(
-        "Driver registration verification successful."
+        "Driver registration verification successful.",
       );
 
       /*
@@ -446,9 +464,9 @@ console.log(
         "/driver/auth/account-created",
         {
           replace: true,
-        }
+        },
       );
-    } catch (error) {
+    } catch (error: unknown) {
       /*
        * ========================================
        * ERROR HANDLING
@@ -457,69 +475,77 @@ console.log(
 
       console.error(
         "Driver verification failed:",
-        error
+        error,
       );
 
       console.log(
         "Verification type:",
-        verificationType
+        verificationType,
       );
 
       console.log(
         "Phone:",
-        phone
+        phone,
       );
 
-      console.log(
-        "Status:",
-        error.response?.status
-      );
-
-      console.log(
-        "Backend data:",
-        error.response?.data
-      );
-
-      /*
-       * Network error
-       */
-      if (!error.response) {
-        setError(
-          t("errors.networkError")
+      if (axios.isAxiosError(error)) {
+        console.log(
+          "Status:",
+          error.response?.status,
         );
 
-        return;
-      }
-
-      /*
-       * Backend error
-       */
-      if (
-        error.response.status >= 500
-      ) {
-        setError(
-          error.response.data?.message ||
-            t("errors.serverError")
+        console.log(
+          "Backend data:",
+          error.response?.data,
         );
 
-        return;
-      }
+        /*
+         * Network error
+         */
+        if (!error.response) {
+          setError(
+            t("errors.networkError"),
+          );
 
-      /*
-       * 401 / 400 / other API errors
-       */
-      const backendMessage =
-        error.response.data?.message;
+          return;
+        }
 
-      if (backendMessage) {
-        setError(
-          backendMessage
-        );
+        /*
+         * Backend error
+         */
+        if (
+          error.response.status >= 500
+        ) {
+          setError(
+            error.response.data?.message ||
+              t("errors.serverError"),
+          );
+
+          return;
+        }
+
+        /*
+         * 401 / 400 / other API errors
+         */
+        const backendMessage =
+          error.response.data?.message;
+
+        if (backendMessage) {
+          setError(
+            backendMessage,
+          );
+        } else {
+          setError(
+            t(
+              "errors.somethingWentWrong",
+            ),
+          );
+        }
       } else {
         setError(
           t(
-            "errors.somethingWentWrong"
-          )
+            "errors.somethingWentWrong",
+          ),
         );
       }
     } finally {
@@ -534,9 +560,7 @@ console.log(
    */
 
   const handleBack = () => {
-    if (
-      isSubmitting
-    ) {
+    if (isSubmitting) {
       return;
     }
 
@@ -544,14 +568,14 @@ console.log(
       verificationType === "login"
     ) {
       navigate(
-        "/driver/auth/sign-in"
+        "/driver/auth/sign-in",
       );
 
       return;
     }
 
     navigate(
-      "/driver/auth/signup"
+      "/driver/auth/signup",
     );
   };
 
@@ -568,10 +592,7 @@ console.log(
 
       <div className="relative z-10 w-full max-w-md">
 
-        {/* Language */}
-        <div className="mb-6 flex justify-end">
-          <LanguageSwitcher />
-        </div>
+      
 
         <div className="rounded-3xl border border-[#CBD5E1]/80 bg-white/95 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-8">
 
@@ -604,7 +625,8 @@ console.log(
             {/* Debug/status information */}
             {verificationType && (
               <p className="mt-2 text-xs text-[#94A3B8]">
-                {verificationType === "login"
+                {verificationType ===
+                "login"
                   ? "Login verification"
                   : "Registration verification"}
               </p>
@@ -613,9 +635,7 @@ console.log(
           </div>
 
           {/* OTP Form */}
-          <form
-            onSubmit={handleSubmit}
-          >
+          <form onSubmit={handleSubmit}>
 
             {/* OTP Inputs */}
             <div className="flex justify-center gap-2 sm:gap-3">
@@ -623,7 +643,7 @@ console.log(
               {otp.map(
                 (
                   digit,
-                  index
+                  index,
                 ) => (
                   <input
                     key={index}
@@ -644,16 +664,20 @@ console.log(
                     disabled={
                       isSubmitting
                     }
-                    onChange={(event) =>
+                    onChange={(
+                      event: ChangeEvent<HTMLInputElement>,
+                    ) =>
                       handleChange(
                         event.target.value,
-                        index
+                        index,
                       )
                     }
-                    onKeyDown={(event) =>
+                    onKeyDown={(
+                      event: KeyboardEvent<HTMLInputElement>,
+                    ) =>
                       handleKeyDown(
                         event,
-                        index
+                        index,
                       )
                     }
                     className={`h-12 w-10 rounded-xl border bg-white text-center text-lg font-bold text-[#0F172A] outline-none transition sm:h-14 sm:w-12 ${
@@ -662,7 +686,7 @@ console.log(
                         : "border-[#CBD5E1] focus:border-[#0EA5E9] focus:ring-4 focus:ring-[#E0F2FE]"
                     }`}
                   />
-                )
+                ),
               )}
 
             </div>
