@@ -1,45 +1,94 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import {
+  useRef,
+  useState,
+  type ClipboardEvent,
+  type KeyboardEvent,
+} from "react";
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { verifyTwoFactor } from "../../../api/auth";
 
+interface LocationState {
+  challengeToken?: string;
+}
+
+interface ApiErrorResponse {
+  message?: string;
+}
+
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: ApiErrorResponse;
+  };
+  message?: string;
+}
+
+interface TwoFactorLoginResponse {
+  accessToken?: string;
+  refreshToken?: string;
+  sessionId?: string;
+}
+
 function TwoFactorVerification() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { t } = useTranslation();
+  const location =
+    useLocation();
+
+  const { t } =
+    useTranslation();
 
   /*
-   * This token was created by the backend after
-   * the phone OTP was successfully verified.
-   *
-   * Backend:
-   *
-   * POST /auth/login/verify
-   *
-   * Response when 2FA is enabled:
-   *
-   * {
-   *   challengeToken: "..."
-   * }
+   * State passed from login verification.
    */
+  const locationState =
+    location.state as
+      | LocationState
+      | null;
+
   const challengeToken =
-    location.state?.challengeToken;
+    locationState?.challengeToken;
 
-  const [code, setCode] = useState([
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-  ]);
+  /*
+   * OTP
+   */
+  const [code, setCode] =
+    useState<string[]>([
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+    ]);
 
-  const [error, setError] = useState("");
-  const [isVerifying, setIsVerifying] =
-    useState(false);
+  const [error, setError] =
+    useState<string>("");
 
-  const handleChange = (value, index) => {
+  const [
+    isVerifying,
+    setIsVerifying,
+  ] = useState<boolean>(false);
+
+  /*
+   * Input refs
+   */
+  const inputRefs =
+    useRef<Array<HTMLInputElement | null>>(
+      []
+    );
+
+  /*
+   * Handle OTP change
+   */
+  const handleChange = (
+    value: string,
+    index: number
+  ): void => {
     if (!/^\d?$/.test(value)) {
       return;
     }
@@ -55,41 +104,49 @@ function TwoFactorVerification() {
       value &&
       index < code.length - 1
     ) {
-      document
-        .getElementById(
-          `login-two-factor-${index + 1}`
-        )
-        ?.focus();
+      inputRefs.current[
+        index + 1
+      ]?.focus();
     }
   };
 
-  const handleKeyDown = (event, index) => {
+  /*
+   * Handle backspace
+   */
+  const handleKeyDown = (
+    event: KeyboardEvent<HTMLInputElement>,
+    index: number
+  ): void => {
     if (
       event.key === "Backspace" &&
       !code[index] &&
       index > 0
     ) {
-      document
-        .getElementById(
-          `login-two-factor-${index - 1}`
-        )
-        ?.focus();
+      inputRefs.current[
+        index - 1
+      ]?.focus();
     }
   };
 
-  const handlePaste = (event) => {
+  /*
+   * Handle paste
+   */
+  const handlePaste = (
+    event: ClipboardEvent<HTMLDivElement>
+  ): void => {
     event.preventDefault();
 
-    const pastedValue = event.clipboardData
-      .getData("text")
-      .replace(/\D/g, "")
-      .slice(0, 6);
+    const pastedValue =
+      event.clipboardData
+        .getData("text")
+        .replace(/\D/g, "")
+        .slice(0, 6);
 
     if (!pastedValue) {
       return;
     }
 
-    const newCode = [
+    const newCode: string[] = [
       "",
       "",
       "",
@@ -100,9 +157,14 @@ function TwoFactorVerification() {
 
     pastedValue
       .split("")
-      .forEach((digit, index) => {
-        newCode[index] = digit;
-      });
+      .forEach(
+        (
+          digit: string,
+          index: number
+        ) => {
+          newCode[index] = digit;
+        }
+      );
 
     setCode(newCode);
     setError("");
@@ -112,22 +174,28 @@ function TwoFactorVerification() {
       5
     );
 
-    document
-      .getElementById(
-        `login-two-factor-${nextIndex}`
-      )
-      ?.focus();
+    inputRefs.current[
+      nextIndex
+    ]?.focus();
   };
 
-  const handleSubmit = async (event) => {
+  /*
+   * Submit 2FA login verification
+   */
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
 
-    const verificationCode = code.join("");
+    const verificationCode =
+      code.join("");
 
     /*
-     * Make sure exactly 6 digits were entered.
+     * Validate OTP
      */
-    if (verificationCode.length !== 6) {
+    if (
+      verificationCode.length !== 6
+    ) {
       setError(
         t(
           "twoFactorVerification.invalidCode",
@@ -142,14 +210,7 @@ function TwoFactorVerification() {
     }
 
     /*
-     * The challengeToken is extremely important.
-     *
-     * It proves that:
-     *
-     * 1. The user already passed phone verification.
-     * 2. The backend created a 2FA login challenge.
-     *
-     * We NEVER verify a TOTP code without this token.
+     * Validate challenge token
      */
     if (!challengeToken) {
       setError(
@@ -178,26 +239,18 @@ function TwoFactorVerification() {
         response.data
       );
 
-      /*
-       * Backend should return:
-       *
-       * {
-       *   accessToken,
-       *   refreshToken,
-       *   sessionId
-       * }
-       */
+      const data =
+        response.data as TwoFactorLoginResponse;
 
+      /*
+       * Validate session tokens
+       */
       const {
         accessToken,
         refreshToken,
         sessionId,
-      } = response.data;
+      } = data;
 
-      /*
-       * Never consider login successful unless
-       * the backend returned the session tokens.
-       */
       if (
         !accessToken ||
         !refreshToken ||
@@ -209,7 +262,7 @@ function TwoFactorVerification() {
       }
 
       /*
-       * Save authenticated session.
+       * Save session
        */
       localStorage.setItem(
         "accessToken",
@@ -231,30 +284,42 @@ function TwoFactorVerification() {
       );
 
       /*
-       * Now login is actually complete.
+       * Login complete
        */
-      navigate("/auth/welcome", {
-        replace: true,
-      });
-    } catch (error) {
+      navigate(
+        "/auth/welcome",
+        {
+          replace: true,
+        }
+      );
+    } catch (error: unknown) {
       console.error(
         "2FA verification failed:",
         error
       );
 
+      const apiError =
+        error as ApiError;
+
       console.log(
         "STATUS:",
-        error.response?.status
+        apiError.response?.status
       );
 
       console.log(
         "DATA:",
-        error.response?.data
+        apiError.response?.data
       );
 
       setError(
-        error.response?.data?.message ||
-          "Invalid authenticator code."
+        apiError.response?.data?.message ||
+          t(
+            "twoFactorVerification.invalidCode",
+            {
+              defaultValue:
+                "Invalid authenticator code.",
+            }
+          )
       );
     } finally {
       setIsVerifying(false);
@@ -278,7 +343,6 @@ function TwoFactorVerification() {
           {/* Header */}
           <div className="mb-8 text-center">
 
-            {/* Security Icon */}
             <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-[#E0F2FE]">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -317,12 +381,13 @@ function TwoFactorVerification() {
                 "twoFactorVerification.description"
               )}
             </p>
+
           </div>
 
-          {/* Verification Card */}
+          {/* Card */}
           <div className="rounded-3xl border border-[#CBD5E1] bg-white p-6 shadow-sm sm:p-8">
 
-            {/* Authenticator Information */}
+            {/* Authenticator Info */}
             <div className="mb-7 rounded-2xl bg-[#F0F9FF] p-4">
               <div className="flex items-start gap-3">
 
@@ -381,74 +446,95 @@ function TwoFactorVerification() {
               </p>
             </div>
 
-            {/* 6 Digit Code */}
-            <div
-              className="mb-3 flex justify-center gap-2 sm:gap-3"
-              onPaste={handlePaste}
-            >
-              {code.map(
-                (digit, index) => (
-                  <input
-                    key={index}
-                    id={`login-two-factor-${index}`}
-                    type="text"
-                    inputMode="numeric"
-                    autoComplete={
-                      index === 0
-                        ? "one-time-code"
-                        : "off"
-                    }
-                    maxLength={1}
-                    value={digit}
-                    onChange={(event) =>
-                      handleChange(
-                        event.target.value,
-                        index
-                      )
-                    }
-                    onKeyDown={(event) =>
-                      handleKeyDown(
-                        event,
-                        index
-                      )
-                    }
-                    disabled={isVerifying}
-                    className={`h-12 w-10 rounded-xl border bg-white text-center text-lg font-bold text-[#0F172A] outline-none transition focus:ring-4 sm:h-14 sm:w-12 ${
-                      error
-                        ? "border-[#DC2626] focus:border-[#DC2626] focus:ring-red-100"
-                        : "border-[#CBD5E1] focus:border-[#0EA5E9] focus:ring-[#E0F2FE]"
-                    }`}
-                  />
-                )
+            {/* OTP */}
+            <form onSubmit={handleSubmit}>
+
+              <div
+                className="mb-3 flex justify-center gap-2 sm:gap-3"
+                onPaste={handlePaste}
+              >
+                {code.map(
+                  (
+                    digit: string,
+                    index: number
+                  ) => (
+                    <input
+                      key={index}
+                      ref={(element) => {
+                        inputRefs.current[
+                          index
+                        ] = element;
+                      }}
+                      id={`login-two-factor-${index}`}
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete={
+                        index === 0
+                          ? "one-time-code"
+                          : "off"
+                      }
+                      maxLength={1}
+                      value={digit}
+                      onChange={(event) =>
+                        handleChange(
+                          event.target.value,
+                          index
+                        )
+                      }
+                      onKeyDown={(event) =>
+                        handleKeyDown(
+                          event,
+                          index
+                        )
+                      }
+                      disabled={
+                        isVerifying
+                      }
+                      aria-label={`Authenticator digit ${
+                        index + 1
+                      }`}
+                      className={`h-12 w-10 rounded-xl border bg-white text-center text-lg font-bold text-[#0F172A] outline-none transition focus:ring-4 sm:h-14 sm:w-12 ${
+                        error
+                          ? "border-[#DC2626] focus:border-[#DC2626] focus:ring-red-100"
+                          : "border-[#CBD5E1] focus:border-[#0EA5E9] focus:ring-[#E0F2FE]"
+                      }`}
+                    />
+                  )
+                )}
+              </div>
+
+              {/* Error */}
+              {error && (
+                <p
+                  role="alert"
+                  className="mb-5 text-center text-sm font-medium text-[#DC2626]"
+                >
+                  {error}
+                </p>
               )}
-            </div>
 
-            {/* Error */}
-            {error && (
-              <p className="mb-5 text-center text-sm font-medium text-[#DC2626]">
-                {error}
-              </p>
-            )}
+              {/* Verify */}
+              <button
+                type="submit"
+                disabled={isVerifying}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0EA5E9] px-6 py-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isVerifying
+                  ? "Verifying..."
+                  : t(
+                      "twoFactorVerification.verify"
+                    )}
+              </button>
 
-            {/* Verify Button */}
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isVerifying}
-              className="mt-5 w-full rounded-xl bg-[#0EA5E9] px-6 py-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isVerifying
-                ? "Verifying..."
-                : t(
-                    "twoFactorVerification.verify"
-                  )}
-            </button>
+            </form>
 
             {/* Back */}
             <button
               type="button"
               onClick={() =>
-                navigate("/auth/sign-in")
+                navigate(
+                  "/auth/sign-in"
+                )
               }
               disabled={isVerifying}
               className="mt-5 w-full text-sm font-semibold text-[#64748B] transition hover:text-[#0F172A] disabled:cursor-not-allowed disabled:opacity-60"

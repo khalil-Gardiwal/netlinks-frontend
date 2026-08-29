@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import Desgin from "../../../components/Designbackground";
-import LanguageSwitcher from "../../../components/LanguageSwitcher";
+
 
 import { loginDriver } from "../../../api/driverapi";
 
@@ -127,10 +127,7 @@ const DriverSignIn = () => {
 
       <div className="relative z-10 w-full max-w-md">
 
-        {/* Language */}
-        <div className="mb-6 flex justify-end">
-          <LanguageSwitcher />
-        </div>
+      
 
         <div className="rounded-3xl border border-[#CBD5E1]/80 bg-white/95 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-8">
 
@@ -146,11 +143,11 @@ const DriverSignIn = () => {
             </div>
 
             <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">
-              Driver Login
+          {t("signIn.title")}
             </h1>
 
             <p className="mx-auto mt-3 max-w-xs text-sm leading-6 text-[#64748B]">
-              Sign in to your driver account to continue.
+              {t("signIn.description")}
             </p>
 
           </div>
@@ -167,7 +164,7 @@ const DriverSignIn = () => {
                 htmlFor="phone"
                 className="mb-2 block text-sm font-semibold text-[#0F172A]"
               >
-                Phone Number
+                 {t("signIn.phoneNumber")}
               </label>
 
               <div

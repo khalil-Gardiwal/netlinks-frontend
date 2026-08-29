@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "../../components/LanguageSwitcher";
 import Desgin from "../../components/Designbackground";
 
-function AccountCreated() {
+function AccountCreated(){
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -11,7 +10,8 @@ function AccountCreated() {
     <div className="min-h-screen bg-[#F8FAFC] px-5 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center justify-center">
         <div className="w-full">
-                 <Desgin/>
+          <Desgin />
+
           {/* Success Icon */}
           <div className="mb-8 flex justify-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#DCFCE7]">
@@ -61,6 +61,7 @@ function AccountCreated() {
             className="mt-6 flex w-full items-center justify-center gap-2 text-sm font-medium text-[#64748B] transition hover:text-[#0F172A]"
           >
             <span>←</span>
+
             {t("account.backToWelcome")}
           </button>
         </div>

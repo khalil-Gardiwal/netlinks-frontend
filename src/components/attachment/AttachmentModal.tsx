@@ -1,19 +1,47 @@
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type ChangeEvent,
+} from "react";
 import { useTranslation } from "react-i18next";
-import Cropper from "react-easy-crop";
+import Cropper, { type Area } from "react-easy-crop";
 
-const createImage = (url) =>
+interface AttachmentModalProps {
+  open: boolean;
+  onClose: () => void;
+  onComplete?: (file: File) => void | Promise<void>;
+  aspect?: number;
+  title?: string;
+  maxFileSize?: number;
+  acceptedTypes?: string[];
+}
+
+interface CropPosition {
+  x: number;
+  y: number;
+}
+
+const createImage = (
+  url: string,
+): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
     const image = new Image();
 
     image.addEventListener("load", () => resolve(image));
-    image.addEventListener("error", (error) => reject(error));
+    image.addEventListener("error", (error) =>
+      reject(error),
+    );
 
     image.setAttribute("crossOrigin", "anonymous");
     image.src = url;
   });
 
-const getCroppedImg = async (imageSrc, pixelCrop, originalFile) => {
+const getCroppedImg = async (
+  imageSrc: string,
+  pixelCrop: Area,
+  originalFile: File,
+): Promise<File> => {
   const image = await createImage(imageSrc);
 
   const canvas = document.createElement("canvas");
@@ -35,22 +63,28 @@ const getCroppedImg = async (imageSrc, pixelCrop, originalFile) => {
     0,
     0,
     pixelCrop.width,
-    pixelCrop.height
+    pixelCrop.height,
   );
 
-  const blob = await new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (result) => {
-        if (result) {
-          resolve(result);
-        } else {
-          reject(new Error("Could not create cropped image."));
-        }
-      },
-      originalFile.type || "image/jpeg",
-      0.9
-    );
-  });
+  const blob = await new Promise<Blob>(
+    (resolve, reject) => {
+      canvas.toBlob(
+        (result) => {
+          if (result) {
+            resolve(result);
+          } else {
+            reject(
+              new Error(
+                "Could not create cropped image.",
+              ),
+            );
+          }
+        },
+        originalFile.type || "image/jpeg",
+        0.9,
+      );
+    },
+  );
 
   const extension =
     originalFile.type === "image/png"
@@ -74,19 +108,34 @@ function AttachmentModal({
   aspect = 1,
   title,
   maxFileSize = 5 * 1024 * 1024,
-  acceptedTypes = ["image/jpeg", "image/png", "image/webp"],
-}) {
+  acceptedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+  ],
+}: AttachmentModalProps) {
   const { t } = useTranslation();
 
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [imageSrc, setImageSrc] = useState(null);
+  const [selectedFile, setSelectedFile] =
+    useState<File | null>(null);
 
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [imageSrc, setImageSrc] =
+    useState<string | null>(null);
 
-  const [error, setError] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [crop, setCrop] = useState<CropPosition>({
+    x: 0,
+    y: 0,
+  });
+
+  const [zoom, setZoom] = useState<number>(1);
+
+  const [croppedAreaPixels, setCroppedAreaPixels] =
+    useState<Area | null>(null);
+
+  const [error, setError] = useState<string>("");
+
+  const [isProcessing, setIsProcessing] =
+    useState<boolean>(false);
 
   const resetState = useCallback(() => {
     setSelectedFile(null);
@@ -112,7 +161,9 @@ function AttachmentModal({
     };
   }, [imageSrc]);
 
-  const handleFileChange = (event) => {
+  const handleFileChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
 
     event.target.value = "";
@@ -146,12 +197,19 @@ function AttachmentModal({
     setCroppedAreaPixels(null);
   };
 
-  const onCropComplete = useCallback((_, croppedPixels) => {
-    setCroppedAreaPixels(croppedPixels);
-  }, []);
+  const onCropComplete = useCallback(
+    (_: Area, croppedPixels: Area) => {
+      setCroppedAreaPixels(croppedPixels);
+    },
+    [],
+  );
 
   const handleConfirm = async () => {
-    if (!selectedFile || !imageSrc || !croppedAreaPixels) {
+    if (
+      !selectedFile ||
+      !imageSrc ||
+      !croppedAreaPixels
+    ) {
       return;
     }
 
@@ -162,7 +220,7 @@ function AttachmentModal({
       const croppedFile = await getCroppedImg(
         imageSrc,
         croppedAreaPixels,
-        selectedFile
+        selectedFile,
       );
 
       if (onComplete) {
@@ -171,7 +229,10 @@ function AttachmentModal({
 
       onClose();
     } catch (err) {
-      console.error("Image cropping failed:", err);
+      console.error(
+        "Image cropping failed:",
+        err,
+      );
 
       setError(t("attachment.cropError"));
     } finally {
@@ -303,7 +364,9 @@ function AttachmentModal({
                   step="0.1"
                   value={zoom}
                   onChange={(event) =>
-                    setZoom(Number(event.target.value))
+                    setZoom(
+                      Number(event.target.value),
+                    )
                   }
                   className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-sky-500"
                 />
@@ -346,7 +409,10 @@ function AttachmentModal({
             <button
               type="button"
               onClick={handleConfirm}
-              disabled={isProcessing || !croppedAreaPixels}
+              disabled={
+                isProcessing ||
+                !croppedAreaPixels
+              }
               className="rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-600 active:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isProcessing

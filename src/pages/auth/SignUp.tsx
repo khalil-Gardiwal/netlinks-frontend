@@ -1,6 +1,9 @@
 import { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { isAxiosError } from "axios";
+
 import LanguageSwitcher from "../../components/LanguageSwitcher";
 import Desgin from "../../components/Designbackground";
 import { register } from "../../api/auth";
@@ -8,25 +11,43 @@ import { register } from "../../api/auth";
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;
 
+interface Country {
+  name: string;
+  code: string;
+  flag: string;
+}
+
+interface RegisterData {
+  fullname: string;
+  phone: string;
+}
+
 function SignUp() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [name, setName] = useState("");
-  const [nameError, setNameError] = useState("");
+  const [name, setName] = useState<string>("");
+  const [nameError, setNameError] = useState<string>("");
 
-  const [countryCode, setCountryCode] = useState("+93");
+  const [countryCode, setCountryCode] =
+    useState<string>("+93");
 
-  const [phone, setPhone] = useState("");
-  const [phoneError, setPhoneError] = useState("");
+  const [phone, setPhone] = useState<string>("");
+  const [phoneError, setPhoneError] = useState<string>("");
 
-  const [acceptedPolicy, setAcceptedPolicy] = useState(false);
-  const [policyError, setPolicyError] = useState("");
+  const [acceptedPolicy, setAcceptedPolicy] =
+    useState<boolean>(false);
 
-  const [submitError, setSubmitError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [policyError, setPolicyError] =
+    useState<string>("");
 
-  const countries = [
+  const [submitError, setSubmitError] =
+    useState<string>("");
+
+  const [isSubmitting, setIsSubmitting] =
+    useState<boolean>(false);
+
+  const countries: Country[] = [
     {
       name: "Afghanistan",
       code: "+93",
@@ -37,7 +58,8 @@ function SignUp() {
   // -----------------------------
   // Name validation
   // -----------------------------
-  const validateName = (value) => {
+
+  const validateName = (value: string): string => {
     if (!value.trim()) {
       return t("errors.required");
     }
@@ -48,7 +70,8 @@ function SignUp() {
   // -----------------------------
   // Phone validation
   // -----------------------------
-  const validatePhone = (value) => {
+
+  const validatePhone = (value: string): string => {
     if (!value) {
       return t("errors.required");
     }
@@ -63,12 +86,14 @@ function SignUp() {
   // -----------------------------
   // Name change
   // -----------------------------
-  const handleNameChange = (event) => {
+
+  const handleNameChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ): void => {
     const value = event.target.value;
 
     setName(value);
 
-    // Clear API error when user starts editing
     if (submitError) {
       setSubmitError("");
     }
@@ -81,14 +106,16 @@ function SignUp() {
   // -----------------------------
   // Phone change
   // -----------------------------
-  const handlePhoneChange = (event) => {
+
+  const handlePhoneChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ): void => {
     const value = event.target.value
       .replace(/\D/g, "")
       .slice(0, 9);
 
     setPhone(value);
 
-    // Clear API error when user starts editing
     if (submitError) {
       setSubmitError("");
     }
@@ -99,9 +126,26 @@ function SignUp() {
   };
 
   // -----------------------------
+  // Country change
+  // -----------------------------
+
+  const handleCountryChange = (
+    event: ChangeEvent<HTMLSelectElement>
+  ): void => {
+    setCountryCode(event.target.value);
+
+    if (submitError) {
+      setSubmitError("");
+    }
+  };
+
+  // -----------------------------
   // Policy change
   // -----------------------------
-  const handlePolicyChange = (event) => {
+
+  const handlePolicyChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ): void => {
     const checked = event.target.checked;
 
     setAcceptedPolicy(checked);
@@ -118,19 +162,23 @@ function SignUp() {
   // -----------------------------
   // Submit
   // -----------------------------
-  const handleSubmit = async (event) => {
+
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
 
-    // Clear previous server/network error
     setSubmitError("");
 
-    // Prevent duplicate requests
     if (isSubmitting) {
       return;
     }
 
-    const nameValidationError = validateName(name);
-    const phoneValidationError = validatePhone(phone);
+    const nameValidationError =
+      validateName(name);
+
+    const phoneValidationError =
+      validatePhone(phone);
 
     setNameError(nameValidationError);
     setPhoneError(phoneValidationError);
@@ -141,7 +189,6 @@ function SignUp() {
       setPolicyError("");
     }
 
-    // Stop if validation fails
     if (
       nameValidationError ||
       phoneValidationError ||
@@ -153,18 +200,21 @@ function SignUp() {
     try {
       setIsSubmitting(true);
 
-      // Add country code only when sending to backend
-      const fullPhone = `${countryCode}${phone}`;
+      const fullPhone =
+        `${countryCode}${phone}`;
 
-      console.log("Sending registration request:", {
+      const registerData: RegisterData = {
         fullname: name.trim(),
         phone: fullPhone,
-      });
+      };
 
-      const response = await register({
-        fullname: name.trim(),
-        phone: fullPhone,
-      });
+      console.log(
+        "Sending registration request:",
+        registerData
+      );
+
+      const response =
+        await register(registerData);
 
       console.log(
         "Registration successful:",
@@ -177,28 +227,40 @@ function SignUp() {
           from: "sign-up",
         },
       });
-    } catch (error) {
-      // Keep technical error available for developers
-      console.error("Registration failed:", error);
+    } catch (error: unknown) {
+      console.error(
+        "Registration failed:",
+        error
+      );
 
-      // No response means the request never reached
-      // the backend or the browser could not connect.
+      if (!isAxiosError(error)) {
+        setSubmitError(
+          t("errors.somethingWentWrong")
+        );
+        return;
+      }
+
       if (!error.response) {
-        setSubmitError(t("errors.networkError"));
+        setSubmitError(
+          t("errors.networkError")
+        );
         return;
       }
 
-      // Backend/server error
       if (error.response.status >= 500) {
-        setSubmitError(t("errors.serverError"));
+        setSubmitError(
+          t("errors.serverError")
+        );
         return;
       }
 
-      // Backend returned a validation/client error
       const backendMessage =
         error.response.data?.message;
 
-      if (backendMessage) {
+      if (
+        typeof backendMessage === "string" &&
+        backendMessage
+      ) {
         setSubmitError(backendMessage);
       } else {
         setSubmitError(
@@ -257,7 +319,9 @@ function SignUp() {
                   value={name}
                   onChange={handleNameChange}
                   onBlur={() =>
-                    setNameError(validateName(name))
+                    setNameError(
+                      validateName(name)
+                    )
                   }
                   disabled={isSubmitting}
                   placeholder={t(
@@ -295,20 +359,23 @@ function SignUp() {
                 >
                   <select
                     value={countryCode}
-                    onChange={(event) =>
-                      setCountryCode(event.target.value)
+                    onChange={
+                      handleCountryChange
                     }
                     disabled={isSubmitting}
                     className="cursor-pointer border-r border-[#CBD5E1] bg-[#F8FAFC] px-3 py-3.5 text-sm font-medium text-[#0F172A] outline-none disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {countries.map((country) => (
-                      <option
-                        key={country.code}
-                        value={country.code}
-                      >
-                        {country.flag} {country.code}
-                      </option>
-                    ))}
+                    {countries.map(
+                      (country) => (
+                        <option
+                          key={country.code}
+                          value={country.code}
+                        >
+                          {country.flag}{" "}
+                          {country.code}
+                        </option>
+                      )
+                    )}
                   </select>
 
                   <input
@@ -317,9 +384,13 @@ function SignUp() {
                     inputMode="numeric"
                     autoComplete="tel"
                     value={phone}
-                    onChange={handlePhoneChange}
+                    onChange={
+                      handlePhoneChange
+                    }
                     onBlur={() =>
-                      setPhoneError(validatePhone(phone))
+                      setPhoneError(
+                        validatePhone(phone)
+                      )
                     }
                     disabled={isSubmitting}
                     placeholder={t(
@@ -348,7 +419,9 @@ function SignUp() {
                   <input
                     type="checkbox"
                     checked={acceptedPolicy}
-                    onChange={handlePolicyChange}
+                    onChange={
+                      handlePolicyChange
+                    }
                     disabled={isSubmitting}
                     className="mt-1 h-4 w-4 cursor-pointer accent-[#0EA5E9]"
                   />

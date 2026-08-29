@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import type { AxiosError } from "axios";
 
 import LanguageSwitcher from "../../components/LanguageSwitcher";
 import Desgin from "../../components/Designbackground";
@@ -14,32 +15,59 @@ import {
 import AttachmentModal from "../../components/attachment/AttachmentModal";
 import { uploadAttachment } from "../../api/attachments";
 
+type AccountType = "driver" | "passenger" | null;
+
+type Account = {
+  fullname?: string;
+  fullName?: string;
+  name?: string;
+  firstName?: string;
+  phone?: string;
+  [key: string]: unknown;
+};
+
+type AttachmentFile = File;
+
+type ApiErrorResponse = {
+  message?: string;
+  error?: string;
+  statusCode?: number;
+};
+
 function Welcome() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const [selectedType, setSelectedType] = useState(null);
+  const [selectedType, setSelectedType] = useState<
+    "driver" | "passenger" | null
+  >(null);
 
-  const [showTwoFactor, setShowTwoFactor] = useState(false);
+  const [showTwoFactor, setShowTwoFactor] =
+    useState<boolean>(false);
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<Account | null>(null);
 
-  const [accountType, setAccountType] = useState(null);
+  const [accountType, setAccountType] =
+    useState<AccountType>(null);
 
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [isLoadingUser, setIsLoadingUser] =
+    useState<boolean>(true);
 
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [logoutError, setLogoutError] = useState("");
+  const [isLoggingOut, setIsLoggingOut] =
+    useState<boolean>(false);
+
+  const [logoutError, setLogoutError] =
+    useState<string>("");
 
   const [showAttachmentModal, setShowAttachmentModal] =
-    useState(false);
+    useState<boolean>(false);
 
   // ============================================================
   // LOAD CURRENT ACCOUNT
   // ============================================================
 
   useEffect(() => {
-    const loadCurrentAccount = async () => {
+    const loadCurrentAccount = async (): Promise<void> => {
       setIsLoadingUser(true);
 
       try {
@@ -71,22 +99,24 @@ function Welcome() {
 
             return;
           } catch (driverError) {
+            const error =
+              driverError as AxiosError<ApiErrorResponse>;
+
             console.error(
               "GET DRIVER ME FAILED:",
-              driverError
+              error
             );
 
             console.log(
               "DRIVER STATUS:",
-              driverError.response?.status
+              error.response?.status
             );
 
             console.log(
               "DRIVER DATA:",
-              driverError.response?.data
+              error.response?.data
             );
 
-            // Driver token is invalid/expired.
             localStorage.removeItem(
               "driverAccessToken"
             );
@@ -119,19 +149,22 @@ function Welcome() {
 
             return;
           } catch (userError) {
+            const error =
+              userError as AxiosError<ApiErrorResponse>;
+
             console.error(
               "GET USER ME FAILED:",
-              userError
+              error
             );
 
             console.log(
               "USER STATUS:",
-              userError.response?.status
+              error.response?.status
             );
 
             console.log(
               "USER DATA:",
-              userError.response?.data
+              error.response?.data
             );
 
             localStorage.removeItem(
@@ -154,20 +187,19 @@ function Welcome() {
 
         setUser(null);
         setAccountType(null);
-
       } finally {
         setIsLoadingUser(false);
       }
     };
 
-    loadCurrentAccount();
+    void loadCurrentAccount();
   }, []);
 
   // ============================================================
   // LOGOUT
   // ============================================================
 
-  const handleLogout = async () => {
+  const handleLogout = async (): Promise<void> => {
     if (isLoggingOut) {
       return;
     }
@@ -189,19 +221,22 @@ function Welcome() {
             response.data
           );
         } catch (driverLogoutError) {
+          const error =
+            driverLogoutError as AxiosError<ApiErrorResponse>;
+
           console.error(
             "Driver logout request failed:",
-            driverLogoutError
+            error
           );
 
           console.log(
             "DRIVER LOGOUT STATUS:",
-            driverLogoutError.response?.status
+            error.response?.status
           );
 
           console.log(
             "DRIVER LOGOUT DATA:",
-            driverLogoutError.response?.data
+            error.response?.data
           );
         }
 
@@ -234,19 +269,22 @@ function Welcome() {
           response.data
         );
       } catch (userLogoutError) {
+        const error =
+          userLogoutError as AxiosError<ApiErrorResponse>;
+
         console.error(
           "User logout request failed:",
-          userLogoutError
+          error
         );
 
         console.log(
           "USER LOGOUT STATUS:",
-          userLogoutError.response?.status
+          error.response?.status
         );
 
         console.log(
           "USER LOGOUT DATA:",
-          userLogoutError.response?.data
+          error.response?.data
         );
       }
 
@@ -258,7 +296,6 @@ function Welcome() {
       setAccountType(null);
 
       navigate("/auth/welcome");
-
     } catch (error) {
       console.error(
         "Logout failed:",
@@ -280,7 +317,9 @@ function Welcome() {
   // ACCOUNT TYPE SELECTION
   // ============================================================
 
-  const handleSelectType = (type) => {
+  const handleSelectType = (
+    type: "driver" | "passenger"
+  ): void => {
     setSelectedType(type);
   };
 
@@ -288,7 +327,7 @@ function Welcome() {
   // LOGIN
   // ============================================================
 
-  const handleLogin = () => {
+  const handleLogin = (): void => {
     if (selectedType === "driver") {
       navigate("/driver/auth/sign-in");
       return;
@@ -301,7 +340,7 @@ function Welcome() {
   // SIGNUP
   // ============================================================
 
-  const handleSignup = () => {
+  const handleSignup = (): void => {
     if (selectedType === "driver") {
       navigate("/driver/auth/signup");
       return;
@@ -314,7 +353,7 @@ function Welcome() {
   // DISPLAY NAME
   // ============================================================
 
-  const getDisplayName = () => {
+  const getDisplayName = (): string => {
     if (!user) {
       return "";
     }
@@ -349,9 +388,7 @@ function Welcome() {
 
       <div className="absolute right-5 top-5 z-50 flex items-start gap-2 sm:right-6 sm:top-6">
 
-        {/* ===================================================
-            PROFILE
-        ==================================================== */}
+        {/* PROFILE */}
 
         {isAuthenticated && (
           <button
@@ -397,9 +434,7 @@ function Welcome() {
           </button>
         )}
 
-        {/* ===================================================
-            2FA
-        ==================================================== */}
+        {/* 2FA */}
 
         {isAuthenticated && (
           <div className="relative">
@@ -446,8 +481,7 @@ function Welcome() {
                 {t(
                   "signInTwoFactor.label",
                   {
-                    defaultValue:
-                      "2FA",
+                    defaultValue: "2FA",
                   }
                 )}
               </span>
@@ -596,9 +630,7 @@ function Welcome() {
           </div>
         )}
 
-        {/* ===================================================
-            LOGOUT
-        ==================================================== */}
+        {/* LOGOUT */}
 
         {isAuthenticated && (
           <button
@@ -650,9 +682,7 @@ function Welcome() {
           </button>
         )}
 
-        {/* ===================================================
-            LANGUAGE
-        ==================================================== */}
+        {/* LANGUAGE */}
 
         <LanguageSwitcher />
 
@@ -666,9 +696,7 @@ function Welcome() {
 
         <div className="w-full max-w-3xl text-center">
 
-          {/* =================================================
-              LOGO
-          ================================================== */}
+          {/* LOGO */}
 
           <div className="mb-8 flex justify-center">
 
@@ -682,9 +710,7 @@ function Welcome() {
 
           </div>
 
-          {/* =================================================
-              WELCOME TEXT
-          ================================================== */}
+          {/* WELCOME TEXT */}
 
           <div className="mx-auto mb-9 max-w-xl">
 
@@ -738,9 +764,7 @@ function Welcome() {
 
           </div>
 
-          {/* =================================================
-              ACCOUNT TYPE
-          ================================================== */}
+          {/* ACCOUNT TYPE */}
 
           {!isAuthenticated && (
             <div className="mx-auto max-w-2xl">
@@ -765,9 +789,7 @@ function Welcome() {
                 )}
               </p>
 
-              {/* =================================================
-                  TYPE CARDS
-              ================================================== */}
+              {/* TYPE CARDS */}
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
 
@@ -1037,9 +1059,7 @@ function Welcome() {
 
               </div>
 
-              {/* =================================================
-                  LOGIN / SIGNUP
-              ================================================== */}
+              {/* LOGIN / SIGNUP */}
 
               {selectedType && (
                 <div className="mt-6 rounded-2xl border border-[#CBD5E1] bg-white p-4 shadow-sm">
@@ -1087,9 +1107,7 @@ function Welcome() {
             </div>
           )}
 
-          {/* =================================================
-              LOGGED-IN ACCOUNT INFORMATION
-          ================================================== */}
+          {/* LOGGED-IN ACCOUNT INFORMATION */}
 
           {isAuthenticated && (
             <div className="mx-auto max-w-xl">
@@ -1130,9 +1148,7 @@ function Welcome() {
             </div>
           )}
 
-          {/* =================================================
-              ATTACHMENT TEST
-          ================================================== */}
+          {/* ATTACHMENT TEST */}
 
           {!isAuthenticated && (
             <div className="mt-7 flex justify-center">
@@ -1157,7 +1173,9 @@ function Welcome() {
             onClose={() =>
               setShowAttachmentModal(false)
             }
-            onComplete={async (file) => {
+            onComplete={async (
+              file: AttachmentFile
+            ): Promise<void> => {
               try {
                 console.log(
                   "FILE:",
@@ -1171,17 +1189,17 @@ function Welcome() {
 
                 console.log(
                   "Name:",
-                  file?.name
+                  file.name
                 );
 
                 console.log(
                   "Size:",
-                  file?.size
+                  file.size
                 );
 
                 console.log(
                   "Type:",
-                  file?.type
+                  file.type
                 );
 
                 const response =
@@ -1198,14 +1216,17 @@ function Welcome() {
                   false
                 );
               } catch (error) {
+                const axiosError =
+                  error as AxiosError<ApiErrorResponse>;
+
                 console.error(
                   "Attachment upload failed:",
-                  error
+                  axiosError
                 );
 
                 console.log(
                   "Backend response:",
-                  error.response?.data
+                  axiosError.response?.data
                 );
               }
             }}

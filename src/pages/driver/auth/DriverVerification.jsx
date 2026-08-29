@@ -248,6 +248,15 @@ function DriverVerification() {
           "Driver login verification response:",
           response.data
         );
+        console.log(
+  "DRIVER ACCESS TOKEN:",
+  response.data?.accessToken
+);
+
+console.log(
+  "DRIVER REFRESH TOKEN:",
+  response.data?.refreshToken
+);
 
         /*
          * ======================================
@@ -286,11 +295,10 @@ function DriverVerification() {
           );
 
           /*
-           * Change this route if your dashboard
-           * has a different path.
+        
            */
           navigate(
-            "/driver/dashboard",
+            "/auth/welcome",
             {
               replace: true,
             }

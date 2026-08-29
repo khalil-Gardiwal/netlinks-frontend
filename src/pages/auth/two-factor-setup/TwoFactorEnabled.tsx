@@ -48,8 +48,8 @@ function TwoFactorEnabled() {
 
           {/* Status Card */}
           <div className="mt-8 rounded-3xl border border-[#CBD5E1] bg-white p-6 text-left shadow-sm">
-
             <div className="flex items-center gap-4">
+
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#DCFCE7]">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -68,6 +68,7 @@ function TwoFactorEnabled() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
+
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -85,6 +86,7 @@ function TwoFactorEnabled() {
                   {t("twoFactorEnabled.statusDescription")}
                 </p>
               </div>
+
             </div>
           </div>
 

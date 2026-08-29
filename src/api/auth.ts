@@ -1,18 +1,18 @@
 import api from "./axios";
 
-export const register = (data) => {
+export const register = (data: unknown) => {
   return api.post("/auth/register", data);
 };
 
-export const verifyRegistration = (data) => {
+export const verifyRegistration = (data: unknown) => {
   return api.post("/auth/register/verify", data);
 };
 
-export const login = (data) => {
+export const login = (data: unknown) => {
   return api.post("/auth/login", data);
 };
 
-export const verifyLogin = (data) => {
+export const verifyLogin = (data: unknown) => {
   return api.post("/auth/login/verify", data);
 };
 
@@ -28,15 +28,15 @@ export const enableTwoFactor = () => {
   return api.post("/auth/2fa/enable");
 };
 
-export const verifyTwoFactorSetup = (data) => {
+export const verifyTwoFactorSetup = (data: unknown) => {
   return api.post("/auth/2fa/enable/verify", data);
 };
 
-export const verifyTwoFactor = (data) => {
+export const verifyTwoFactor = (data: unknown) => {
   return api.post("/auth/2fa/verify", data);
 };
 
-export const refresh = (refreshToken) => {
+export const refresh = (refreshToken: string) => {
   return api.post("/auth/refresh", {
     refreshToken,
   });

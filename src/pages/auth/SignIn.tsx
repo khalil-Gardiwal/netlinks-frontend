@@ -1,31 +1,37 @@
 import { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { isAxiosError } from "axios";
+
 import Desgin from "../../components/Designbackground";
 import { login } from "../../api/auth";
 
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;
 
-const SignIn = () => {
+function SignIn() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [phone, setPhone] = useState("");
-  const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [phone, setPhone] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] =
+    useState<boolean>(false);
 
   // -----------------------------
   // Phone change
   // -----------------------------
-  const handlePhoneChange = (e) => {
-    const value = e.target.value
+
+  const handlePhoneChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ): void => {
+    const value = event.target.value
       .replace(/\D/g, "")
       .slice(0, 9);
 
     setPhone(value);
 
-    // Clear old error when user starts editing
     if (error) {
       setError("");
     }
@@ -34,13 +40,14 @@ const SignIn = () => {
   // -----------------------------
   // Submit
   // -----------------------------
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    // Clear previous error
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>
+  ): Promise<void> => {
+    event.preventDefault();
+
     setError("");
 
-    // Prevent duplicate requests
     if (isSubmitting) {
       return;
     }
@@ -60,10 +67,7 @@ const SignIn = () => {
     try {
       setIsSubmitting(true);
 
-      // Add Afghanistan country code
       const fullPhone = `+93${phone}`;
-
-      console.log("Login phone:", fullPhone);
 
       const response = await login({
         phone: fullPhone,
@@ -77,38 +81,45 @@ const SignIn = () => {
           phone: fullPhone,
         },
       });
-    } catch (error) {
-     
+    } catch (error: unknown) {
       console.error("Login failed:", error);
-      console.log("Status:", error.response?.status);
-      console.log("Data:", error.response?.data);
 
-      // ------------------------------------
-      // No response = network/server unreachable
-      // ------------------------------------
+      if (!isAxiosError(error)) {
+        setError(
+          t("errors.somethingWentWrong")
+        );
+        return;
+      }
+
+      // No response = request did not reach backend
       if (!error.response) {
-        setError(t("errors.networkError"));
+        setError(
+          t("errors.networkError")
+        );
         return;
       }
 
-      // ------------------------------------
-      // Server error
-      // ------------------------------------
+      // Backend/server error
       if (error.response.status >= 500) {
-        setError(t("errors.serverError"));
+        setError(
+          t("errors.serverError")
+        );
         return;
       }
 
-      // ------------------------------------
-      // Backend returned a client error
-      // ------------------------------------
+      // Backend client error
       const backendMessage =
         error.response.data?.message;
 
-      if (backendMessage) {
+      if (
+        typeof backendMessage === "string" &&
+        backendMessage
+      ) {
         setError(backendMessage);
       } else {
-        setError(t("errors.somethingWentWrong"));
+        setError(
+          t("errors.somethingWentWrong")
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -163,8 +174,13 @@ const SignIn = () => {
 
                 {/* Afghanistan */}
                 <div className="flex items-center gap-2 border-r border-[#CBD5E1] bg-[#F8FAFC] px-3 text-sm font-medium text-[#0F172A] sm:px-4">
-                  <span className="text-lg">🇦🇫</span>
-                  <span>+93</span>
+                  <span className="text-lg">
+                    🇦🇫
+                  </span>
+
+                  <span>
+                    +93
+                  </span>
                 </div>
 
                 {/* Phone Input */}
@@ -206,6 +222,7 @@ const SignIn = () => {
                     className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
                     aria-hidden="true"
                   />
+
                   Signing in...
                 </>
               ) : (
@@ -234,6 +251,6 @@ const SignIn = () => {
       </div>
     </div>
   );
-};
+}
 
 export default SignIn;

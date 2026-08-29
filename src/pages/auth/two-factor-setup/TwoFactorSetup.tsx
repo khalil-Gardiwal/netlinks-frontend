@@ -1,4 +1,11 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ClipboardEvent,
+  type KeyboardEvent,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
@@ -8,11 +15,30 @@ import {
   verifyTwoFactorSetup,
 } from "../../../api/auth";
 
+interface TwoFactorSetupResponse {
+  enabled?: boolean;
+  setupToken?: string;
+  secret?: string;
+  otpauthUrl?: string;
+}
+
+interface ApiErrorResponse {
+  message?: string;
+}
+
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: ApiErrorResponse;
+  };
+  message?: string;
+}
+
 function TwoFactorSetup() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const [code, setCode] = useState([
+  const [code, setCode] = useState<string[]>([
     "",
     "",
     "",
@@ -21,65 +47,75 @@ function TwoFactorSetup() {
     "",
   ]);
 
-  const [setupToken, setSetupToken] = useState("");
-  const [secret, setSecret] = useState("");
-  const [otpauthUrl, setOtpauthUrl] = useState("");
+  const [setupToken, setSetupToken] =
+    useState<string>("");
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [isVerifying, setIsVerifying] = useState(false);
+  const [secret, setSecret] =
+    useState<string>("");
 
-  const [error, setError] = useState("");
+  const [otpauthUrl, setOtpauthUrl] =
+    useState<string>("");
+
+  const [isLoading, setIsLoading] =
+    useState<boolean>(true);
+
+  const [isVerifying, setIsVerifying] =
+    useState<boolean>(false);
+
+  const [error, setError] =
+    useState<string>("");
+
+  const inputRefs =
+    useRef<Array<HTMLInputElement | null>>([]);
 
   /*
-   * Start 2FA setup.
-   *
-   * Backend:
-   * POST /auth/2fa/enable
-   *
-   * Expected response:
-   * {
-   *   enabled: false,
-   *   setupToken,
-   *   secret,
-   *   otpauthUrl
-   * }
+   * Start 2FA setup
    */
   useEffect(() => {
-    const startSetup = async () => {
+    const startSetup = async (): Promise<void> => {
       try {
         setIsLoading(true);
         setError("");
 
-        const response = await enableTwoFactor();
+        const response =
+          await enableTwoFactor();
 
         console.log(
           "2FA setup response:",
           response.data
         );
 
-        const data = response.data;
+        const data =
+          response.data as TwoFactorSetupResponse;
 
         /*
-         * If 2FA is already enabled,
-         * go directly to the success page.
+         * Already enabled
          */
         if (data.enabled) {
-          navigate("/auth/two-factor-enabled", {
-            replace: true,
-          });
+          navigate(
+            "/auth/two-factor-enabled",
+            {
+              replace: true,
+            }
+          );
 
           return;
         }
 
         /*
-         * Save setup information.
-         *
-         * setupToken when
-         * verifying the authenticator code.
+         * Save setup information
          */
-        setSetupToken(data.setupToken || "");
-        setSecret(data.secret || "");
-        setOtpauthUrl(data.otpauthUrl || "");
+        setSetupToken(
+          data.setupToken ?? ""
+        );
+
+        setSecret(
+          data.secret ?? ""
+        );
+
+        setOtpauthUrl(
+          data.otpauthUrl ?? ""
+        );
 
         if (
           !data.setupToken ||
@@ -93,24 +129,27 @@ function TwoFactorSetup() {
             })
           );
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error(
           "2FA SETUP FAILED:",
           error
         );
 
+        const apiError =
+          error as ApiError;
+
         console.log(
           "STATUS:",
-          error.response?.status
+          apiError.response?.status
         );
 
         console.log(
           "DATA:",
-          error.response?.data
+          apiError.response?.data
         );
 
         setError(
-          error.response?.data?.message ||
+          apiError.response?.data?.message ||
             t("twoFactor.setupError", {
               defaultValue:
                 "Unable to load two-factor authentication setup.",
@@ -121,13 +160,16 @@ function TwoFactorSetup() {
       }
     };
 
-    startSetup();
+    void startSetup();
   }, [navigate, t]);
 
   /*
-   * Handle individual OTP digit changes.
+   * Handle OTP digit change
    */
-  const handleChange = (value, index) => {
+  const handleChange = (
+    value: string,
+    index: number
+  ): void => {
     if (!/^\d?$/.test(value)) {
       return;
     }
@@ -139,51 +181,49 @@ function TwoFactorSetup() {
     setCode(newCode);
     setError("");
 
-    /*
-     * Automatically move to the next input.
-     */
-    if (value && index < code.length - 1) {
-      document
-        .getElementById(
-          `two-factor-${index + 1}`
-        )
-        ?.focus();
+    if (
+      value &&
+      index < code.length - 1
+    ) {
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
   /*
-   * Handle backspace navigation.
+   * Handle backspace
    */
-  const handleKeyDown = (event, index) => {
+  const handleKeyDown = (
+    event: KeyboardEvent<HTMLInputElement>,
+    index: number
+  ): void => {
     if (
       event.key === "Backspace" &&
       !code[index] &&
       index > 0
     ) {
-      document
-        .getElementById(
-          `two-factor-${index - 1}`
-        )
-        ?.focus();
+      inputRefs.current[index - 1]?.focus();
     }
   };
 
   /*
-   * Allow pasting the entire 6-digit code.
+   * Handle paste
    */
-  const handlePaste = (event) => {
+  const handlePaste = (
+    event: ClipboardEvent<HTMLDivElement>
+  ): void => {
     event.preventDefault();
 
-    const pastedValue = event.clipboardData
-      .getData("text")
-      .replace(/\D/g, "")
-      .slice(0, 6);
+    const pastedValue =
+      event.clipboardData
+        .getData("text")
+        .replace(/\D/g, "")
+        .slice(0, 6);
 
     if (!pastedValue) {
       return;
     }
 
-    const newCode = [
+    const newCode: string[] = [
       "",
       "",
       "",
@@ -194,9 +234,14 @@ function TwoFactorSetup() {
 
     pastedValue
       .split("")
-      .forEach((digit, index) => {
-        newCode[index] = digit;
-      });
+      .forEach(
+        (
+          digit: string,
+          index: number
+        ) => {
+          newCode[index] = digit;
+        }
+      );
 
     setCode(newCode);
     setError("");
@@ -206,34 +251,26 @@ function TwoFactorSetup() {
       5
     );
 
-    document
-      .getElementById(
-        `two-factor-${nextIndex}`
-      )
-      ?.focus();
+    inputRefs.current[nextIndex]?.focus();
   };
 
   /*
-   * Verify the authenticator code and enable 2FA.
-   *
-   * Backend:
-   * POST /auth/2fa/enable/verify
-   *
-   * Body:
-   * {
-   *   setupToken,
-   *   code
-   * }
+   * Submit 2FA setup verification
    */
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
 
-    const verificationCode = code.join("");
+    const verificationCode =
+      code.join("");
 
     /*
-     * Make sure the user entered 6 digits.
+     * Validate code
      */
-    if (verificationCode.length !== 6) {
+    if (
+      verificationCode.length !== 6
+    ) {
       setError(
         t("twoFactor.invalidCode", {
           defaultValue:
@@ -245,9 +282,7 @@ function TwoFactorSetup() {
     }
 
     /*
-     * setupToken comes from /auth/2fa/enable.
-     *
-     * This is NOT the login challengeToken.
+     * Validate setup token
      */
     if (!setupToken) {
       setError(
@@ -275,46 +310,43 @@ function TwoFactorSetup() {
         response.data
       );
 
-      /*
-       * Backend should return:
-       *
-       * {
-       *   enabled: true
-       * }
-       */
-      if (!response.data?.enabled) {
+      const data = response.data as {
+        enabled?: boolean;
+      };
+
+      if (!data.enabled) {
         throw new Error(
           "Two-factor authentication was not enabled."
         );
       }
 
-      /*
-       * 2FA has successfully been enabled.
-       */
       navigate(
         "/auth/two-factor-enabled",
         {
           replace: true,
         }
       );
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(
         "2FA setup verification failed:",
         error
       );
 
+      const apiError =
+        error as ApiError;
+
       console.log(
         "STATUS:",
-        error.response?.status
+        apiError.response?.status
       );
 
       console.log(
         "DATA:",
-        error.response?.data
+        apiError.response?.data
       );
 
       setError(
-        error.response?.data?.message ||
+        apiError.response?.data?.message ||
           t("twoFactor.invalidCode", {
             defaultValue:
               "Invalid authenticator code.",
@@ -342,7 +374,6 @@ function TwoFactorSetup() {
           {/* Header */}
           <div className="mb-8 text-center">
 
-            {/* Security Icon */}
             <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-[#E0F2FE]">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -375,6 +406,7 @@ function TwoFactorSetup() {
             <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#64748B]">
               {t("twoFactor.description")}
             </p>
+
           </div>
 
           {/* Main Card */}
@@ -395,6 +427,7 @@ function TwoFactorSetup() {
 
               </div>
             ) : error && !otpauthUrl ? (
+
               /* Setup Error */
               <div className="py-8 text-center">
 
@@ -422,7 +455,9 @@ function TwoFactorSetup() {
                 <button
                   type="button"
                   onClick={() =>
-                    navigate("/auth/welcome")
+                    navigate(
+                      "/auth/welcome"
+                    )
                   }
                   className="mt-6 text-sm font-semibold text-[#64748B] transition hover:text-[#0F172A]"
                 >
@@ -430,7 +465,9 @@ function TwoFactorSetup() {
                 </button>
 
               </div>
+
             ) : (
+
               <>
                 {/* Step 1 */}
                 <div className="mb-8">
@@ -491,7 +528,7 @@ function TwoFactorSetup() {
 
                 </div>
 
-                {/* Manual Setup Key */}
+                {/* Manual Key */}
                 <div className="mb-8 rounded-2xl bg-[#F8FAFC] p-4">
 
                   <p className="text-xs font-semibold text-[#64748B]">
@@ -545,9 +582,16 @@ function TwoFactorSetup() {
                     onPaste={handlePaste}
                   >
                     {code.map(
-                      (digit, index) => (
+                      (
+                        digit: string,
+                        index: number
+                      ) => (
                         <input
                           key={index}
+                          ref={(element) => {
+                            inputRefs.current[index] =
+                              element;
+                          }}
                           id={`two-factor-${index}`}
                           type="text"
                           inputMode="numeric"
@@ -558,17 +602,24 @@ function TwoFactorSetup() {
                           }
                           maxLength={1}
                           value={digit}
-                          onChange={(event) =>
+                          onChange={(
+                            event: ChangeEvent<HTMLInputElement>
+                          ) =>
                             handleChange(
                               event.target.value,
                               index
                             )
                           }
-                          onKeyDown={(event) =>
+                          onKeyDown={(
+                            event: KeyboardEvent<HTMLInputElement>
+                          ) =>
                             handleKeyDown(
                               event,
                               index
                             )
+                          }
+                          disabled={
+                            isVerifying
                           }
                           className={`h-12 w-10 rounded-xl border bg-white text-center text-lg font-bold text-[#0F172A] outline-none transition focus:ring-4 sm:h-14 sm:w-12 ${
                             error
@@ -589,10 +640,16 @@ function TwoFactorSetup() {
 
                 </div>
 
-                {/* Verify / Enable */}
+                {/* Verify */}
                 <button
                   type="button"
-                  onClick={handleSubmit}
+                  onClick={() => {
+                    void handleSubmit(
+                      new Event(
+                        "submit"
+                      ) as unknown as React.FormEvent<HTMLFormElement>
+                    );
+                  }}
                   disabled={isVerifying}
                   className="w-full rounded-xl bg-[#0EA5E9] px-6 py-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD] disabled:cursor-not-allowed disabled:opacity-60"
                 >
@@ -613,16 +670,18 @@ function TwoFactorSetup() {
                 <button
                   type="button"
                   onClick={() =>
-                    navigate("/auth/welcome")
+                    navigate(
+                      "/auth/welcome"
+                    )
                   }
                   disabled={isVerifying}
                   className="mt-5 w-full text-sm font-semibold text-[#64748B] transition hover:text-[#0F172A] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {t("common.back")}
                 </button>
-
               </>
             )}
+
           </div>
         </div>
       </div>

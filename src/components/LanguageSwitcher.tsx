@@ -1,9 +1,11 @@
 import { useTranslation } from "react-i18next";
 
+type Language = "en" | "fa" | "ps";
+
 function LanguageSwitcher() {
   const { i18n } = useTranslation();
 
-  const changeLanguage = (language) => {
+  const changeLanguage = (language: Language) => {
     i18n.changeLanguage(language);
     localStorage.setItem("at-language", language);
   };
