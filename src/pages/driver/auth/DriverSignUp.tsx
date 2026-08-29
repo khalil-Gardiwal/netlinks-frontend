@@ -1,6 +1,8 @@
 import { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
 import LanguageSwitcher from "../../../components/LanguageSwitcher";
 import Desgin from "../../../components/Designbackground";
 import { registerDriver } from "../../../api/driverapi";
@@ -8,25 +10,61 @@ import { registerDriver } from "../../../api/driverapi";
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;
 
+interface Country {
+  name: string;
+  code: string;
+  flag: string;
+}
+
+interface DriverRegistrationResponse {
+  message?: string;
+}
+
+interface ApiErrorResponse {
+  message?: string;
+}
+
+interface AxiosLikeError {
+  response?: {
+    status?: number;
+    data?: ApiErrorResponse;
+  };
+  message?: string;
+}
+
 function DriverSignUp() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [name, setName] = useState("");
-  const [nameError, setNameError] = useState("");
+  // ============================================================
+  // FORM STATE
+  // ============================================================
 
-  const [countryCode, setCountryCode] = useState("+93");
+  const [name, setName] = useState<string>("");
+  const [nameError, setNameError] = useState<string>("");
 
-  const [phone, setPhone] = useState("");
-  const [phoneError, setPhoneError] = useState("");
+  const [countryCode, setCountryCode] = useState<string>("+93");
 
-  const [acceptedPolicy, setAcceptedPolicy] = useState(false);
-  const [policyError, setPolicyError] = useState("");
+  const [phone, setPhone] = useState<string>("");
+  const [phoneError, setPhoneError] = useState<string>("");
 
-  const [submitError, setSubmitError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [acceptedPolicy, setAcceptedPolicy] =
+    useState<boolean>(false);
 
-  const countries = [
+  const [policyError, setPolicyError] =
+    useState<string>("");
+
+  const [submitError, setSubmitError] =
+    useState<string>("");
+
+  const [isSubmitting, setIsSubmitting] =
+    useState<boolean>(false);
+
+  // ============================================================
+  // COUNTRIES
+  // ============================================================
+
+  const countries: Country[] = [
     {
       name: "Afghanistan",
       code: "+93",
@@ -34,7 +72,11 @@ function DriverSignUp() {
     },
   ];
 
-  const validateName = (value) => {
+  // ============================================================
+  // VALIDATION
+  // ============================================================
+
+  const validateName = (value: string): string => {
     if (!value.trim()) {
       return t("errors.required");
     }
@@ -42,7 +84,7 @@ function DriverSignUp() {
     return "";
   };
 
-  const validatePhone = (value) => {
+  const validatePhone = (value: string): string => {
     if (!value) {
       return t("errors.required");
     }
@@ -54,7 +96,13 @@ function DriverSignUp() {
     return "";
   };
 
-  const handleNameChange = (event) => {
+  // ============================================================
+  // NAME CHANGE
+  // ============================================================
+
+  const handleNameChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ): void => {
     const value = event.target.value;
 
     setName(value);
@@ -68,7 +116,13 @@ function DriverSignUp() {
     }
   };
 
-  const handlePhoneChange = (event) => {
+  // ============================================================
+  // PHONE CHANGE
+  // ============================================================
+
+  const handlePhoneChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ): void => {
     const value = event.target.value
       .replace(/\D/g, "")
       .slice(0, 9);
@@ -84,7 +138,27 @@ function DriverSignUp() {
     }
   };
 
-  const handlePolicyChange = (event) => {
+  // ============================================================
+  // COUNTRY CODE CHANGE
+  // ============================================================
+
+  const handleCountryCodeChange = (
+    event: ChangeEvent<HTMLSelectElement>
+  ): void => {
+    setCountryCode(event.target.value);
+
+    if (submitError) {
+      setSubmitError("");
+    }
+  };
+
+  // ============================================================
+  // POLICY CHANGE
+  // ============================================================
+
+  const handlePolicyChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ): void => {
     const checked = event.target.checked;
 
     setAcceptedPolicy(checked);
@@ -98,7 +172,13 @@ function DriverSignUp() {
     }
   };
 
-  const handleSubmit = async (event) => {
+  // ============================================================
+  // SUBMIT
+  // ============================================================
+
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
 
     setSubmitError("");
@@ -107,8 +187,15 @@ function DriverSignUp() {
       return;
     }
 
-    const nameValidationError = validateName(name);
-    const phoneValidationError = validatePhone(phone);
+    // ----------------------------------------------------------
+    // Validate fields
+    // ----------------------------------------------------------
+
+    const nameValidationError =
+      validateName(name);
+
+    const phoneValidationError =
+      validatePhone(phone);
 
     setNameError(nameValidationError);
     setPhoneError(phoneValidationError);
@@ -130,48 +217,92 @@ function DriverSignUp() {
     try {
       setIsSubmitting(true);
 
-      const fullPhone = `${countryCode}${phone}`;
+      const fullPhone =
+        `${countryCode}${phone}`;
 
-      console.log("Sending driver registration request:", {
-        fullname: name.trim(),
-        phone: fullPhone,
-      });
+      console.log(
+        "Sending driver registration request:",
+        {
+          fullname: name.trim(),
+          phone: fullPhone,
+        }
+      );
 
-      const response = await registerDriver({
-        fullname: name.trim(),
-        phone: fullPhone,
-      });
+      const response =
+        await registerDriver({
+          fullname: name.trim(),
+          phone: fullPhone,
+        });
+
+      const data =
+        response.data as DriverRegistrationResponse;
 
       console.log(
         "Driver registration successful:",
-        response.data
+        data
       );
 
-    navigate("/driver/auth/verification", {
-  state: {
-    phone: fullPhone,
-    verificationType: "registration",
-  },
-});
+      // --------------------------------------------------------
+      // Go to driver phone verification
+      // --------------------------------------------------------
 
-    } catch (error) {
-      console.error("Driver registration failed:", error);
+      navigate(
+        "/driver/auth/verification",
+        {
+          state: {
+            phone: fullPhone,
+            verificationType:
+              "registration",
+          },
+        }
+      );
+    } catch (error: unknown) {
+      console.error(
+        "Driver registration failed:",
+        error
+      );
 
-      if (!error.response) {
-        setSubmitError(t("errors.networkError"));
+      const apiError =
+        error as AxiosLikeError;
+
+      // --------------------------------------------------------
+      // Network error
+      // --------------------------------------------------------
+
+      if (!apiError.response) {
+        setSubmitError(
+          t("errors.networkError")
+        );
+
         return;
       }
 
-      if (error.response.status >= 500) {
-        setSubmitError(t("errors.serverError"));
+      // --------------------------------------------------------
+      // Server error
+      // --------------------------------------------------------
+
+      if (
+        apiError.response.status &&
+        apiError.response.status >= 500
+      ) {
+        setSubmitError(
+          t("errors.serverError")
+        );
+
         return;
       }
+
+      // --------------------------------------------------------
+      // Backend error
+      // --------------------------------------------------------
 
       const backendMessage =
-        error.response.data?.message;
+        apiError.response.data?.message;
 
       if (backendMessage) {
-        setSubmitError(backendMessage);
+        setSubmitError(
+          backendMessage
+        );
       } else {
         setSubmitError(
           t("errors.somethingWentWrong")
@@ -182,10 +313,15 @@ function DriverSignUp() {
     }
   };
 
+  // ============================================================
+  // RENDER
+  // ============================================================
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] px-5 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center justify-center">
         <div className="w-full">
+
           <Desgin />
 
           {/* Top controls */}
@@ -221,10 +357,12 @@ function DriverSignUp() {
 
           {/* Form Card */}
           <div className="rounded-3xl border border-[#CBD5E1] bg-white p-6 shadow-sm sm:p-8">
+
             <form
               onSubmit={handleSubmit}
               className="space-y-5"
             >
+
               {/* Full Name */}
               <div>
                 <label
@@ -243,7 +381,9 @@ function DriverSignUp() {
                   value={name}
                   onChange={handleNameChange}
                   onBlur={() =>
-                    setNameError(validateName(name))
+                    setNameError(
+                      validateName(name)
+                    )
                   }
                   disabled={isSubmitting}
                   placeholder={t(
@@ -285,20 +425,23 @@ function DriverSignUp() {
                 >
                   <select
                     value={countryCode}
-                    onChange={(event) =>
-                      setCountryCode(event.target.value)
+                    onChange={
+                      handleCountryCodeChange
                     }
                     disabled={isSubmitting}
                     className="cursor-pointer border-r border-[#CBD5E1] bg-[#F8FAFC] px-3 py-3.5 text-sm font-medium text-[#0F172A] outline-none disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {countries.map((country) => (
-                      <option
-                        key={country.code}
-                        value={country.code}
-                      >
-                        {country.flag} {country.code}
-                      </option>
-                    ))}
+                    {countries.map(
+                      (country: Country) => (
+                        <option
+                          key={country.code}
+                          value={country.code}
+                        >
+                          {country.flag}{" "}
+                          {country.code}
+                        </option>
+                      )
+                    )}
                   </select>
 
                   <input
@@ -309,7 +452,9 @@ function DriverSignUp() {
                     value={phone}
                     onChange={handlePhoneChange}
                     onBlur={() =>
-                      setPhoneError(validatePhone(phone))
+                      setPhoneError(
+                        validatePhone(phone)
+                      )
                     }
                     disabled={isSubmitting}
                     placeholder={t(
@@ -336,10 +481,13 @@ function DriverSignUp() {
                 }`}
               >
                 <label className="flex cursor-pointer items-start gap-3">
+
                   <input
                     type="checkbox"
                     checked={acceptedPolicy}
-                    onChange={handlePolicyChange}
+                    onChange={
+                      handlePolicyChange
+                    }
                     disabled={isSubmitting}
                     className="mt-1 h-4 w-4 cursor-pointer accent-[#0EA5E9]"
                   />
@@ -375,6 +523,7 @@ function DriverSignUp() {
                       )}
                     </button>
                   </span>
+
                 </label>
 
                 {policyError && (
@@ -406,6 +555,7 @@ function DriverSignUp() {
                       className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
                       aria-hidden="true"
                     />
+
                     {t(
                       "driverSignUp.creatingAccount",
                       "Creating account..."
@@ -432,7 +582,9 @@ function DriverSignUp() {
               <button
                 type="button"
                 onClick={() =>
-                  navigate("/driver/auth/sign-in")
+                  navigate(
+                    "/driver/auth/sign-in"
+                  )
                 }
                 disabled={isSubmitting}
                 className="mt-2 font-semibold text-[#0EA5E9] transition hover:text-[#0284C7] disabled:cursor-not-allowed disabled:opacity-60"
@@ -461,6 +613,7 @@ function DriverSignUp() {
               "Back to Welcome"
             )}
           </button>
+
         </div>
       </div>
     </div>
