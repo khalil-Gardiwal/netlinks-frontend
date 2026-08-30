@@ -14,11 +14,38 @@
     "cancel": "Cancel"
   },
 
-  "welcome": {
-    "title": "Welcome",
-    "description": "Your safe and reliable ride is just a few taps away.",
-    "createAccount": "Create an Account",
-    "login": "Login"
+ "welcome": {
+  "title": "Welcome to Ride",
+  "description": "Your reliable ride, whenever you need it.",
+  "createAccount": "Create Account",
+  "login": "Login",
+  "logout": "Logout",
+  "loggingOut": "Logging out...",
+  "greeting": "Welcome, {{name}}",
+  "greetingDriver": "Welcome, Driver",
+
+  "chooseAccountType": "How would you like to continue?",
+  "chooseAccountDescription": "Choose how you want to use Netlinks.",
+
+  "passenger": "Passenger",
+  "passengerDescription": "Book a comfortable ride and get where you need to go.",
+  "continueAsPassenger": "Continue as passenger",
+
+  "driver": "Driver",
+  "driverDescription": "Drive with Netlinks and earn while helping passengers reach their destination.",
+  "continueAsDriver": "Continue as driver",
+
+  "driverProfile": "Driver Profile",
+
+  "driverWelcome": "Welcome back. Manage your driver account and continue with Netlinks.",
+  "driverAccount": "Driver account",
+  "passengerAccount": "Passenger account",
+  "signedInAsDriver": "You are signed in as a driver.",
+  "signedInAsPassenger": "You are signed in as a passenger.",
+
+  "testAttachment": "Test attachment"
+
+
   },
   "attachment": {
     "title": "Upload Image",

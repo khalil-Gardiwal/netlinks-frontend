@@ -240,7 +240,6 @@ function Welcome() {
           );
         }
 
-        // Always clear local driver authentication.
         localStorage.removeItem(
           "driverAccessToken"
         );
@@ -303,10 +302,7 @@ function Welcome() {
       );
 
       setLogoutError(
-        t("errors.somethingWentWrong", {
-          defaultValue:
-            "Something went wrong. Please try again.",
-        })
+        t("errors.somethingWentWrong")
       );
     } finally {
       setIsLoggingOut(false);
@@ -425,11 +421,8 @@ function Welcome() {
 
             <span className="hidden sm:inline">
               {accountType === "driver"
-                ? "Driver Profile"
-                : t("profile.viewProfile", {
-                    defaultValue:
-                      "My Profile",
-                  })}
+                ? t("welcome.driverProfile")
+                : t("profile.viewProfile")}
             </span>
           </button>
         )}
@@ -478,12 +471,7 @@ function Welcome() {
               </svg>
 
               <span className="hidden sm:inline">
-                {t(
-                  "signInTwoFactor.label",
-                  {
-                    defaultValue: "2FA",
-                  }
-                )}
+                {t("signInTwoFactor.label")}
               </span>
 
               <svg
@@ -561,23 +549,11 @@ function Welcome() {
                   <div className="min-w-0 flex-1">
 
                     <h2 className="text-sm font-bold text-[#0F172A]">
-                      {t(
-                        "signInTwoFactor.title",
-                        {
-                          defaultValue:
-                            "Two-factor authentication",
-                        }
-                      )}
+                      {t("signInTwoFactor.title")}
                     </h2>
 
                     <p className="mt-1 break-words text-xs leading-5 text-[#64748B]">
-                      {t(
-                        "signInTwoFactor.description",
-                        {
-                          defaultValue:
-                            "Add an extra layer of security to your account.",
-                        }
-                      )}
+                      {t("signInTwoFactor.description")}
                     </p>
 
                   </div>
@@ -615,13 +591,7 @@ function Welcome() {
                     focus:ring-[#E0F2FE]
                   "
                 >
-                  {t(
-                    "signInTwoFactor.enable",
-                    {
-                      defaultValue:
-                        "Enable 2FA",
-                    }
-                  )}
+                  {t("signInTwoFactor.enable")}
                 </button>
 
               </div>
@@ -663,20 +633,8 @@ function Welcome() {
 
             <span className="hidden sm:inline">
               {isLoggingOut
-                ? t(
-                    "welcome.loggingOut",
-                    {
-                      defaultValue:
-                        "Logging out...",
-                    }
-                  )
-                : t(
-                    "welcome.logout",
-                    {
-                      defaultValue:
-                        "Logout",
-                    }
-                  )}
+                ? t("welcome.loggingOut")
+                : t("welcome.logout")}
             </span>
 
           </button>
@@ -717,33 +675,23 @@ function Welcome() {
             <h1 className="text-3xl font-bold tracking-tight text-[#0F172A] sm:text-4xl">
 
               {isLoadingUser ? (
-                "Welcome"
+                t("welcome.title")
               ) : isAuthenticated ? (
                 accountType === "driver" ? (
                   displayName
-                    ? `Welcome, ${displayName}`
-                    : "Welcome, Driver"
+                    ? t("welcome.greeting", {
+                        name: displayName,
+                      })
+                    : t("welcome.greetingDriver")
                 ) : (
                   displayName
-                    ? t(
-                        "welcome.greeting",
-                        {
-                          name:
-                            displayName,
-                          defaultValue:
-                            `Welcome, ${displayName}`,
-                        }
-                      )
-                    : "Welcome"
+                    ? t("welcome.greeting", {
+                        name: displayName,
+                      })
+                    : t("welcome.title")
                 )
               ) : (
-                t(
-                  "welcome.title",
-                  {
-                    defaultValue:
-                      "Welcome to Netlinks",
-                  }
-                )
+                t("welcome.title")
               )}
 
             </h1>
@@ -751,14 +699,8 @@ function Welcome() {
             <p className="mt-4 text-sm leading-6 text-[#64748B] sm:text-base sm:leading-7">
 
               {accountType === "driver"
-                ? "Welcome back. Manage your driver account and continue with Netlinks."
-                : t(
-                    "welcome.description",
-                    {
-                      defaultValue:
-                        "Your reliable ride, whenever you need it.",
-                    }
-                  )}
+                ? t("welcome.driverWelcome")
+                : t("welcome.description")}
 
             </p>
 
@@ -770,23 +712,11 @@ function Welcome() {
             <div className="mx-auto max-w-2xl">
 
               <h2 className="text-lg font-bold text-[#0F172A]">
-                {t(
-                  "welcome.chooseAccountType",
-                  {
-                    defaultValue:
-                      "How would you like to continue?",
-                  }
-                )}
+                {t("welcome.chooseAccountType")}
               </h2>
 
               <p className="mt-1 text-sm text-[#64748B]">
-                {t(
-                  "welcome.chooseAccountDescription",
-                  {
-                    defaultValue:
-                      "Choose how you want to use Netlinks.",
-                  }
-                )}
+                {t("welcome.chooseAccountDescription")}
               </p>
 
               {/* TYPE CARDS */}
@@ -887,23 +817,11 @@ function Welcome() {
                   </div>
 
                   <h3 className="text-lg font-bold text-[#0F172A]">
-                    {t(
-                      "welcome.passenger",
-                      {
-                        defaultValue:
-                          "Passenger",
-                      }
-                    )}
+                    {t("welcome.passenger")}
                   </h3>
 
                   <p className="mt-2 text-sm leading-6 text-[#64748B]">
-                    {t(
-                      "welcome.passengerDescription",
-                      {
-                        defaultValue:
-                          "Book a comfortable ride and get where you need to go.",
-                      }
-                    )}
+                    {t("welcome.passengerDescription")}
                   </p>
 
                   <div
@@ -916,11 +834,7 @@ function Welcome() {
                   >
                     <span>
                       {t(
-                        "welcome.continueAsPassenger",
-                        {
-                          defaultValue:
-                            "Continue as passenger",
-                        }
+                        "welcome.continueAsPassenger"
                       )}
                     </span>
 
@@ -1015,23 +929,11 @@ function Welcome() {
                   </div>
 
                   <h3 className="text-lg font-bold text-[#0F172A]">
-                    {t(
-                      "welcome.driver",
-                      {
-                        defaultValue:
-                          "Driver",
-                      }
-                    )}
+                    {t("welcome.driver")}
                   </h3>
 
                   <p className="mt-2 text-sm leading-6 text-[#64748B]">
-                    {t(
-                      "welcome.driverDescription",
-                      {
-                        defaultValue:
-                          "Drive with Netlinks and earn while helping passengers reach their destination.",
-                      }
-                    )}
+                    {t("welcome.driverDescription")}
                   </p>
 
                   <div
@@ -1044,11 +946,7 @@ function Welcome() {
                   >
                     <span>
                       {t(
-                        "welcome.continueAsDriver",
-                        {
-                          defaultValue:
-                            "Continue as driver",
-                        }
+                        "welcome.continueAsDriver"
                       )}
                     </span>
 
@@ -1076,13 +974,7 @@ function Welcome() {
                           : "bg-[#0EA5E9] hover:bg-[#0284C7] focus:ring-[#E0F2FE]"
                       }`}
                     >
-                      {t(
-                        "welcome.login",
-                        {
-                          defaultValue:
-                            "Login",
-                        }
-                      )}
+                      {t("welcome.login")}
                     </button>
 
                     <button
@@ -1090,13 +982,7 @@ function Welcome() {
                       onClick={handleSignup}
                       className="flex-1 rounded-xl border border-[#CBD5E1] bg-white px-5 py-3.5 text-sm font-semibold text-[#0F172A] transition hover:border-[#94A3B8] hover:bg-[#F8FAFC] focus:outline-none focus:ring-4 focus:ring-[#E2E8F0]"
                     >
-                      {t(
-                        "welcome.createAccount",
-                        {
-                          defaultValue:
-                            "Create Account",
-                        }
-                      )}
+                      {t("welcome.createAccount")}
                     </button>
 
                   </div>
@@ -1124,23 +1010,23 @@ function Welcome() {
                 <p className="text-sm font-semibold text-[#64748B]">
                   {accountType ===
                   "driver"
-                    ? "Driver account"
-                    : "Passenger account"}
+                    ? t("welcome.driverAccount")
+                    : t("welcome.passengerAccount")}
                 </p>
 
                 <h2 className="mt-2 text-xl font-bold text-[#0F172A]">
                   {displayName ||
                     (accountType ===
                     "driver"
-                      ? "Driver"
-                      : "Passenger")}
+                      ? t("welcome.driver")
+                      : t("welcome.passenger"))}
                 </h2>
 
                 <p className="mt-2 text-sm text-[#64748B]">
                   {accountType ===
                   "driver"
-                    ? "You are signed in as a driver."
-                    : "You are signed in as a passenger."}
+                    ? t("welcome.signedInAsDriver")
+                    : t("welcome.signedInAsPassenger")}
                 </p>
 
               </div>
@@ -1162,7 +1048,7 @@ function Welcome() {
                 }
                 className="text-xs font-medium text-[#94A3B8] underline underline-offset-4 transition hover:text-[#64748B]"
               >
-                Test attachment
+                {t("welcome.testAttachment")}
               </button>
 
             </div>

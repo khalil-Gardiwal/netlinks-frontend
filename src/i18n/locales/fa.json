@@ -14,14 +14,41 @@
   "cancel": "لغو"
   },
 
-  "welcome": {
-    "title": "خوش آمدید",
-    "description": "سفر امن و قابل اعتماد شما تنها با چند کلیک فاصله دارد.",
-    "createAccount": "ایجاد حساب",
-    "login": "ورود"
-     
 
+
+  "welcome": {
+    "title": "به راید خوش آمدید",
+    "description": "هر زمانی که به سفر نیاز داشته باشید، یک سفر مطمئن و راحت داشته باشید.",
+    "createAccount": "حساب ایجاد کنید",
+    "login": "ورود",
+    "logout": "خروج",
+    "loggingOut": "در حال خروج...",
+    "greeting": "خوش آمدید، {{name}}",
+    "greetingDriver": "خوش آمدید، راننده",
+
+    "chooseAccountType": "چگونه می‌خواهید ادامه دهید؟",
+    "chooseAccountDescription": "انتخاب کنید که می‌خواهید از راید چگونه استفاده کنید.",
+
+    "passenger": "مسافر",
+    "passengerDescription": "سفر راحت خود را رزرو کنید و به آسانی به مقصد برسید.",
+    "continueAsPassenger": "به عنوان مسافر ادامه دهید",
+
+    "driver": "راننده",
+    "driverDescription": "با راید رانندگی کنید، درآمد کسب کنید و به مسافران کمک کنید تا به مقصد خود برسند.",
+    "continueAsDriver": "به عنوان راننده ادامه دهید",
+
+    "driverProfile": "پروفایل راننده",
+
+    "driverWelcome": "دوباره خوش آمدید. حساب راننده خود را مدیریت کنید و به کار خود با راید ادامه دهید.",
+    "driverAccount": "حساب راننده",
+    "passengerAccount": "حساب مسافر",
+    "signedInAsDriver": "شما به عنوان راننده وارد شده‌اید.",
+    "signedInAsPassenger": "شما به عنوان مسافر وارد شده‌اید.",
+
+    "testAttachment": "پیوست را آزمایش کنید"
   },
+
+
   "attachment": {
   "title": "آپلود تصویر",
   "selectImage": "یک تصویر از دستگاه خود انتخاب کنید.",
