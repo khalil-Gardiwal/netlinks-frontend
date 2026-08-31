@@ -24,6 +24,7 @@
   "greeting": "Welcome, {{name}}",
   "greetingDriver": "Welcome, Driver",
 
+
   "chooseAccountType": "How would you like to continue?",
   "chooseAccountDescription": "Choose how you want to use Netlinks.",
 
@@ -36,6 +37,7 @@
   "continueAsDriver": "Continue as driver",
 
   "driverProfile": "Driver Profile",
+  "viewProfile":"profile",
 
   "driverWelcome": "Welcome back. Manage your driver account and continue with Netlinks.",
   "driverAccount": "Driver account",

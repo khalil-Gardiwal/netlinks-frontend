@@ -1,4 +1,4 @@
-import api from "./axios";
+import api from "../http/axios";
 
 export const uploadAttachment = (file: File) => {
   const formData = new FormData();

@@ -3,17 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { AxiosError } from "axios";
 
-import LanguageSwitcher from "../../components/LanguageSwitcher";
-import Desgin from "../../components/Designbackground";
+import LanguageSwitcher from "../../../components/global/LanguageSwitcher";
+import Desgin from "../../../components/global/Designbackground";
 
-import { getMe, logout } from "../../api/auth";
+import { getMe, logout } from "../../../api/auth";
 import {
   getDriverMe,
   logoutDriver,
-} from "../../api/driverapi";
+} from "../../../api/driverapi";
 
-import AttachmentModal from "../../components/attachment/AttachmentModal";
-import { uploadAttachment } from "../../api/attachments";
+import AttachmentModal from "../../../components/attachment/AttachmentModal";
+import { uploadAttachment } from "../../../api/attachments";
 
 type AccountType = "driver" | "passenger" | null;
 

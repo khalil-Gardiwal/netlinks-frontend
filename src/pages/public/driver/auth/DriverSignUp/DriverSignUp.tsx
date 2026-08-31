@@ -2,11 +2,10 @@ import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { isAxiosError } from "axios";
 
-import LanguageSwitcher from "../../components/LanguageSwitcher";
-import Desgin from "../../components/Designbackground";
-import { register } from "../../api/auth";
+import LanguageSwitcher from "../../../../../components/global/LanguageSwitcher";
+import Desgin from "../../../../../components/global/Designbackground";
+import { registerDriver } from "../../../../../api/driverapi";
 
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;
@@ -17,20 +16,34 @@ interface Country {
   flag: string;
 }
 
-interface RegisterData {
-  fullname: string;
-  phone: string;
+interface DriverRegistrationResponse {
+  message?: string;
 }
 
-function SignUp() {
+interface ApiErrorResponse {
+  message?: string;
+}
+
+interface AxiosLikeError {
+  response?: {
+    status?: number;
+    data?: ApiErrorResponse;
+  };
+  message?: string;
+}
+
+function DriverSignUp() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  // ============================================================
+  // FORM STATE
+  // ============================================================
 
   const [name, setName] = useState<string>("");
   const [nameError, setNameError] = useState<string>("");
 
-  const [countryCode, setCountryCode] =
-    useState<string>("+93");
+  const [countryCode, setCountryCode] = useState<string>("+93");
 
   const [phone, setPhone] = useState<string>("");
   const [phoneError, setPhoneError] = useState<string>("");
@@ -47,6 +60,10 @@ function SignUp() {
   const [isSubmitting, setIsSubmitting] =
     useState<boolean>(false);
 
+  // ============================================================
+  // COUNTRIES
+  // ============================================================
+
   const countries: Country[] = [
     {
       name: "Afghanistan",
@@ -55,9 +72,9 @@ function SignUp() {
     },
   ];
 
-  // -----------------------------
-  // Name validation
-  // -----------------------------
+  // ============================================================
+  // VALIDATION
+  // ============================================================
 
   const validateName = (value: string): string => {
     if (!value.trim()) {
@@ -66,10 +83,6 @@ function SignUp() {
 
     return "";
   };
-
-  // -----------------------------
-  // Phone validation
-  // -----------------------------
 
   const validatePhone = (value: string): string => {
     if (!value) {
@@ -83,9 +96,9 @@ function SignUp() {
     return "";
   };
 
-  // -----------------------------
-  // Name change
-  // -----------------------------
+  // ============================================================
+  // NAME CHANGE
+  // ============================================================
 
   const handleNameChange = (
     event: ChangeEvent<HTMLInputElement>
@@ -103,9 +116,9 @@ function SignUp() {
     }
   };
 
-  // -----------------------------
-  // Phone change
-  // -----------------------------
+  // ============================================================
+  // PHONE CHANGE
+  // ============================================================
 
   const handlePhoneChange = (
     event: ChangeEvent<HTMLInputElement>
@@ -125,11 +138,11 @@ function SignUp() {
     }
   };
 
-  // -----------------------------
-  // Country change
-  // -----------------------------
+  // ============================================================
+  // COUNTRY CODE CHANGE
+  // ============================================================
 
-  const handleCountryChange = (
+  const handleCountryCodeChange = (
     event: ChangeEvent<HTMLSelectElement>
   ): void => {
     setCountryCode(event.target.value);
@@ -139,9 +152,9 @@ function SignUp() {
     }
   };
 
-  // -----------------------------
-  // Policy change
-  // -----------------------------
+  // ============================================================
+  // POLICY CHANGE
+  // ============================================================
 
   const handlePolicyChange = (
     event: ChangeEvent<HTMLInputElement>
@@ -159,9 +172,9 @@ function SignUp() {
     }
   };
 
-  // -----------------------------
-  // Submit
-  // -----------------------------
+  // ============================================================
+  // SUBMIT
+  // ============================================================
 
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>
@@ -173,6 +186,10 @@ function SignUp() {
     if (isSubmitting) {
       return;
     }
+
+    // ----------------------------------------------------------
+    // Validate fields
+    // ----------------------------------------------------------
 
     const nameValidationError =
       validateName(name);
@@ -203,65 +220,89 @@ function SignUp() {
       const fullPhone =
         `${countryCode}${phone}`;
 
-      const registerData: RegisterData = {
-        fullname: name.trim(),
-        phone: fullPhone,
-      };
-
       console.log(
-        "Sending registration request:",
-        registerData
+        "Sending driver registration request:",
+        {
+          fullname: name.trim(),
+          phone: fullPhone,
+        }
       );
 
       const response =
-        await register(registerData);
+        await registerDriver({
+          fullname: name.trim(),
+          phone: fullPhone,
+        });
+
+      const data =
+        response.data as DriverRegistrationResponse;
 
       console.log(
-        "Registration successful:",
-        response.data
+        "Driver registration successful:",
+        data
       );
 
-      navigate("/auth/verification", {
-        state: {
-          phone: fullPhone,
-          from: "sign-up",
-        },
-      });
+      // --------------------------------------------------------
+      // Go to driver phone verification
+      // --------------------------------------------------------
+
+      navigate(
+        "/driver/auth/verification",
+        {
+          state: {
+            phone: fullPhone,
+            verificationType:
+              "registration",
+          },
+        }
+      );
     } catch (error: unknown) {
       console.error(
-        "Registration failed:",
+        "Driver registration failed:",
         error
       );
 
-      if (!isAxiosError(error)) {
-        setSubmitError(
-          t("errors.somethingWentWrong")
-        );
-        return;
-      }
+      const apiError =
+        error as AxiosLikeError;
 
-      if (!error.response) {
+      // --------------------------------------------------------
+      // Network error
+      // --------------------------------------------------------
+
+      if (!apiError.response) {
         setSubmitError(
           t("errors.networkError")
         );
+
         return;
       }
 
-      if (error.response.status >= 500) {
+      // --------------------------------------------------------
+      // Server error
+      // --------------------------------------------------------
+
+      if (
+        apiError.response.status &&
+        apiError.response.status >= 500
+      ) {
         setSubmitError(
           t("errors.serverError")
         );
+
         return;
       }
 
-      const backendMessage =
-        error.response.data?.message;
+      // --------------------------------------------------------
+      // Backend error
+      // --------------------------------------------------------
 
-      if (
-        typeof backendMessage === "string" &&
-        backendMessage
-      ) {
-        setSubmitError(backendMessage);
+      const backendMessage =
+        apiError.response.data?.message;
+
+      if (backendMessage) {
+        setSubmitError(
+          backendMessage
+        );
       } else {
         setSubmitError(
           t("errors.somethingWentWrong")
@@ -272,11 +313,21 @@ function SignUp() {
     }
   };
 
+  // ============================================================
+  // RENDER
+  // ============================================================
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] px-5 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center justify-center">
         <div className="w-full">
+
           <Desgin />
+
+          {/* Top controls */}
+          <div className="mb-6 flex justify-end">
+            <LanguageSwitcher />
+          </div>
 
           {/* Logo */}
           <div className="mb-8 flex justify-center">
@@ -290,31 +341,42 @@ function SignUp() {
           {/* Header */}
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">
-              {t("signUp.title")}
+              {t(
+                "driverSignUp.title",
+                "Create Driver Account"
+              )}
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-[#64748B]">
-              {t("signUp.description")}
+              {t(
+                "driverSignUp.description",
+                "Create your driver account to start driving with us."
+              )}
             </p>
           </div>
 
           {/* Form Card */}
           <div className="rounded-3xl border border-[#CBD5E1] bg-white p-6 shadow-sm sm:p-8">
+
             <form
               onSubmit={handleSubmit}
               className="space-y-5"
             >
-              {/* Name */}
+
+              {/* Full Name */}
               <div>
                 <label
-                  htmlFor="name"
+                  htmlFor="driver-name"
                   className="mb-2 block text-sm font-semibold text-[#0F172A]"
                 >
-                  {t("signUp.fullName")}
+                  {t(
+                    "driverSignUp.fullName",
+                    "Full Name"
+                  )}
                 </label>
 
                 <input
-                  id="name"
+                  id="driver-name"
                   type="text"
                   value={name}
                   onChange={handleNameChange}
@@ -325,7 +387,8 @@ function SignUp() {
                   }
                   disabled={isSubmitting}
                   placeholder={t(
-                    "signUp.fullNamePlaceholder"
+                    "driverSignUp.fullNamePlaceholder",
+                    "Enter your full name"
                   )}
                   className={`w-full rounded-xl border bg-white px-4 py-3.5 text-sm text-[#0F172A] outline-none transition placeholder:text-[#94A3B8] disabled:cursor-not-allowed disabled:bg-[#F8FAFC] ${
                     nameError
@@ -344,10 +407,13 @@ function SignUp() {
               {/* Phone */}
               <div>
                 <label
-                  htmlFor="phone"
+                  htmlFor="driver-phone"
                   className="mb-2 block text-sm font-semibold text-[#0F172A]"
                 >
-                  {t("signUp.phoneNumber")}
+                  {t(
+                    "driverSignUp.phoneNumber",
+                    "Phone Number"
+                  )}
                 </label>
 
                 <div
@@ -360,13 +426,13 @@ function SignUp() {
                   <select
                     value={countryCode}
                     onChange={
-                      handleCountryChange
+                      handleCountryCodeChange
                     }
                     disabled={isSubmitting}
                     className="cursor-pointer border-r border-[#CBD5E1] bg-[#F8FAFC] px-3 py-3.5 text-sm font-medium text-[#0F172A] outline-none disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {countries.map(
-                      (country) => (
+                      (country: Country) => (
                         <option
                           key={country.code}
                           value={country.code}
@@ -379,14 +445,12 @@ function SignUp() {
                   </select>
 
                   <input
-                    id="phone"
+                    id="driver-phone"
                     type="tel"
                     inputMode="numeric"
                     autoComplete="tel"
                     value={phone}
-                    onChange={
-                      handlePhoneChange
-                    }
+                    onChange={handlePhoneChange}
                     onBlur={() =>
                       setPhoneError(
                         validatePhone(phone)
@@ -394,7 +458,8 @@ function SignUp() {
                     }
                     disabled={isSubmitting}
                     placeholder={t(
-                      "signUp.phonePlaceholder"
+                      "driverSignUp.phonePlaceholder",
+                      "Enter your phone number"
                     )}
                     className="min-w-0 flex-1 px-4 py-3.5 text-sm text-[#0F172A] outline-none placeholder:text-[#94A3B8] disabled:cursor-not-allowed disabled:bg-[#F8FAFC]"
                   />
@@ -416,6 +481,7 @@ function SignUp() {
                 }`}
               >
                 <label className="flex cursor-pointer items-start gap-3">
+
                   <input
                     type="checkbox"
                     checked={acceptedPolicy}
@@ -427,26 +493,37 @@ function SignUp() {
                   />
 
                   <span className="text-sm leading-6 text-[#64748B]">
-                    {t("signUp.agree")}{" "}
+                    {t(
+                      "driverSignUp.agree",
+                      "I agree to the"
+                    )}{" "}
 
                     <button
                       type="button"
                       className="font-semibold text-[#0EA5E9] hover:text-[#0284C7]"
                     >
-                      {t("signUp.terms")}
+                      {t(
+                        "driverSignUp.terms",
+                        "Terms of Service"
+                      )}
                     </button>{" "}
 
-                    {t("signUp.and")}{" "}
+                    {t(
+                      "driverSignUp.and",
+                      "and"
+                    )}{" "}
 
                     <button
                       type="button"
                       className="font-semibold text-[#0EA5E9] hover:text-[#0284C7]"
                     >
-                      {t("signUp.privacy")}
-                    </button>{" "}
-
-                    {t("signUp.agreeEnd")}
+                      {t(
+                        "driverSignUp.privacy",
+                        "Privacy Policy"
+                      )}
+                    </button>
                   </span>
+
                 </label>
 
                 {policyError && (
@@ -456,7 +533,7 @@ function SignUp() {
                 )}
               </div>
 
-              {/* Server / Network Error */}
+              {/* Server Error */}
               {submitError && (
                 <div
                   role="alert"
@@ -478,10 +555,17 @@ function SignUp() {
                       className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
                       aria-hidden="true"
                     />
-                    Creating account...
+
+                    {t(
+                      "driverSignUp.creatingAccount",
+                      "Creating account..."
+                    )}
                   </>
                 ) : (
-                  t("signUp.createAccount")
+                  t(
+                    "driverSignUp.createAccount",
+                    "Create Driver Account"
+                  )
                 )}
               </button>
             </form>
@@ -489,18 +573,26 @@ function SignUp() {
             {/* Login */}
             <div className="mt-7 border-t border-[#CBD5E1] pt-6 text-center">
               <p className="text-sm text-[#64748B]">
-                {t("signUp.alreadyAccount")}
+                {t(
+                  "driverSignUp.alreadyAccount",
+                  "Already have a driver account?"
+                )}
               </p>
 
               <button
                 type="button"
                 onClick={() =>
-                  navigate("/auth/sign-in")
+                  navigate(
+                    "/driver/auth/sign-in"
+                  )
                 }
                 disabled={isSubmitting}
                 className="mt-2 font-semibold text-[#0EA5E9] transition hover:text-[#0284C7] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {t("signUp.login")}
+                {t(
+                  "driverSignUp.login",
+                  "Driver Login"
+                )}
               </button>
             </div>
           </div>
@@ -515,12 +607,17 @@ function SignUp() {
             className="mt-6 flex w-full items-center justify-center gap-2 text-sm font-medium text-[#64748B] transition hover:text-[#0F172A] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span>←</span>
-            {t("signUp.backToWelcome")}
+
+            {t(
+              "driverSignUp.backToWelcome",
+              "Back to Welcome"
+            )}
           </button>
+
         </div>
       </div>
     </div>
   );
 }
 
-export default SignUp;
+export default DriverSignUp;

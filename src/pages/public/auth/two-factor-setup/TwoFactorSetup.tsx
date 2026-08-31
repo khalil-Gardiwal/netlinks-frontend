@@ -13,7 +13,7 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   enableTwoFactor,
   verifyTwoFactorSetup,
-} from "../../../api/auth";
+} from "../../../../api/auth";
 
 interface TwoFactorSetupResponse {
   enabled?: boolean;

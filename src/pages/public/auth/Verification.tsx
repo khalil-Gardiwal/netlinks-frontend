@@ -5,11 +5,11 @@ import {
 } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import Desgin from "../../components/Designbackground";
+import Desgin from "../../../components/global/Designbackground";
 import {
   verifyLogin,
   verifyRegistration,
-} from "../../api/auth";
+} from "../../../api/auth";
 
 // ============================================================
 // TYPES

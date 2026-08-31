@@ -4,8 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { isAxiosError } from "axios";
 
-import Desgin from "../../components/Designbackground";
-import { login } from "../../api/auth";
+import Desgin from "../../../../components/global/Designbackground";
+import { login } from "../../../../api/auth";
 
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;
@@ -74,6 +74,8 @@ function SignIn() {
       });
 
       console.log("Login response:", response);
+      // if(response.isVerified) navigate("/welcome")
+      
 
       navigate("/auth/verification", {
         state: {
@@ -125,6 +127,19 @@ function SignIn() {
       setIsSubmitting(false);
     }
   };
+
+  // const handleSubmit0 = (data: SignInType) => {
+    
+  //   try {
+  //     const response = SignIn(data)
+
+  //     setSession(response);
+
+  //     toast.success("Login successful.")
+  //   } catch (error) {
+  //     toast.error("login failed.")
+  //   }
+  // }
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F8FAFC] px-4 py-8">

@@ -10,7 +10,7 @@ import {
 } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { verifyTwoFactor } from "../../../api/auth";
+import { verifyTwoFactor } from "../../../../api/auth";
 
 interface LocationState {
   challengeToken?: string;

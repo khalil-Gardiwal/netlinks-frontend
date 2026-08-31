@@ -4,8 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 
-import Desgin from "../../../components/Designbackground";
-import { loginDriver } from "../../../api/driverapi";
+import Desgin from "../../../../../components/global/Designbackground";
+import { loginDriver } from "../../../../../api/driverapi";
 
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;

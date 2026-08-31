@@ -1,24 +1,31 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { getMe } from "../../../api/auth";
-import AttachmentModal from "../../../components/attachment/AttachmentModal";
+import { getMe } from "../../../../api/auth";
+import AttachmentModal from "../../../../components/attachment/AttachmentModal";
+
+type ProfileErrors = {
+  general?: string;
+  fullname?: string;
+  phone?: string;
+};
 
 function EditUserProfile() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [fullname, setFullname] = useState("");
-  const [phone, setPhone] = useState("");
+  const [fullname, setFullname] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
 
-  const [profileImage, setProfileImage] = useState(null);
-  const [showAttachmentModal, setShowAttachmentModal] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [showAttachmentModal, setShowAttachmentModal] =
+    useState<boolean>(false);
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
 
-  const [errors, setErrors] = useState({});
-  const [successMessage, setSuccessMessage] = useState("");
+  const [errors, setErrors] = useState<ProfileErrors>({});
+  const [successMessage, setSuccessMessage] = useState<string>("");
 
   useEffect(() => {
     const loadUser = async () => {
@@ -29,7 +36,7 @@ function EditUserProfile() {
 
         setFullname(response.data?.fullname || "");
         setPhone(response.data?.phone || "");
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("FAILED TO LOAD USER:", error);
 
         setErrors({
@@ -46,8 +53,8 @@ function EditUserProfile() {
     loadUser();
   }, [t]);
 
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): boolean => {
+    const newErrors: ProfileErrors = {};
 
     if (!fullname.trim()) {
       newErrors.fullname = t(
@@ -68,7 +75,9 @@ function EditUserProfile() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
 
     setSuccessMessage("");
@@ -93,7 +102,7 @@ function EditUserProfile() {
         profileImage,
       });
 
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         setTimeout(resolve, 700);
       });
 
@@ -103,7 +112,7 @@ function EditUserProfile() {
           "Your changes are ready to be saved."
         )
       );
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("PROFILE UPDATE FAILED:", error);
 
       setErrors({
@@ -117,7 +126,7 @@ function EditUserProfile() {
     }
   };
 
-  const handleAttachmentComplete = (file) => {
+  const handleAttachmentComplete = (file: File): void => {
     console.log("NEW PROFILE IMAGE:", file);
 
     const previewUrl = URL.createObjectURL(file);
@@ -216,9 +225,7 @@ function EditUserProfile() {
                         />
                       ) : (
                         <span className="text-3xl font-bold text-sky-600">
-                          {fullname
-                            ?.charAt(0)
-                            ?.toUpperCase() || "U"}
+                          {fullname?.charAt(0)?.toUpperCase() || "U"}
                         </span>
                       )}
                     </div>
@@ -248,11 +255,7 @@ function EditUserProfile() {
                           d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"
                         />
 
-                        <circle
-                          cx="12"
-                          cy="13"
-                          r="3.5"
-                        />
+                        <circle cx="12" cy="13" r="3.5" />
                       </svg>
                     </button>
                   </div>
@@ -382,9 +385,7 @@ function EditUserProfile() {
               <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-5 py-5 sm:flex-row sm:justify-end sm:px-8">
                 <button
                   type="button"
-                  onClick={() =>
-                    navigate("/user/profile")
-                  }
+                  onClick={() => navigate("/user/profile")}
                   disabled={saving}
                   className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -397,10 +398,7 @@ function EditUserProfile() {
                   className="rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-600 active:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {saving
-                    ? t(
-                        "profile.saving",
-                        "Saving..."
-                      )
+                    ? t("profile.saving", "Saving...")
                     : t(
                         "profile.saveChanges",
                         "Save Changes"
@@ -415,9 +413,7 @@ function EditUserProfile() {
       {/* Attachment Modal */}
       <AttachmentModal
         open={showAttachmentModal}
-        onClose={() =>
-          setShowAttachmentModal(false)
-        }
+        onClose={() => setShowAttachmentModal(false)}
         onComplete={handleAttachmentComplete}
       />
     </>

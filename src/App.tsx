@@ -4,35 +4,35 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 // USER AUTHENTICATION
 // ========================================
 
-import Welcome from "./pages/auth/Welcome";
-import SignUp from "./pages/auth/SignUp";
-import Verification from "./pages/auth/Verification";
-import AccountCreated from "./pages/auth/AccountCreated";
-import SignIn from "./pages/auth/SignIn";
+import Welcome from "./pages/public/auth/Welcome";
+import SignUp from "./pages/public/auth/SignUp/SignUp";
+import Verification from "./pages/public/auth/Verification";
+import AccountCreated from "./pages/public/auth/AccountCreated";
+import SignIn from "./pages/public/auth/SignIn/SignIn";
 
 // ========================================
 // USER 2FA
 // ========================================
 
-import TwoFactorSetup from "./pages/auth/two-factor-setup/TwoFactorSetup";
-import TwoFactorEnabled from "./pages/auth/two-factor-setup/TwoFactorEnabled";
-import TwoFactorVerification from "./pages/auth/two-factor-setup/TwoFactorVerification";
+import TwoFactorSetup from "./pages/public/auth/two-factor-setup/TwoFactorSetup";
+import TwoFactorEnabled from "./pages/public/auth/two-factor-setup/TwoFactorEnabled";
+import TwoFactorVerification from "./pages/public/auth/two-factor-setup/TwoFactorVerification";
 
 // ========================================
 // USER PROFILE
 // ========================================
 
-import UserProfile from "./pages/user/profile/UserProfile";
-import EditUserProfile from "./pages/user/profile/EditUserProfile";
+import UserProfile from "./pages/protected/user/profile/UserProfile";
+import EditUserProfile from "./pages/protected/user/profile/EditUserProfile";
 
 // ========================================
 // DRIVER AUTHENTICATION
 // ========================================
 
-import DriverSignUp from "./pages/driver/auth/DriverSignUp";
-import DriverVerification from "./pages/driver/auth/DriverVerification";
-import DriverAccountCreated from "./pages/driver/auth/DriverAccountCreated";
-import DriverSignIn from "./pages/driver/auth/DriverSignIn";
+import DriverSignUp from "./pages/public/driver/auth/DriverSignUp/DriverSignUp";
+import DriverVerification from "./pages/public/driver/auth/DriverVerification";
+import DriverAccountCreated from "./pages/public/driver/auth/DriverAccountCreated";
+import DriverSignIn from "./pages/public/driver/auth/DriverSignIn/DriverSignIn";
 
 function App() {
   return (
@@ -68,7 +68,6 @@ function App() {
           element={<SignIn />}
         />
 
-
         {/* ========================================
             USER 2FA
         ======================================== */}
@@ -88,7 +87,6 @@ function App() {
           element={<TwoFactorVerification />}
         />
 
-
         {/* ========================================
             USER PROFILE
         ======================================== */}
@@ -102,7 +100,6 @@ function App() {
           path="/user/profile/edit"
           element={<EditUserProfile />}
         />
-
 
         {/* ========================================
             DRIVER AUTHENTICATION
@@ -127,7 +124,6 @@ function App() {
           path="/driver/auth/sign-in"
           element={<DriverSignIn />}
         />
-
 
         {/* ========================================
             FALLBACK

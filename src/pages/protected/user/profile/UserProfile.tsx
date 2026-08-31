@@ -1,20 +1,27 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getMe } from "../../../api/auth";
-import AttachmentModal from "../../../components/attachment/AttachmentModal";
 import { useNavigate } from "react-router-dom";
+
+import { getMe } from "../../../../api/auth";
+import AttachmentModal from "../../../../components/attachment/AttachmentModal";
+
+type UserProfileData = {
+  fullname?: string;
+  phone?: string;
+};
 
 function UserProfile() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  const [user, setUser] = useState(null);
-  const [profileImage, setProfileImage] = useState(null);
+  const [user, setUser] = useState<UserProfileData | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const [showAttachmentModal, setShowAttachmentModal] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const navigate = useNavigate()
+
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -43,7 +50,7 @@ function UserProfile() {
     loadUser();
   }, [t]);
 
-  const handleAttachmentComplete = (file) => {
+  const handleAttachmentComplete = (file: File) => {
     console.log("Profile image:", file);
 
     const previewUrl = URL.createObjectURL(file);
@@ -53,7 +60,6 @@ function UserProfile() {
     }
 
     setProfileImage(previewUrl);
-
     setShowAttachmentModal(false);
   };
 
@@ -299,14 +305,13 @@ function UserProfile() {
                     </p>
                   </div>
 
-             <button
-  type="button"
-  onClick={() => navigate("/user/profile/edit")}
-  className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
->
-  {t("profile.editProfile", "Edit profile")}
-</button>
-
+                  <button
+                    type="button"
+                    onClick={() => navigate("/user/profile/edit")}
+                    className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                  >
+                    {t("profile.editProfile", "Edit profile")}
+                  </button>
                 </div>
               </div>
             </div>
