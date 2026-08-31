@@ -3,9 +3,9 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import LanguageSwitcher from "../../../../../components/global/LanguageSwitcher";
-import Desgin from "../../../../../components/global/Designbackground";
-import { registerDriver } from "../../../../../api/driverapi";
+import LanguageSwitcher from "@/components/language-switcher";
+import Desgin from "@/components/design-background";
+import { registerDriver } from "@/api/driver-api";
 
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;

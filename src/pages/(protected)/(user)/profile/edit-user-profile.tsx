@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { getMe } from "../../../../api/auth";
-import AttachmentModal from "../../../../components/attachment/AttachmentModal";
+import { getMe } from "@/api/auth";
+import AttachmentModal from "@/components/attachment/attachment-model";
 
 type ProfileErrors = {
   general?: string;

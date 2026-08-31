@@ -1,9 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-
-import Desgin from "../../../../components/global/Designbackground";
-
-function DriverAccountCreated() {
+import Desgin from "@/components/design-background";
+function AccountCreated(){
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -36,16 +34,11 @@ function DriverAccountCreated() {
           {/* Content */}
           <div className="text-center">
             <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">
-              {t("driverAccount.created", {
-                defaultValue: "Driver Account Created",
-              })}
+              {t("account.created")}
             </h1>
 
             <p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-[#64748B]">
-              {t("driverAccount.createdSuccessfully", {
-                defaultValue:
-                  "Your driver account has been created successfully.",
-              })}
+              {t("account.createdSuccessfully")}
             </p>
           </div>
 
@@ -53,32 +46,22 @@ function DriverAccountCreated() {
           <div className="mt-8 rounded-3xl border border-[#CBD5E1] bg-white p-6 shadow-sm sm:p-8">
             <button
               type="button"
-              onClick={() =>
-                navigate("/driver/auth/sign-in")
-              }
+              onClick={() => navigate("/auth/sign-in")}
               className="w-full rounded-xl bg-[#0EA5E9] px-6 py-4 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-[#0284C7] focus:outline-none focus:ring-4 focus:ring-[#BAE6FD]"
             >
-              {t("driverAccount.continueToSignIn", {
-                defaultValue:
-                  "Continue to Driver Sign In",
-              })}
+              {t("account.continueToSignIn")}
             </button>
           </div>
 
           {/* Back to Welcome */}
           <button
             type="button"
-            onClick={() =>
-              navigate("/auth/welcome")
-            }
+            onClick={() => navigate("/auth/welcome")}
             className="mt-6 flex w-full items-center justify-center gap-2 text-sm font-medium text-[#64748B] transition hover:text-[#0F172A]"
           >
             <span>←</span>
 
-            {t("driverAccount.backToWelcome", {
-              defaultValue:
-                "Back to Welcome",
-            })}
+            {t("account.backToWelcome")}
           </button>
         </div>
       </div>
@@ -86,4 +69,4 @@ function DriverAccountCreated() {
   );
 }
 
-export default DriverAccountCreated;
+export default AccountCreated;

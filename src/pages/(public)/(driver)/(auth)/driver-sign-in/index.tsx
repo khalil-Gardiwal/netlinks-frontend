@@ -2,31 +2,26 @@ import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { isAxiosError } from "axios";
+import axios from "axios";
 
-import Desgin from "../../../../components/global/Designbackground";
-import { login } from "../../../../api/auth";
+import Desgin from "@/components/design-background";
+import { loginDriver } from "@/api/driver-api";
 
 const AFGHAN_PHONE_REGEX =
   /^(70|71|72|73|74|75|76|77|78|79)\d{7}$/;
 
-function SignIn() {
+const DriverSignIn = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [phone, setPhone] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] =
-    useState<boolean>(false);
-
-  // -----------------------------
-  // Phone change
-  // -----------------------------
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const handlePhoneChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ): void => {
-    const value = event.target.value
+    e: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const value = e.target.value
       .replace(/\D/g, "")
       .slice(0, 9);
 
@@ -37,14 +32,10 @@ function SignIn() {
     }
   };
 
-  // -----------------------------
-  // Submit
-  // -----------------------------
-
   const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>
-  ): Promise<void> => {
-    event.preventDefault();
+    e: FormEvent<HTMLFormElement>,
+  ) => {
+    e.preventDefault();
 
     setError("");
 
@@ -52,13 +43,11 @@ function SignIn() {
       return;
     }
 
-    // Required validation
     if (!phone.trim()) {
       setError(t("errors.required"));
       return;
     }
 
-    // Phone format validation
     if (!AFGHAN_PHONE_REGEX.test(phone)) {
       setError(t("errors.invalidPhone"));
       return;
@@ -69,58 +58,71 @@ function SignIn() {
 
       const fullPhone = `+93${phone}`;
 
-      const response = await login({
+      console.log(
+        "Driver login phone:",
+        fullPhone,
+      );
+
+      // Send login OTP
+      const response = await loginDriver({
         phone: fullPhone,
       });
 
-      console.log("Login response:", response);
-      // if(response.isVerified) navigate("/welcome")
-      
+      console.log(
+        "Driver login response:",
+        response.data,
+      );
 
-      navigate("/auth/verification", {
+      navigate("/driver/auth/verification", {
         state: {
-          from: "sign-in",
           phone: fullPhone,
+          verificationType: "login",
         },
       });
     } catch (error: unknown) {
-      console.error("Login failed:", error);
+      console.error(
+        "Driver login failed:",
+        error,
+      );
 
-      if (!isAxiosError(error)) {
-        setError(
-          t("errors.somethingWentWrong")
+      if (axios.isAxiosError(error)) {
+        console.log(
+          "Status:",
+          error.response?.status,
         );
-        return;
-      }
 
-      // No response = request did not reach backend
-      if (!error.response) {
-        setError(
-          t("errors.networkError")
+        console.log(
+          "Data:",
+          error.response?.data,
         );
-        return;
-      }
 
-      // Backend/server error
-      if (error.response.status >= 500) {
-        setError(
-          t("errors.serverError")
-        );
-        return;
-      }
+        if (!error.response) {
+          setError(
+            t("errors.networkError"),
+          );
+          return;
+        }
 
-      // Backend client error
-      const backendMessage =
-        error.response.data?.message;
+        if (error.response.status >= 500) {
+          setError(
+            t("errors.serverError"),
+          );
+          return;
+        }
 
-      if (
-        typeof backendMessage === "string" &&
-        backendMessage
-      ) {
-        setError(backendMessage);
+        const backendMessage =
+          error.response.data?.message;
+
+        if (backendMessage) {
+          setError(backendMessage);
+        } else {
+          setError(
+            t("errors.somethingWentWrong"),
+          );
+        }
       } else {
         setError(
-          t("errors.somethingWentWrong")
+          t("errors.somethingWentWrong"),
         );
       }
     } finally {
@@ -128,34 +130,23 @@ function SignIn() {
     }
   };
 
-  // const handleSubmit0 = (data: SignInType) => {
-    
-  //   try {
-  //     const response = SignIn(data)
-
-  //     setSession(response);
-
-  //     toast.success("Login successful.")
-  //   } catch (error) {
-  //     toast.error("login failed.")
-  //   }
-  // }
-
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F8FAFC] px-4 py-8">
       <Desgin />
 
-      {/* =====================================
-          MAIN CONTENT
-      ====================================== */}
-
       <div className="relative z-10 w-full max-w-md">
-
-        {/* Card */}
         <div className="rounded-3xl border border-[#CBD5E1]/80 bg-white/95 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm sm:p-8">
 
           {/* Header */}
           <div className="mb-8 text-center">
+            <div className="mb-5 flex justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0EA5E9] shadow-md">
+                <span className="text-2xl font-bold text-white">
+                  AT
+                </span>
+              </div>
+            </div>
+
             <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">
               {t("signIn.title")}
             </h1>
@@ -169,7 +160,6 @@ function SignIn() {
             onSubmit={handleSubmit}
             className="space-y-6"
           >
-
             {/* Phone */}
             <div>
               <label
@@ -186,8 +176,6 @@ function SignIn() {
                     : "border-[#CBD5E1] focus-within:border-[#0EA5E9] focus-within:ring-4 focus-within:ring-[#E0F2FE]"
                 }`}
               >
-
-                {/* Afghanistan */}
                 <div className="flex items-center gap-2 border-r border-[#CBD5E1] bg-[#F8FAFC] px-3 text-sm font-medium text-[#0F172A] sm:px-4">
                   <span className="text-lg">
                     🇦🇫
@@ -198,7 +186,6 @@ function SignIn() {
                   </span>
                 </div>
 
-                {/* Phone Input */}
                 <input
                   id="phone"
                   type="tel"
@@ -212,7 +199,6 @@ function SignIn() {
                 />
               </div>
 
-              {/* Error */}
               {error && (
                 <div
                   role="alert"
@@ -241,7 +227,7 @@ function SignIn() {
                   Signing in...
                 </>
               ) : (
-                t("signIn.login")
+                "Login as Driver"
               )}
             </button>
           </form>
@@ -249,23 +235,22 @@ function SignIn() {
           {/* Sign Up */}
           <div className="mt-8 border-t border-[#CBD5E1] pt-6 text-center text-sm text-[#64748B]">
             <span>
-              {t("signIn.noAccount")}
+              Don't have a driver account?
             </span>
 
             <Link
-              to="/auth/signup"
+              to="/driver/auth/signup"
               className="ml-1 font-semibold text-[#0EA5E9] transition-colors hover:text-[#0284C7]"
             >
-              {t("signIn.signUp")}
+              Sign up as Driver
             </Link>
           </div>
         </div>
 
-        {/* Bottom colorful accent */}
         <div className="mx-auto mt-6 h-1 w-24 rounded-full bg-linear-to-r from-[#0EA5E9] via-[#20B8C5] to-[#818CF8] opacity-70" />
       </div>
     </div>
   );
-}
+};
 
-export default SignIn;
+export default DriverSignIn;

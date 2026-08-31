@@ -11,13 +11,13 @@ import {
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 
-import Desgin from "../../../../components/global/Designbackground";
+import Desgin from "@/components/design-background";
 
 
 import {
   verifyDriverLogin,
   verifyDriverRegistration,
-} from "../../../../api/driverapi";
+} from "@/api/driver-api";
 
 type VerificationType =
   | "login"

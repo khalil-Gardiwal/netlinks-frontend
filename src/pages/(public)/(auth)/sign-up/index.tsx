@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { isAxiosError } from "axios";
 
 
-import Desgin from "../../../../components/global/Designbackground";
+import Desgin from "@/components/design-background";
 import { register } from "../../../../api/auth";
 
 const AFGHAN_PHONE_REGEX =
